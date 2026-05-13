@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<title>QR 대여 관리</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{height:100%;background:#f2f2f2}
+body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;color:#111;background:#f2f2f2;overscroll-behavior:none}
+#wrap{display:flex;flex-direction:column;height:100dvh;max-width:520px;margin:0 auto;background:#f2f2f2}
+#main{flex:1;overflow-y:auto;padding:16px;-webkit-overflow-scrolling:touch}
+/* NAV */
+nav{display:flex;background:#fff;border-top:1px solid #ddd;padding-bottom:env(safe-area-inset-bottom,0)}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 4px 8px;border:none;background:none;color:#999;font-size:11px;cursor:pointer;font-family:inherit}
+.nb svg{width:24px;height:24px}
+.nb.on{color:#111;font-weight:600}
+/* PAGE */
+.pg{display:none}.pg.on{display:block}
+/* CARD */
+.card{background:#fff;border-radius:16px;padding:16px;margin-bottom:12px}
+/* STATS */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.sbox{background:#fff;border-radius:14px;padding:14px;text-align:center}
+.snum{font-size:30px;font-weight:700;letter-spacing:-1.5px;color:#111}
+.slbl{font-size:12px;color:#999;margin-top:2px}
+/* SEC */
+.sec{font-size:11px;font-weight:600;color:#999;letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px}
+/* BADGE */
+.bdg{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.ok{background:#e8f5e9;color:#2e7d32}
+.out{background:#fff3e0;color:#e65100}
+.err{background:#fce4ec;color:#c62828}
+/* BTN */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 18px;height:50px;border-radius:12px;border:1.5px solid #ddd;background:#fff;color:#111;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;white-space:nowrap;-webkit-appearance:none}
+.btn:active{opacity:.6}
+.btnp{background:#111;color:#fff;border-color:#111}
+.btnf{width:100%}
+.btng{background:#e8f5e9;color:#2e7d32;border-color:transparent}
+.btnr{background:#fce4ec;color:#c62828;border-color:transparent}
+.btnsm{height:40px;font-size:13px;padding:0 14px;border-radius:10px}
+/* INPUT */
+.inp{width:100%;height:50px;padding:0 14px;border:1.5px solid #ddd;border-radius:12px;font-size:15px;color:#111;background:#fff;font-family:inherit;-webkit-appearance:none;appearance:none}
+.inp:focus{outline:none;border-color:#111}
+select.inp{cursor:pointer}
+.fld{margin-bottom:14px}
+.fld label{display:block;font-size:12px;font-weight:600;color:#888;margin-bottom:6px}
+hr{border:none;border-top:1px solid #eee;margin:12px 0}
+/* ROW */
+.ritem{padding:11px 0;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:10px}
+.ritem:last-child{border-bottom:none}
+/* SCAN */
+.scanbox{position:relative;background:#000;border-radius:16px;overflow:hidden;min-height:240px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.scan-idle{display:flex;flex-direction:column;align-items:center;gap:12px;color:#fff;font-size:14px;text-align:center;padding:20px}
+#svid{width:100%;display:block;object-fit:cover}
+#scvs{display:none;position:absolute;top:0;left:0;width:100%;height:100%}
+.sline{position:absolute;left:12%;right:12%;height:2px;background:rgba(255,214,0,.85);border-radius:2px;animation:sl 2s ease-in-out infinite;pointer-events:none;display:none}
+@keyframes sl{0%,100%{top:18%}50%{top:78%}}
+.scorn{position:absolute;width:22px;height:22px;border-color:rgba(255,214,0,.9);border-style:solid;border-width:0;display:none}
+.c1{top:10%;left:10%;border-top-width:3px;border-left-width:3px;border-radius:5px 0 0 0}
+.c2{top:10%;right:10%;border-top-width:3px;border-right-width:3px;border-radius:0 5px 0 0}
+.c3{bottom:10%;left:10%;border-bottom-width:3px;border-left-width:3px;border-radius:0 0 0 5px}
+.c4{bottom:10%;right:10%;border-bottom-width:3px;border-right-width:3px;border-radius:0 0 5px 0}
+/* MSG */
+.msg{padding:13px 16px;border-radius:12px;font-size:14px;text-align:center;margin-top:10px;line-height:1.4}
+.mok{background:#e8f5e9;color:#2e7d32}
+.mwarn{background:#fff8e1;color:#f57f17}
+.merr{background:#fce4ec;color:#c62828}
+/* CONFIRM */
+.cfbox{background:#f8f8f8;border-radius:14px;padding:18px;margin-top:12px}
+.cfname{font-size:19px;font-weight:700;margin-bottom:4px}
+.cfmeta{font-size:13px;color:#888;margin-bottom:16px;line-height:1.6}
+/* OVERLAY */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;overflow-y:auto;padding:20px 16px 60px;-webkit-overflow-scrolling:touch}
+.ov.on{display:block}
+.modal{background:#fff;border-radius:20px;padding:22px;max-width:480px;margin:0 auto}
+.mh{font-size:18px;font-weight:700;margin-bottom:18px}
+/* PAGER */
+.pgr{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px;font-size:13px;color:#888}
+/* PROD CARD */
+.pc{background:#fff;border-radius:14px;padding:14px;margin-bottom:10px}
+.pcn{font-size:16px;font-weight:600;margin-bottom:3px}
+.pcs{font-size:12px;color:#999;margin-bottom:10px;font-family:monospace}
+.pcb{display:flex;gap:7px;flex-wrap:wrap}
+.pcb .btn{flex:1;min-width:68px}
+.empty{text-align:center;padding:40px 16px;color:#bbb;font-size:14px;line-height:1.8}
+.sbar{display:flex;gap:8px;margin-bottom:12px}
+/* ID SCAN */
+.idsbox{position:relative;background:#000;border-radius:12px;overflow:hidden;min-height:150px;display:flex;align-items:center;justify-content:center;margin-top:10px;display:none}
+#idvid{width:100%;display:block;max-height:160px;object-fit:cover}
+#idcvs{display:none}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="main">
+
+    <!-- 대시보드 -->
+    <div class="pg on" id="pg-dash">
+      <div class="sgrid">
+        <div class="sbox"><div class="snum" id="d-tot">0</div><div class="slbl">전체 제품</div></div>
+        <div class="sbox"><div class="snum" id="d-rnt">0</div><div class="slbl">대여 중</div></div>
+        <div class="sbox"><div class="snum" id="d-avl">0</div><div class="slbl">보관 중</div></div>
+        <div class="sbox"><div class="snum" id="d-cnt">0</div><div class="slbl">총 대여 횟수</div></div>
+      </div>
+      <div class="card">
+        <div class="sec">많이 대여된 제품 TOP 5</div>
+        <div id="d-top"><div class="empty" style="padding:10px">없음</div></div>
+      </div>
+      <div class="card">
+        <div class="sec">최근 활동</div>
+        <div id="d-rec"><div class="empty" style="padding:10px">없음</div></div>
+      </div>
+    </div>
+
+    <!-- QR 스캔 -->
+    <div class="pg" id="pg-scan">
+      <div class="card">
+        <div class="sec">QR 스캔</div>
+        <div class="scanbox" id="scanbox">
+          <div class="scan-idle" id="sidle">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.4"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM17 17h3v3h-3zM14 20h3"/></svg>
+            <span>카메라 시작 버튼을 눌러주세요</span>
+          </div>
+          <video id="svid" autoplay playsinline muted style="display:none"></video>
+          <canvas id="scvs"></canvas>
+          <div class="sline" id="sline"></div>
+          <div class="scorn c1" id="c1"></div>
+          <div class="scorn c2" id="c2"></div>
+          <div class="scorn c3" id="c3"></div>
+          <div class="scorn c4" id="c4"></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btnp btnf" id="btn-start" onclick="startScan()">카메라 시작</button>
+          <button class="btn btnf" id="btn-stop" style="display:none" onclick="stopScan()">중지</button>
+        </div>
+        <div id="sc-cf"></div>
+        <div id="sc-msg"></div>
+      </div>
+      <div class="card">
+        <div class="sec">수동 입력</div>
+        <div class="fld">
+          <input class="inp" id="mid" placeholder="제품 ID 직접 입력..."/>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btnp" style="flex:1" onclick="manualDo('rent')">대여 확인</button>
+          <button class="btn" style="flex:1" onclick="manualDo('return')">반납 확인</button>
+        </div>
+        <div id="m-cf"></div>
+        <div id="m-msg"></div>
+      </div>
+    </div>
+
+    <!-- 제품 관리 -->
+    <div class="pg" id="pg-prod">
+      <div class="sbar">
+        <input class="inp" id="sq" placeholder="이름 또는 ID 검색..." oninput="renderProds()"/>
+        <select class="inp" id="sst" onchange="renderProds()" style="width:100px;flex:none">
+          <option value="">전체</option>
+          <option value="avail">보관중</option>
+          <option value="rented">대여중</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <select class="inp" id="scat" onchange="renderProds()" style="flex:1"><option value="">전체 카테고리</option></select>
+        <button class="btn btnp" onclick="openAdd()">+ 추가</button>
+      </div>
+      <div id="plist"></div>
+      <div class="pgr" id="ppgr"></div>
+    </div>
+
+    <!-- 기록 -->
+    <div class="pg" id="pg-log">
+      <div class="sbar">
+        <input class="inp" id="lq" placeholder="제품명 검색..." oninput="renderLogs()"/>
+        <select class="inp" id="lft" onchange="renderLogs()" style="width:80px;flex:none">
+          <option value="">전체</option>
+          <option value="rent">대여</option>
+          <option value="return">반납</option>
+        </select>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+        <button class="btn btnsm" onclick="exportCSV()">CSV 내보내기</button>
+      </div>
+      <div id="llist"></div>
+      <div class="pgr" id="lpgr"></div>
+    </div>
+
+  </div><!-- /main -->
+
+  <nav>
+    <button class="nb on" id="nb-dash" onclick="goPage('dash')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      대시보드
+    </button>
+    <button class="nb" id="nb-scan" onclick="goPage('scan')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M17 20h3v-3M20 17h-3"/></svg>
+      QR 스캔
+    </button>
+    <button class="nb" id="nb-prod" onclick="goPage('prod')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a1 1 0 00-1 1v11a1 1 0 001 1h16a1 1 0 001-1V8a1 1 0 00-1-1z"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+      제품
+    </button>
+    <button class="nb" id="nb-log" onclick="goPage('log')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
+      기록
+    </button>
+  </nav>
+</div>
+
+<!-- 제품 추가 모달 -->
+<div class="ov" id="ov-add">
+<div class="modal">
+  <div class="mh" id="add-ttl">제품 추가</div>
+  <div class="fld">
+    <label>제품 이름 *</label>
+    <input class="inp" id="fn" placeholder="예: 캠핑 텐트 A형"/>
+  </div>
+  <div class="fld">
+    <label>제품 ID * &nbsp;<small style="font-weight:400;color:#aaa">QR 스캔으로 자동 입력 가능</small></label>
+    <div style="display:flex;gap:8px">
+      <input class="inp" id="fi" placeholder="예: TENT-001" style="flex:1;font-family:monospace"/>
+      <button class="btn" id="iqbtn" onclick="toggleIdScan()" style="padding:0 14px;flex:none">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M17 20h3v-3M20 17h-3"/></svg>
+      </button>
+    </div>
+    <div class="idsbox" id="idsbox">
+      <video id="idvid" autoplay playsinline muted></video>
+      <canvas id="idcvs"></canvas>
+    </div>
+    <div id="id-msg"></div>
+  </div>
+  <div class="fld">
+    <label>카테고리</label>
+    <input class="inp" id="fc" placeholder="예: 캠핑장비" list="cdl"/>
+    <datalist id="cdl"></datalist>
+  </div>
+  <div class="fld">
+    <label>메모</label>
+    <input class="inp" id="fo" placeholder="선택사항"/>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:4px">
+    <button class="btn btnf" onclick="closeOv('ov-add')">취소</button>
+    <button class="btn btnp btnf" onclick="saveProd()">저장</button>
+  </div>
+</div>
+</div>
+
+<!-- 상세 모달 -->
+<div class="ov" id="ov-det">
+<div class="modal">
+  <div class="mh" id="det-ttl"></div>
+  <div id="det-body"></div>
+  <button class="btn btnf" onclick="closeOv('ov-det')" style="margin-top:14px">닫기</button>
+</div>
+</div>
+
+<!-- QR 모달 -->
+<div class="ov" id="ov-qr">
+<div class="modal" style="text-align:center">
+  <div class="mh" id="qr-ttl" style="text-align:left"></div>
+  <div id="qrwrap" style="margin:16px 0;display:flex;justify-content:center"></div>
+  <p id="qr-sub" style="font-size:13px;color:#999;margin-bottom:16px"></p>
+  <div style="display:flex;gap:8px;justify-content:center">
+    <button class="btn btnp" onclick="dlQR()">저장</button>
+    <button class="btn" onclick="closeOv('ov-qr')">닫기</button>
+  </div>
+</div>
+</div>
+
+<!-- jsQR CDN -->
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<!-- qrcodejs CDN -->
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.js"></script>
+
+<script>
+// ── 데이터 ──
+var PK='rq5p', LK='rq5l';
+var prods=[], logs=[], editId=null;
+var scanStr=null, scanRaf=null, idStr=null, idRaf=null;
+var qrCvs=null, qrPid=null;
+var pp=1, lp=1, PER=10;
+
+function load(){
+  try{ prods=JSON.parse(localStorage.getItem(PK)||'[]'); }catch(e){ prods=[]; }
+  try{ logs=JSON.parse(localStorage.getItem(LK)||'[]'); }catch(e){ logs=[]; }
+}
+function save(){
+  localStorage.setItem(PK, JSON.stringify(prods));
+  localStorage.setItem(LK, JSON.stringify(logs));
+}
+load();
+
+// ── 페이지 전환 ──
+function goPage(id){
+  document.querySelectorAll('.pg').forEach(function(el){ el.classList.remove('on'); });
+  document.querySelectorAll('.nb').forEach(function(el){ el.classList.remove('on'); });
+  document.getElementById('pg-'+id).classList.add('on');
+  document.getElementById('nb-'+id).classList.add('on');
+  stopScan(); stopIdScan();
+  if(id==='dash') renderDash();
+  if(id==='prod'){ pp=1; renderProds(); }
+  if(id==='log'){ lp=1; renderLogs(); }
+  document.getElementById('main').scrollTop=0;
+}
+
+// ── 유틸 ──
+function pad(n){ return String(n).padStart(2,'0'); }
+function fmt(iso){
+  var d=new Date(iso);
+  return d.getFullYear()+'.'+pad(d.getMonth()+1)+'.'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+}
+function showMsg(eid, txt, t, dur){
+  dur = dur||5000;
+  var el=document.getElementById(eid); if(!el) return;
+  el.innerHTML='<div class="msg m'+t+'">'+txt+'</div>';
+  setTimeout(function(){ if(el) el.innerHTML=''; }, dur);
+}
+function openOv(id){ document.getElementById(id).classList.add('on'); }
+function closeOv(id){
+  document.getElementById(id).classList.remove('on');
+  if(id==='ov-add') stopIdScan();
+}
+
+// ── 대시보드 ──
+function renderDash(){
+  var rented=prods.filter(function(p){ return p.rented; }).length;
+  document.getElementById('d-tot').textContent=prods.length;
+  document.getElementById('d-rnt').textContent=rented;
+  document.getElementById('d-avl').textContent=prods.length-rented;
+  document.getElementById('d-cnt').textContent=logs.filter(function(l){ return l.type==='rent'; }).length;
+
+  var top=[].concat(prods).sort(function(a,b){ return b.count-a.count; }).slice(0,5);
+  document.getElementById('d-top').innerHTML = top.length
+    ? top.map(function(p,i){ return '<div class="ritem"><span style="color:#bbb;font-size:13px;min-width:18px">'+(i+1)+'</span><span style="flex:1;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+p.name+'</span><strong style="font-size:14px">'+p.count+'회</strong></div>'; }).join('')
+    : '<div class="empty" style="padding:10px">없음</div>';
+
+  var rec=[].concat(logs).reverse().slice(0,7);
+  document.getElementById('d-rec').innerHTML = rec.length
+    ? rec.map(function(l){ return '<div class="ritem"><span class="bdg '+(l.type==='rent'?'out':'ok')+'">'+(l.type==='rent'?'대여':'반납')+'</span><span style="flex:1;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0 8px">'+l.name+'</span><span style="font-size:11px;color:#bbb;white-space:nowrap">'+fmt(l.date)+'</span></div>'; }).join('')
+    : '<div class="empty" style="padding:10px">없음</div>';
+}
+
+// ── jsQR 스캔 공통 ──
+function runScan(video, canvas, onFound){
+  if(!video.srcObject) return;
+  if(video.readyState < video.HAVE_ENOUGH_DATA){
+    return void(scanRaf=requestAnimationFrame(function(){ runScan(video,canvas,onFound); }));
+  }
+  var w=video.videoWidth, h=video.videoHeight;
+  if(!w||!h) return void(scanRaf=requestAnimationFrame(function(){ runScan(video,canvas,onFound); }));
+  canvas.width=w; canvas.height=h;
+  canvas.getContext('2d').drawImage(video,0,0,w,h);
+  var img=canvas.getContext('2d').getImageData(0,0,w,h);
+  var code=jsQR(img.data,w,h,{inversionAttempts:'dontInvert'});
+  if(code){ onFound(code.data); return; }
+  scanRaf=requestAnimationFrame(function(){ runScan(video,canvas,onFound); });
+}
+
+// ── 메인 스캔 ──
+function startScan(){
+  var video=document.getElementById('svid');
+  var canvas=document.getElementById('scvs');
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    showMsg('sc-msg','이 브라우저는 카메라를 지원하지 않습니다.','err'); return;
+  }
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}})
+  .then(function(stream){
+    scanStr=stream;
+    video.srcObject=stream;
+    video.style.display='block';
+    document.getElementById('sidle').style.display='none';
+    ['sline','c1','c2','c3','c4'].forEach(function(id){ document.getElementById(id).style.display='block'; });
+    document.getElementById('btn-start').style.display='none';
+    document.getElementById('btn-stop').style.display='block';
+    document.getElementById('sc-cf').innerHTML='';
+    document.getElementById('sc-msg').innerHTML='';
+    var found=false;
+    function tick(){
+      if(found||!scanStr) return;
+      if(video.readyState < video.HAVE_ENOUGH_DATA){ scanRaf=requestAnimationFrame(tick); return; }
+      var w=video.videoWidth, h=video.videoHeight;
+      if(!w||!h){ scanRaf=requestAnimationFrame(tick); return; }
+      canvas.width=w; canvas.height=h;
+      canvas.getContext('2d').drawImage(video,0,0,w,h);
+      var img=canvas.getContext('2d').getImageData(0,0,w,h);
+      var code=jsQR(img.data,w,h,{inversionAttempts:'dontInvert'});
+      if(code){ found=true; handleScan(code.data); return; }
+      scanRaf=requestAnimationFrame(tick);
+    }
+    video.addEventListener('loadeddata', function(){ scanRaf=requestAnimationFrame(tick); }, {once:true});
+    scanRaf=requestAnimationFrame(tick);
+  })
+  .catch(function(){
+    showMsg('sc-msg','카메라 권한이 필요합니다. 브라우저 주소창 왼쪽 자물쇠 아이콘을 눌러 허용해 주세요.','err',8000);
+  });
+}
+
+function stopScan(){
+  if(scanStr){ scanStr.getTracks().forEach(function(t){ t.stop(); }); scanStr=null; }
+  cancelAnimationFrame(scanRaf);
+  var video=document.getElementById('svid');
+  if(video){ video.style.display='none'; video.srcObject=null; }
+  document.getElementById('sidle').style.display='flex';
+  ['sline','c1','c2','c3','c4'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.display='none'; });
+  var bs=document.getElementById('btn-start'); if(bs) bs.style.display='block';
+  var be=document.getElementById('btn-stop'); if(be) be.style.display='none';
+}
+
+function handleScan(raw){
+  if(!raw.startsWith('RENTAL:')) return;
+  var id=raw.replace('RENTAL:','');
+  stopScan();
+  var p=prods.find(function(x){ return x.id===id; });
+  if(!p){ showMsg('sc-msg','등록되지 않은 제품입니다: '+id,'err'); return; }
+  buildConfirm(p, p.rented?'return':'rent', 'sc-cf', 'sc-msg');
+}
+
+// ── 대여/반납 확인창 ──
+function buildConfirm(p, action, cfId, msgId){
+  var cfEl=document.getElementById(cfId);
+  cfEl.innerHTML='<div class="cfbox">'
+    +'<div class="cfname">'+p.name+'</div>'
+    +'<div class="cfmeta">ID: '+p.id+'<br>현재: <span class="bdg '+(p.rented?'out':'ok')+'">'+(p.rented?'대여중':'보관중')+'</span><br>지금까지 대여 <strong>'+p.count+'회</strong></div>'
+    +'<button class="btn '+(action==='rent'?'btnp':'btng')+' btnf" onclick="doConfirm(\''+p.id+'\',\''+cfId+'\',\''+msgId+'\')">'+(action==='rent'?'대여 시작':'반납 처리')+'</button>'
+    +'<button class="btn btnf" onclick="document.getElementById(\''+cfId+'\').innerHTML=\'\'" style="margin-top:8px">취소</button>'
+    +'</div>';
+}
+
+function doConfirm(id, cfId, msgId){
+  var p=prods.find(function(x){ return x.id===id; });
+  if(!p) return;
+  var type=p.rented?'return':'rent';
+  p.rented=!p.rented;
+  if(type==='rent') p.count++;
+  logs.push({productId:id, name:p.name, type:type, date:new Date().toISOString()});
+  save();
+  document.getElementById(cfId).innerHTML='';
+  showMsg(msgId, (type==='rent'?'✓ 대여 완료: ':'✓ 반납 완료: ')+p.name+(type==='rent'?' (총 '+p.count+'회)':''), 'ok');
+}
+
+function manualDo(action){
+  var id=document.getElementById('mid').value.trim();
+  if(!id){ showMsg('m-msg','ID를 입력해 주세요.','warn'); return; }
+  var p=prods.find(function(x){ return x.id===id; });
+  if(!p){ showMsg('m-msg','등록되지 않은 제품 ID입니다.','err'); return; }
+  if(action==='rent'&&p.rented){ showMsg('m-msg','이미 대여 중인 제품입니다.','warn'); return; }
+  if(action==='return'&&!p.rented){ showMsg('m-msg','현재 대여 중이 아닙니다.','warn'); return; }
+  document.getElementById('m-msg').innerHTML='';
+  buildConfirm(p, action, 'm-cf', 'm-msg');
+}
+
+// ── ID 스캔 (제품 추가 모달) ──
+var idScanOn=false;
+function toggleIdScan(){
+  idScanOn ? stopIdScan() : startIdScan();
+}
+function startIdScan(){
+  var box=document.getElementById('idsbox');
+  var video=document.getElementById('idvid');
+  var canvas=document.getElementById('idcvs');
+  var msgEl=document.getElementById('id-msg');
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}})
+  .then(function(stream){
+    idStr=stream;
+    video.srcObject=stream;
+    box.style.display='flex';
+    idScanOn=true;
+    document.getElementById('iqbtn').style.background='#fce4ec';
+    msgEl.innerHTML='<div style="font-size:13px;color:#999;margin-top:6px;text-align:center">QR을 카메라에 비춰주세요</div>';
+    var found=false;
+    function tick(){
+      if(found||!idStr) return;
+      if(video.readyState < video.HAVE_ENOUGH_DATA){ idRaf=requestAnimationFrame(tick); return; }
+      var w=video.videoWidth, h=video.videoHeight;
+      if(!w||!h){ idRaf=requestAnimationFrame(tick); return; }
+      canvas.width=w; canvas.height=h;
+      canvas.getContext('2d').drawImage(video,0,0,w,h);
+      var img=canvas.getContext('2d').getImageData(0,0,w,h);
+      var code=jsQR(img.data,w,h,{inversionAttempts:'dontInvert'});
+      if(code){
+        found=true;
+        var raw=code.data;
+        var id=raw.startsWith('RENTAL:') ? raw.replace('RENTAL:','') : raw;
+        document.getElementById('fi').value=id;
+        stopIdScan();
+        msgEl.innerHTML='<div class="msg mok">ID 입력 완료: <strong>'+id+'</strong></div>';
+        return;
+      }
+      idRaf=requestAnimationFrame(tick);
+    }
+    video.addEventListener('loadeddata', function(){ idRaf=requestAnimationFrame(tick); }, {once:true});
+    idRaf=requestAnimationFrame(tick);
+  })
+  .catch(function(){
+    msgEl.innerHTML='<div class="msg merr">카메라 권한이 필요합니다.</div>';
+  });
+}
+function stopIdScan(){
+  if(idStr){ idStr.getTracks().forEach(function(t){ t.stop(); }); idStr=null; }
+  cancelAnimationFrame(idRaf); idScanOn=false;
+  var box=document.getElementById('idsbox');
+  var video=document.getElementById('idvid');
+  if(box) box.style.display='none';
+  if(video) video.srcObject=null;
+  var btn=document.getElementById('iqbtn');
+  if(btn) btn.style.background='';
+}
+
+// ── 제품 ──
+function getCats(){ return [].concat([...new Set(prods.map(function(p){ return p.cat; }).filter(Boolean))]).sort(); }
+
+function filtProds(){
+  var q=(document.getElementById('sq')||{value:''}).value.toLowerCase();
+  var cat=(document.getElementById('scat')||{value:''}).value;
+  var st=(document.getElementById('sst')||{value:''}).value;
+  return prods.filter(function(p){
+    if(q && p.name.toLowerCase().indexOf(q)<0 && p.id.toLowerCase().indexOf(q)<0) return false;
+    if(cat && p.cat!==cat) return false;
+    if(st==='avail' && p.rented) return false;
+    if(st==='rented' && !p.rented) return false;
+    return true;
+  });
+}
+
+function renderProds(){
+  var cats=getCats();
+  var sel=document.getElementById('scat');
+  var cv=sel.value;
+  sel.innerHTML='<option value="">전체 카테고리</option>'+cats.map(function(c){ return '<option value="'+c+'"'+(c===cv?' selected':'')+'>'+c+'</option>'; }).join('');
+  var dl=document.getElementById('cdl');
+  if(dl) dl.innerHTML=cats.map(function(c){ return '<option value="'+c+'">'; }).join('');
+
+  var list=filtProds();
+  var pages=Math.max(1,Math.ceil(list.length/PER));
+  if(pp>pages) pp=pages;
+  var slice=list.slice((pp-1)*PER, pp*PER);
+  var el=document.getElementById('plist');
+
+  if(!slice.length){
+    el.innerHTML='<div class="empty">제품이 없습니다.<br>+ 추가 버튼으로 등록해 주세요.</div>';
+    document.getElementById('ppgr').innerHTML=''; return;
+  }
+  el.innerHTML=slice.map(function(p){ return '<div class="pc">'
+    +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">'
+    +'<div><div class="pcn">'+p.name+'</div>'
+    +'<div class="pcs">'+p.id+(p.cat?' · '+p.cat:'')+' · 대여 '+p.count+'회</div></div>'
+    +'<span class="bdg '+(p.rented?'out':'ok')+'">'+(p.rented?'대여중':'보관중')+'</span></div>'
+    +'<div class="pcb">'
+    +'<button class="btn btnsm" onclick=\'openDet("'+p.id+'")\'>상세</button>'
+    +'<button class="btn btnsm" onclick=\'showQR("'+p.id+'")\'>QR</button>'
+    +'<button class="btn btnsm btnp" onclick=\'quickRent("'+p.id+'")\''+'>'+(p.rented?'반납':'대여')+'</button>'
+    +'</div></div>';
+  }).join('');
+
+  var pg=document.getElementById('ppgr');
+  if(pages<=1){ pg.innerHTML=''; return; }
+  pg.innerHTML='<button class="btn btnsm" onclick="pp=Math.max(1,pp-1);renderProds()" '+(pp===1?'disabled':'')+'>이전</button>'
+    +'<span>'+pp+' / '+pages+'</span>'
+    +'<button class="btn btnsm" onclick="pp=Math.min('+pages+',pp+1);renderProds()" '+(pp===pages?'disabled':'')+'>다음</button>';
+}
+
+function quickRent(id){
+  var p=prods.find(function(x){ return x.id===id; }); if(!p) return;
+  var type=p.rented?'return':'rent';
+  p.rented=!p.rented;
+  if(type==='rent') p.count++;
+  logs.push({productId:id, name:p.name, type:type, date:new Date().toISOString()});
+  save(); renderProds();
+}
+
+function openAdd(id){
+  editId=id||null;
+  var p=id?prods.find(function(x){ return x.id===id; }):null;
+  document.getElementById('add-ttl').textContent=p?'제품 수정':'제품 추가';
+  document.getElementById('fn').value=p?p.name:'';
+  document.getElementById('fi').value=p?p.id:'';
+  document.getElementById('fi').disabled=!!p;
+  document.getElementById('fc').value=p?p.cat||'':'';
+  document.getElementById('fo').value=p?p.note||'':'';
+  document.getElementById('idsbox').style.display='none';
+  document.getElementById('id-msg').innerHTML='';
+  openOv('ov-add');
+}
+
+function saveProd(){
+  var name=document.getElementById('fn').value.trim();
+  var id=document.getElementById('fi').value.trim();
+  var cat=document.getElementById('fc').value.trim();
+  var note=document.getElementById('fo').value.trim();
+  if(!name||!id){ alert('이름과 ID는 필수입니다.'); return; }
+  if(!editId && prods.find(function(p){ return p.id===id; })){ alert('이미 사용 중인 ID입니다.'); return; }
+  stopIdScan();
+  if(editId){
+    var p=prods.find(function(x){ return x.id===editId; });
+    if(p){ p.name=name; p.cat=cat; p.note=note; }
+  } else {
+    prods.push({id:id, name:name, cat:cat, note:note, count:0, rented:false});
+  }
+  save(); closeOv('ov-add'); renderProds();
+}
+
+function openDet(id){
+  var p=prods.find(function(x){ return x.id===id; }); if(!p) return;
+  document.getElementById('det-ttl').textContent=p.name;
+  var pLogs=[].concat(logs).filter(function(l){ return l.productId===id; }).reverse().slice(0,10);
+  document.getElementById('det-body').innerHTML=
+    '<div class="sgrid" style="margin-bottom:14px">'
+    +'<div class="sbox"><div class="snum">'+p.count+'</div><div class="slbl">총 대여 횟수</div></div>'
+    +'<div class="sbox" style="display:flex;align-items:center;justify-content:center"><span class="bdg '+(p.rented?'out':'ok')+'" style="font-size:15px;padding:6px 14px">'+(p.rented?'대여중':'보관중')+'</span></div>'
+    +'</div>'
+    +'<p style="font-size:13px;color:#999;margin-bottom:4px">ID: <span style="font-family:monospace">'+p.id+'</span>'+(p.cat?' &nbsp;|&nbsp; '+p.cat:'')+'</p>'
+    +(p.note?'<p style="font-size:13px;color:#999;margin-bottom:12px">메모: '+p.note+'</p>':'')
+    +'<hr/><div class="sec" style="margin-top:12px">대여 기록</div>'
+    +(pLogs.length
+      ? pLogs.map(function(l){ return '<div class="ritem"><span class="bdg '+(l.type==='rent'?'out':'ok')+'">'+(l.type==='rent'?'대여':'반납')+'</span><span style="flex:1;font-size:12px;color:#bbb;text-align:right">'+fmt(l.date)+'</span></div>'; }).join('')
+      : '<p style="font-size:13px;color:#bbb">기록 없음</p>')
+    +'<div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">'
+    +'<button class="btn btnsm" style="flex:1" onclick=\'openAdd("'+p.id+'");closeOv("ov-det")\'>수정</button>'
+    +'<button class="btn btnsm" style="flex:1" onclick=\'showQR("'+p.id+'")\'>QR 생성</button>'
+    +'<button class="btn btnsm btnp" style="flex:1" onclick=\'quickRent("'+p.id+'");closeOv("ov-det")\'>'+(p.rented?'반납':'대여')+'</button>'
+    +'</div>'
+    +'<button class="btn btnsm btnr btnf" onclick=\'delProd("'+p.id+'")\' style="margin-top:8px">삭제</button>';
+  openOv('ov-det');
+}
+
+function delProd(id){
+  if(!confirm('정말 삭제할까요?')) return;
+  prods=prods.filter(function(p){ return p.id!==id; });
+  save(); closeOv('ov-det'); renderProds();
+}
+
+// ── QR 생성 ──
+function showQR(id){
+  var p=prods.find(function(x){ return x.id===id; });
+  qrPid=id;
+  document.getElementById('qr-ttl').textContent=(p?p.name+' — ':'')+'QR 코드';
+  document.getElementById('qr-sub').textContent='ID: '+id;
+  var wrap=document.getElementById('qrwrap');
+  wrap.innerHTML=''; qrCvs=null;
+  openOv('ov-qr');
+  setTimeout(function(){
+    var div=document.createElement('div');
+    new QRCode(div,{text:'RENTAL:'+id, width:200, height:200, correctLevel:QRCode.CorrectLevel.H});
+    setTimeout(function(){
+      var img=div.querySelector('img');
+      if(img){
+        var cvs=document.createElement('canvas'); cvs.width=200; cvs.height=200;
+        var i=new Image();
+        i.onload=function(){ cvs.getContext('2d').drawImage(i,0,0,200,200); qrCvs=cvs; wrap.innerHTML=''; wrap.appendChild(cvs); };
+        i.src=img.src;
+      }
+    },150);
+  },80);
+}
+function dlQR(){
+  if(!qrCvs) return;
+  var a=document.createElement('a');
+  a.download=(qrPid||'qr')+'.png';
+  a.href=qrCvs.toDataURL(); a.click();
+}
+
+// ── 기록 ──
+function renderLogs(){
+  var q=(document.getElementById('lq')||{value:''}).value.toLowerCase();
+  var f=(document.getElementById('lft')||{value:''}).value;
+  var list=[].concat(logs).reverse().filter(function(l){
+    if(q && l.name.toLowerCase().indexOf(q)<0) return false;
+    if(f && l.type!==f) return false;
+    return true;
+  });
+  var pages=Math.max(1,Math.ceil(list.length/PER));
+  if(lp>pages) lp=pages;
+  var slice=list.slice((lp-1)*PER, lp*PER);
+  var el=document.getElementById('llist');
+  if(!slice.length){
+    el.innerHTML='<div class="empty">기록이 없습니다</div>';
+    document.getElementById('lpgr').innerHTML=''; return;
+  }
+  el.innerHTML='<div class="card" style="padding:4px 16px">'+slice.map(function(l){ return '<div class="ritem">'
+    +'<div style="flex:1;min-width:0"><div style="font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+l.name+'</div>'
+    +'<div style="font-size:11px;color:#bbb;font-family:monospace">'+l.productId+'</div></div>'
+    +'<span class="bdg '+(l.type==='rent'?'out':'ok')+'" style="margin:0 8px">'+(l.type==='rent'?'대여':'반납')+'</span>'
+    +'<span style="font-size:11px;color:#bbb;white-space:nowrap">'+fmt(l.date)+'</span></div>';
+  }).join('')+'</div>';
+  var pg=document.getElementById('lpgr');
+  if(pages<=1){ pg.innerHTML=''; return; }
+  pg.innerHTML='<button class="btn btnsm" onclick="lp=Math.max(1,lp-1);renderLogs()" '+(lp===1?'disabled':'')+'>이전</button>'
+    +'<span>'+lp+'/'+pages+' ('+list.length+'건)</span>'
+    +'<button class="btn btnsm" onclick="lp=Math.min('+pages+',lp+1);renderLogs()" '+(lp===pages?'disabled':'')+'>다음</button>';
+}
+
+function exportCSV(){
+  var rows=[['날짜','제품명','ID','유형']].concat(logs.map(function(l){ return [fmt(l.date),l.name,l.productId,l.type==='rent'?'대여':'반납']; }));
+  var csv=rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv'}));
+  a.download='rental_logs.csv'; a.click();
+}
+
+// ── 시작 ──
+renderDash();
+</script>
+</body>
+</html>
