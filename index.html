@@ -366,7 +366,7 @@ function startScan(){
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
     showMsg('sc-msg','이 브라우저는 카메라를 지원하지 않습니다.','err'); return;
   }
-  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}})
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:640},height:{ideal:480}}})
   .then(function(stream){
     scanStr=stream;
     video.srcObject=stream;
@@ -378,20 +378,21 @@ function startScan(){
     document.getElementById('sc-cf').innerHTML='';
     document.getElementById('sc-msg').innerHTML='';
     var found=false;
+    var ctx=canvas.getContext('2d');
     function tick(){
       if(found||!scanStr) return;
       if(video.readyState < video.HAVE_ENOUGH_DATA){ scanRaf=requestAnimationFrame(tick); return; }
       var w=video.videoWidth, h=video.videoHeight;
       if(!w||!h){ scanRaf=requestAnimationFrame(tick); return; }
       canvas.width=w; canvas.height=h;
-      canvas.getContext('2d').drawImage(video,0,0,w,h);
-      var img=canvas.getContext('2d').getImageData(0,0,w,h);
-      var code=jsQR(img.data,w,h,{inversionAttempts:'dontInvert'});
-      if(code){ found=true; handleScan(code.data); return; }
+      ctx.drawImage(video,0,0,w,h);
+      var img=ctx.getImageData(0,0,w,h);
+      var code=jsQR(img.data,w,h,{inversionAttempts:'attemptBoth'});
+      if(code && code.data){ found=true; handleScan(code.data); return; }
       scanRaf=requestAnimationFrame(tick);
     }
-    video.addEventListener('loadeddata', function(){ scanRaf=requestAnimationFrame(tick); }, {once:true});
-    scanRaf=requestAnimationFrame(tick);
+    video.onloadeddata=function(){ scanRaf=requestAnimationFrame(tick); };
+    if(video.readyState >= video.HAVE_ENOUGH_DATA){ scanRaf=requestAnimationFrame(tick); }
   })
   .catch(function(){
     showMsg('sc-msg','카메라 권한이 필요합니다. 브라우저 주소창 왼쪽 자물쇠 아이콘을 눌러 허용해 주세요.','err',8000);
@@ -461,7 +462,7 @@ function startIdScan(){
   var video=document.getElementById('idvid');
   var canvas=document.getElementById('idcvs');
   var msgEl=document.getElementById('id-msg');
-  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}})
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:640},height:{ideal:480}}})
   .then(function(stream){
     idStr=stream;
     video.srcObject=stream;
@@ -470,16 +471,17 @@ function startIdScan(){
     document.getElementById('iqbtn').style.background='#fce4ec';
     msgEl.innerHTML='<div style="font-size:13px;color:#999;margin-top:6px;text-align:center">QR을 카메라에 비춰주세요</div>';
     var found=false;
+    var ctx=canvas.getContext('2d');
     function tick(){
       if(found||!idStr) return;
       if(video.readyState < video.HAVE_ENOUGH_DATA){ idRaf=requestAnimationFrame(tick); return; }
       var w=video.videoWidth, h=video.videoHeight;
       if(!w||!h){ idRaf=requestAnimationFrame(tick); return; }
       canvas.width=w; canvas.height=h;
-      canvas.getContext('2d').drawImage(video,0,0,w,h);
-      var img=canvas.getContext('2d').getImageData(0,0,w,h);
-      var code=jsQR(img.data,w,h,{inversionAttempts:'dontInvert'});
-      if(code){
+      ctx.drawImage(video,0,0,w,h);
+      var img=ctx.getImageData(0,0,w,h);
+      var code=jsQR(img.data,w,h,{inversionAttempts:'attemptBoth'});
+      if(code && code.data){
         found=true;
         var raw=code.data;
         var id=raw.startsWith('RENTAL:') ? raw.replace('RENTAL:','') : raw;
@@ -490,8 +492,8 @@ function startIdScan(){
       }
       idRaf=requestAnimationFrame(tick);
     }
-    video.addEventListener('loadeddata', function(){ idRaf=requestAnimationFrame(tick); }, {once:true});
-    idRaf=requestAnimationFrame(tick);
+    video.onloadeddata=function(){ idRaf=requestAnimationFrame(tick); };
+    if(video.readyState >= video.HAVE_ENOUGH_DATA){ idRaf=requestAnimationFrame(tick); }
   })
   .catch(function(){
     msgEl.innerHTML='<div class="msg merr">카메라 권한이 필요합니다.</div>';
