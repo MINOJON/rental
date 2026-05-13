@@ -410,11 +410,10 @@ function stopScan(){
 }
 
 function handleScan(raw){
-  if(!raw.startsWith('RENTAL:')) return;
-  var id=raw.replace('RENTAL:','');
+  var id=raw.startsWith('RENTAL:') ? raw.replace('RENTAL:','') : raw;
   stopScan();
   var p=prods.find(function(x){ return x.id===id; });
-  if(!p){ showMsg('sc-msg','등록되지 않은 제품입니다: '+id,'err'); return; }
+  if(!p){ showMsg('sc-msg','등록되지 않은 제품입니다.<br>ID: '+id,'err'); return; }
   buildConfirm(p, p.rented?'return':'rent', 'sc-cf', 'sc-msg');
 }
 
