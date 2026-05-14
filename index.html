@@ -994,7 +994,7 @@ function rentalEdit(id){
   document.getElementById('btn-done').classList.toggle('hide',r.done);
   document.getElementById('btn-undone').classList.toggle('hide',!r.done);
   document.getElementById('f-cust').value=r.cust;
-  document.getElementById('f-phone').value=r.phone||'';
+  document.getElementById('f-phone').value=formatPhone(r.phone||'');
   document.getElementById('f-addr').value=r.addr||'';
   document.getElementById('f-ship').value=r.ship;
   document.getElementById('f-ap-pick').value=r.apPick||'';
@@ -1039,17 +1039,26 @@ function itemsGet(){
 function addItemByQrId(qrId){
   const s=DB.stock.find(x=>x.qrId===qrId);
   if(!s){
+    playBuzzer();
     alert('⚠️ 등록되지 않은 QR 코드입니다.\n\nQR ID: '+qrId+'\n\n[제품관리] 탭에서 먼저 제품을 등록하세요.');
     return false;
   }
-  // 이미 리스트에 있는지 확인 — 있으면 거부 (각 제품은 1개씩만 존재)
+  // 이미 현재 모달의 품목 리스트에 있는지
   const rows=Array.from(document.getElementById('item-list').children);
   for(const row of rows){
     const sel=row.querySelector('select');
     if(sel&&sel.value===s.id){
+      playBuzzer();
       alert('⚠️ 이미 등록된 제품입니다.\n\n제품: '+s.name+(s.qrId?' ['+s.qrId+']':'')+'\n\n같은 제품을 두 번 스캔하셨습니다.');
       return false;
     }
+  }
+  // ── 다른 활성 대여(반납완료 X)에 묶여있는지 검사 — 자기 자신(editId)은 제외 ──
+  const activeRental=DB.rentals.find(r=>!r.done&&r.id!==editId&&r.items.some(it=>it.sid===s.id));
+  if(activeRental){
+    playBuzzer();
+    alert('⚠️ 해당 제품은 현재 대여 중인 제품입니다.\n\n제품: '+s.name+(s.qrId?' ['+s.qrId+']':'')+'\n\n대여자: '+activeRental.cust+'\n대여기간: '+activeRental.start+' ~ '+activeRental.end+'\n\n반납 완료 후 다시 대여 등록해주세요.');
+    return false;
   }
   // 빈 행이 있으면 거기 채우기
   for(const row of rows){
@@ -1331,6 +1340,7 @@ function saveProd(){
   if(qrId){
     const dup=DB.stock.find(s=>s.qrId===qrId&&s.id!==editProdId);
     if(dup){
+      playBuzzer();
       alert('⚠️ 이미 등록된 제품입니다.\n\n동일한 QR 코드를 가진 제품:\n→ '+dup.name+(dup.cat?' ('+dup.cat+')':'')+'\n\nQR ID: '+qrId+'\n\n각 제품은 고유한 QR 코드를 가져야 합니다.');
       // QR 입력란에 포커스
       const el=document.getElementById('pf-qrid');
@@ -1501,6 +1511,7 @@ function handleQrResult(id){
     const dup=DB.stock.find(s=>s.qrId===id&&s.id!==editProdId);
     if(dup){
       qrClose();
+      playBuzzer();
       alert('⚠️ 이미 등록된 제품입니다.\n\n이 QR 코드는 이미 다음 제품에 등록되어 있습니다:\n→ '+dup.name+(dup.cat?' ('+dup.cat+')':'')+'\n\nQR ID: '+id+'\n\n각 제품은 고유한 QR 코드를 가져야 합니다.');
       return;
     }
@@ -1594,6 +1605,19 @@ document.addEventListener('click',function(ev){
   if(t.classList.contains('overlay')){modalClose(t.id);return;}
 });
 document.addEventListener('change',ev=>{if(ev.target.id==='f-ship')shipToggle();});
+// 전화번호 자동 포맷팅
+document.addEventListener('input',ev=>{
+  if(ev.target.id==='f-phone'){
+    const el=ev.target;
+    const oldLen=el.value.length;
+    const cursor=el.selectionStart||0;
+    el.value=formatPhone(el.value);
+    // 커서 위치 보정
+    const diff=el.value.length-oldLen;
+    const newPos=Math.max(0,cursor+diff);
+    try{el.setSelectionRange(newPos,newPos);}catch(e){}
+  }
+});
 document.getElementById('cal-bd').addEventListener('click',calClose);
 document.getElementById('qr-bd').addEventListener('click',qrClose);
 
@@ -1640,6 +1664,23 @@ function toast(msg){
   t.textContent=msg;t.classList.add('show');
   clearTimeout(t._tid);t._tid=setTimeout(()=>t.classList.remove('show'),2500);
 }
+// 전화번호 자동 포맷팅: 01012341234 → 010-1234-1234, 0212345678 → 02-1234-5678
+function formatPhone(v){
+  const d=(v||'').replace(/\D/g,''); // 숫자만 추출
+  if(!d) return '';
+  // 서울 02 지역번호
+  if(d.startsWith('02')){
+    if(d.length<=2) return d;
+    if(d.length<=5) return d.slice(0,2)+'-'+d.slice(2);
+    if(d.length<=9) return d.slice(0,2)+'-'+d.slice(2,d.length-4)+'-'+d.slice(-4);
+    return d.slice(0,2)+'-'+d.slice(2,6)+'-'+d.slice(6,10);
+  }
+  // 그 외 (010/011/.../031/032/...)
+  if(d.length<=3) return d;
+  if(d.length<=6) return d.slice(0,3)+'-'+d.slice(3);
+  if(d.length<=10) return d.slice(0,3)+'-'+d.slice(3,d.length-4)+'-'+d.slice(-4);
+  return d.slice(0,3)+'-'+d.slice(3,7)+'-'+d.slice(7,11);
+}
 // QR 인식 비프음 — 띠~링 (두 톤)
 let _audioCtx=null;
 function playBeep(){
@@ -1660,6 +1701,26 @@ function playBeep(){
       osc.start(start);
       osc.stop(start+0.2);
     });
+  }catch(e){}
+}
+// 거부 부저음 — 삐~ (낮고 거친 톤)
+function playBuzzer(){
+  try{
+    if(!_audioCtx) _audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    if(_audioCtx.state==='suspended') _audioCtx.resume();
+    const now=_audioCtx.currentTime;
+    const osc=_audioCtx.createOscillator();
+    const gain=_audioCtx.createGain();
+    osc.type='sawtooth';
+    osc.frequency.setValueAtTime(220,now);
+    osc.frequency.linearRampToValueAtTime(160,now+0.45);
+    osc.connect(gain);gain.connect(_audioCtx.destination);
+    gain.gain.setValueAtTime(0.0001,now);
+    gain.gain.exponentialRampToValueAtTime(0.22,now+0.01);
+    gain.gain.setValueAtTime(0.22,now+0.4);
+    gain.gain.exponentialRampToValueAtTime(0.0001,now+0.5);
+    osc.start(now);
+    osc.stop(now+0.5);
   }catch(e){}
 }
 
