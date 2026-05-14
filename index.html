@@ -1,708 +1,1647 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
-<title>QR 대여 관리</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>렌탈 통합 관리 시스템</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html{height:100%;background:#f2f2f2}
-body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;color:#111;background:#f2f2f2;overscroll-behavior:none}
-#wrap{display:flex;flex-direction:column;height:100dvh;max-width:520px;margin:0 auto;background:#f2f2f2}
-#main{flex:1;overflow-y:auto;padding:16px;-webkit-overflow-scrolling:touch}
-/* NAV */
-nav{display:flex;background:#fff;border-top:1px solid #ddd;padding-bottom:env(safe-area-inset-bottom,0)}
-.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 4px 8px;border:none;background:none;color:#999;font-size:11px;cursor:pointer;font-family:inherit}
-.nb svg{width:24px;height:24px}
-.nb.on{color:#111;font-weight:600}
-/* PAGE */
-.pg{display:none}.pg.on{display:block}
-/* CARD */
-.card{background:#fff;border-radius:16px;padding:16px;margin-bottom:12px}
-/* STATS */
-.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.sbox{background:#fff;border-radius:14px;padding:14px;text-align:center}
-.snum{font-size:30px;font-weight:700;letter-spacing:-1.5px;color:#111}
-.slbl{font-size:12px;color:#999;margin-top:2px}
-/* SEC */
-.sec{font-size:11px;font-weight:600;color:#999;letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px}
-/* BADGE */
-.bdg{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600}
-.ok{background:#e8f5e9;color:#2e7d32}
-.out{background:#fff3e0;color:#e65100}
-.err{background:#fce4ec;color:#c62828}
-/* BTN */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 18px;height:50px;border-radius:12px;border:1.5px solid #ddd;background:#fff;color:#111;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;white-space:nowrap;-webkit-appearance:none}
-.btn:active{opacity:.6}
-.btnp{background:#111;color:#fff;border-color:#111}
-.btnf{width:100%}
-.btng{background:#e8f5e9;color:#2e7d32;border-color:transparent}
-.btnr{background:#fce4ec;color:#c62828;border-color:transparent}
-.btnsm{height:40px;font-size:13px;padding:0 14px;border-radius:10px}
-/* INPUT */
-.inp{width:100%;height:50px;padding:0 14px;border:1.5px solid #ddd;border-radius:12px;font-size:15px;color:#111;background:#fff;font-family:inherit;-webkit-appearance:none;appearance:none}
-.inp:focus{outline:none;border-color:#111}
-select.inp{cursor:pointer}
-.fld{margin-bottom:14px}
-.fld label{display:block;font-size:12px;font-weight:600;color:#888;margin-bottom:6px}
-hr{border:none;border-top:1px solid #eee;margin:12px 0}
-/* ROW */
-.ritem{padding:11px 0;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:10px}
-.ritem:last-child{border-bottom:none}
-/* SCAN */
-.scanbox{position:relative;background:#000;border-radius:16px;overflow:hidden;min-height:240px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
-.scan-idle{display:flex;flex-direction:column;align-items:center;gap:12px;color:#fff;font-size:14px;text-align:center;padding:20px}
-#svid{width:100%;display:block;object-fit:cover}
-#scvs{display:none;position:absolute;top:0;left:0;width:100%;height:100%}
-.sline{position:absolute;left:12%;right:12%;height:2px;background:rgba(255,214,0,.85);border-radius:2px;animation:sl 2s ease-in-out infinite;pointer-events:none;display:none}
-@keyframes sl{0%,100%{top:18%}50%{top:78%}}
-.scorn{position:absolute;width:22px;height:22px;border-color:rgba(255,214,0,.9);border-style:solid;border-width:0;display:none}
-.c1{top:10%;left:10%;border-top-width:3px;border-left-width:3px;border-radius:5px 0 0 0}
-.c2{top:10%;right:10%;border-top-width:3px;border-right-width:3px;border-radius:0 5px 0 0}
-.c3{bottom:10%;left:10%;border-bottom-width:3px;border-left-width:3px;border-radius:0 0 0 5px}
-.c4{bottom:10%;right:10%;border-bottom-width:3px;border-right-width:3px;border-radius:0 0 5px 0}
-/* MSG */
-.msg{padding:13px 16px;border-radius:12px;font-size:14px;text-align:center;margin-top:10px;line-height:1.4}
-.mok{background:#e8f5e9;color:#2e7d32}
-.mwarn{background:#fff8e1;color:#f57f17}
-.merr{background:#fce4ec;color:#c62828}
-/* CONFIRM */
-.cfbox{background:#f8f8f8;border-radius:14px;padding:18px;margin-top:12px}
-.cfname{font-size:19px;font-weight:700;margin-bottom:4px}
-.cfmeta{font-size:13px;color:#888;margin-bottom:16px;line-height:1.6}
-/* OVERLAY */
-.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;overflow-y:auto;padding:20px 16px 60px;-webkit-overflow-scrolling:touch}
-.ov.on{display:block}
-.modal{background:#fff;border-radius:20px;padding:22px;max-width:480px;margin:0 auto}
-.mh{font-size:18px;font-weight:700;margin-bottom:18px}
-/* PAGER */
-.pgr{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px;font-size:13px;color:#888}
-/* PROD CARD */
-.pc{background:#fff;border-radius:14px;padding:14px;margin-bottom:10px}
-.pcn{font-size:16px;font-weight:600;margin-bottom:3px}
-.pcs{font-size:12px;color:#999;margin-bottom:10px;font-family:monospace}
-.pcb{display:flex;gap:7px;flex-wrap:wrap}
-.pcb .btn{flex:1;min-width:68px}
-.empty{text-align:center;padding:40px 16px;color:#bbb;font-size:14px;line-height:1.8}
-.sbar{display:flex;gap:8px;margin-bottom:12px}
-/* ID SCAN */
-.idsbox{position:relative;background:#000;border-radius:12px;overflow:hidden;min-height:150px;display:flex;align-items:center;justify-content:center;margin-top:10px;display:none}
-#idvid{width:100%;display:block;max-height:160px;object-fit:cover}
-#idcvs{display:none}
+input[type=number]{-webkit-appearance:textfield;-moz-appearance:textfield;appearance:textfield}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+:root{
+  --bg:#F4F6FB;--card:#fff;--card2:#F8F9FD;--border:#E2E5EF;--border2:#CDD1DF;
+  --text:#1C2035;--text2:#5A5F78;--text3:#9499B0;
+  --blue:#2563EB;--blue-l:#EEF3FD;--blue-ll:#DBEAFE;
+  --teal:#059669;--teal-l:#D1FAE5;
+  --red:#DC2626;--red-l:#FEE2E2;
+  --pink:#DB2777;--pink-l:#FCE7F3;
+  --purple:#7C3AED;--purple-l:#EDE9FE;
+  --amber:#D97706;--amber-l:#FEF3C7;
+  --col:88px;--lw:162px;--r:8px;
+}
+html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--text);font-size:13px}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
+
+/* TOPBAR */
+.topbar{flex-shrink:0;height:52px;background:var(--blue);display:flex;align-items:center;gap:10px;padding:0 16px}
+.logo-icon{width:30px;height:30px;background:rgba(255,255,255,.18);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.logo-title{font-size:14px;font-weight:700;color:#fff}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.65)}
+.topbar-space{flex:1}
+.save-lbl{font-size:10px;color:rgba(255,255,255,.6);white-space:nowrap}
+.month-nav{display:flex;align-items:center;gap:5px}
+.mon-txt{font-size:13px;font-weight:700;color:#fff;min-width:80px;text-align:center}
+.nav-btn{width:32px;height:32px;border-radius:7px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px}
+
+/* TABS */
+.tab-bar{flex-shrink:0;background:var(--card);border-bottom:2px solid var(--border);display:flex}
+.tab-btn{flex:1;padding:11px 4px;font-size:12px;font-weight:600;color:var(--text3);border:none;background:none;cursor:pointer;font-family:inherit;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s}
+.tab-btn.on{color:var(--blue);border-bottom-color:var(--blue)}
+
+/* PAGES */
+.page{display:none;flex-direction:column;flex:1;overflow:hidden;min-height:0}
+.page.on{display:flex}
+
+/* TOOLBAR */
+.toolbar{flex-shrink:0;background:var(--card);border-bottom:1.5px solid var(--border);padding:8px 16px;display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.btn{font-size:12px;font-weight:600;padding:8px 13px;border-radius:var(--r);border:1.5px solid var(--border2);background:var(--card);color:var(--text2);cursor:pointer;font-family:inherit;white-space:nowrap}
+.btn-blue{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn-green{background:#16a34a;color:#fff;border-color:#16a34a}
+.btn-outline-red{color:var(--red);border-color:var(--red);background:transparent}
+.legend{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-left:auto}
+.leg{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)}
+.leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+
+/* SIZE BAR */
+.sizebar{flex-shrink:0;background:var(--card2);border-bottom:1.5px solid var(--border);padding:6px 16px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.sizebar label{font-size:11px;font-weight:700;color:var(--text3);white-space:nowrap}
+.sz-btn{min-width:32px;height:28px;padding:0 9px;border:1.5px solid var(--border2);border-radius:6px;background:var(--card);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;justify-content:center}
+.sz-val{font-size:12px;font-weight:700;min-width:38px;text-align:center}
+.sz-div{width:1px;height:18px;background:var(--border2);margin:0 3px}
+
+/* SEARCH BAR */
+.search-bar{flex-shrink:0;background:var(--card);border-bottom:1.5px solid var(--border);padding:7px 16px;display:flex;align-items:center;gap:8px}
+.search-wrap{position:relative;flex:1;max-width:340px}
+.search-wrap input{width:100%;font-size:14px;padding:8px 36px 8px 12px;border:1.5px solid var(--border);border-radius:var(--r);background:var(--card2);color:var(--text);font-family:inherit;-webkit-appearance:none;appearance:none;outline:none}
+.search-wrap input:focus{border-color:var(--blue);background:#fff}
+.search-ico{position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px;pointer-events:none}
+.search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:16px;cursor:pointer;background:none;border:none;font-family:inherit;line-height:1;padding:0}
+.search-count{font-size:12px;color:var(--text3);white-space:nowrap}
+
+/* GANTT */
+.main-scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.gantt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.gantt-inner{min-width:max-content;position:relative}
+.date-hdr{display:flex;border-bottom:2px solid var(--border);background:var(--card2);position:sticky;top:0;z-index:20}
+.dh-lbl{width:var(--lw);min-width:var(--lw);padding:8px 12px;font-size:10px;font-weight:700;color:var(--text3);border-right:1px solid var(--border);display:flex;align-items:center;text-transform:uppercase;letter-spacing:.06em;flex-shrink:0}
+.dh-col{width:var(--col);min-width:var(--col);text-align:center;padding:5px 2px;font-size:12px;font-weight:500;border-right:1px solid var(--border);cursor:pointer;line-height:1.35;color:var(--text2);flex-shrink:0}
+.dh-col .dow{font-size:10px;color:var(--text3);font-weight:400}
+.dh-col .hol-nm{font-size:8px;color:#EF4444;display:block;line-height:1.1}
+.dh-col.is-today{background:rgba(37,99,235,.1);color:var(--blue);font-weight:700}
+.dh-col.is-today .dow{color:var(--blue);opacity:.7}
+.dh-col.is-sun,.dh-col.is-hol{color:#EF4444}
+.dh-col.is-sun .dow,.dh-col.is-hol .dow{color:#EF4444}
+.dh-col.is-sat{color:#3B82F6}
+.dh-col.is-sat .dow{color:#3B82F6}
+
+.g-row{display:flex;border-bottom:1px solid var(--border);align-items:stretch}
+.g-lbl{width:var(--lw);min-width:var(--lw);padding:5px 30px 5px 12px;display:flex;align-items:center;gap:7px;border-right:1px solid var(--border);background:var(--card);cursor:pointer;flex-shrink:0;position:relative}
+.g-lbl.dimmed{opacity:.4}
+.g-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.g-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.g-sub{font-size:10px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.done-badge{display:inline-block;padding:1px 5px;border-radius:4px;font-size:9px;font-weight:600;background:var(--teal-l);color:var(--teal);margin-left:3px}
+.g-cells{display:flex;position:relative;flex:1}
+.g-cell{width:var(--col);min-width:var(--col);border-right:1px solid var(--border);flex-shrink:0;cursor:pointer}
+.g-cell.is-today{background:rgba(37,99,235,.05)}
+.g-cell.is-wknd{background:rgba(0,0,0,.012)}
+.g-cell.is-hol{background:rgba(239,68,68,.04)}
+.today-line{position:absolute;top:0;bottom:0;pointer-events:none;z-index:3;border-left:2px solid rgba(37,99,235,.3);border-right:2px solid rgba(37,99,235,.3);background:rgba(37,99,235,.05)}
+
+.sbar{position:absolute;top:7px;bottom:7px;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2px 8px;font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;cursor:pointer;z-index:5;text-align:center}
+.sbar.dimmed{opacity:.25;filter:grayscale(.6)}
+.sbar-send{background:#ffff00;border:2.5px solid #ff0000;color:#555;border-radius:20px 0 0 20px}
+.sbar-main{color:#fff;border-radius:20px}
+.sbar-main.no-l{border-radius:0 20px 20px 0}
+.sbar-main.no-r{border-radius:20px 0 0 20px}
+.sbar-main.no-lr{border-radius:0}
+.sbar-recv{background:#ff9900;color:#fff;border-radius:0 20px 20px 0}
+.sbar .sn{font-size:11px;font-weight:700;line-height:1.2}
+.sbar .si{font-size:9px;opacity:.85;line-height:1.2}
+
+.sec-hdr{display:flex;border-bottom:1px solid var(--border);border-top:2px solid var(--border2);background:var(--bg)}
+.sec-hdr-lbl{width:var(--lw);min-width:var(--lw);padding:6px 12px;font-size:10px;font-weight:700;color:var(--text3);border-right:1px solid var(--border);display:flex;align-items:center;flex-shrink:0;text-transform:uppercase;letter-spacing:.08em}
+.sec-hdr-cell{width:var(--col);min-width:var(--col);border-right:1px solid var(--border);flex-shrink:0}
+.sec-hdr-cell.is-today{background:rgba(37,99,235,.05)}
+
+.sched-row{display:flex;border-bottom:1px solid var(--border);min-height:36px;background:var(--card)}
+.sched-lbl{width:var(--lw);min-width:var(--lw);padding:8px 12px;font-size:10px;font-weight:700;color:var(--text3);border-right:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;gap:5px;text-transform:uppercase;letter-spacing:.07em}
+.sched-lbl-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.sched-cell{width:var(--col);min-width:var(--col);padding:2px;border-right:1px solid var(--border);flex-shrink:0;cursor:pointer}
+.sched-cell.is-today{background:rgba(37,99,235,.05)}
+.sched-cell.is-wknd,.sched-cell.is-hol{background:rgba(239,68,68,.03)}
+.chip{display:block;padding:1px 4px;border-radius:3px;font-size:10px;margin:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.55;font-weight:600}
+.chip-send{background:#fff9c0;color:#7a5700;border:1px solid #ff0000}
+.chip-recv{background:#ffe0b2;color:#7a3e00}
+
+.inv-section{border-top:2px solid var(--border2)}
+.inv-row{display:flex;border-bottom:1px solid var(--border)}
+.inv-name{width:var(--lw);min-width:var(--lw);padding:6px 12px;font-size:11px;color:var(--text2);font-weight:500;border-right:1px solid var(--border);background:var(--card);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+.inv-cell{width:var(--col);min-width:var(--col);padding:5px 3px;font-size:12px;font-weight:700;text-align:center;border-right:1px solid var(--border);flex-shrink:0}
+.inv-cell.ok{color:var(--teal);background:#F0FDF8}
+.inv-cell.warn{color:var(--amber);background:var(--amber-l)}
+.inv-cell.danger{color:var(--red);background:var(--red-l)}
+.inv-cell.full{color:var(--text3)}
+.inv-cell.is-today{outline:2px solid rgba(37,99,235,.35);outline-offset:-2px}
+.ord-btns{position:absolute;right:4px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:1px;z-index:5}
+.ord-btn{width:20px;height:15px;border:1px solid var(--border2);border-radius:3px;background:var(--card2);color:var(--text3);font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit}
+.empty-state{padding:32px;text-align:center;color:var(--text3);font-size:12px;line-height:1.8}
+
+/* OVERLAY + MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(15,23,60,.5);z-index:500;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 12px 60px;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;width:500px;max-width:100%;margin:auto;box-shadow:0 8px 40px rgba(28,32,53,.18);position:relative;flex-shrink:0}
+.mx{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:8px;border:1px solid var(--border2);background:var(--bg);color:var(--text3);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;font-family:inherit}
+.modal h3{font-size:16px;font-weight:700;margin-bottom:16px;padding-right:40px}
+.f-row{margin-bottom:12px}
+.f-row label{display:block;font-size:10px;font-weight:700;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.07em}
+.f-row input,.f-row select,.f-row textarea{width:100%;font-size:16px;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r);background:var(--card2);color:var(--text);font-family:inherit;-webkit-appearance:none;appearance:none;outline:none}
+.f-row input:focus,.f-row select:focus,.f-row textarea:focus{border-color:var(--blue);background:#fff}
+.f-row select{padding-right:36px;background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpolygon points='0,0 10,0 5,6' fill='%239499B0'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.f-row textarea{height:52px;resize:none}
+.f-half{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sec-sep{margin:14px 0 10px;padding-top:12px;border-top:1.5px solid var(--border);font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.09em}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:14px;border-top:1.5px solid var(--border);flex-wrap:wrap}
+.mbtn{padding:10px 18px;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;border:1.5px solid var(--border2);background:var(--card2);color:var(--text2)}
+.mbtn-blue{background:var(--blue);color:#fff;border-color:var(--blue)}
+.mbtn-danger{color:var(--red);border-color:rgba(220,38,38,.3);background:var(--red-l);margin-right:auto}
+.mbtn-success{color:var(--teal);border-color:rgba(5,150,105,.3);background:var(--teal-l)}
+.mbtn-amber{color:var(--amber);border-color:rgba(217,119,6,.35);background:var(--amber-l)}
+.hide{display:none!important}
+
+/* ITEM ROWS */
+.item-list{display:flex;flex-direction:column;gap:7px;margin-bottom:8px}
+.item-row{display:flex;gap:8px;align-items:center;padding:9px 11px;background:var(--bg);border-radius:var(--r);border:1.5px solid var(--border)}
+.item-row select{flex:1;font-size:16px;padding:7px 28px 7px 9px;border:1.5px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-family:inherit;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpolygon points='0,0 10,0 5,6' fill='%239499B0'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;cursor:pointer;outline:none}
+.item-row input[type=number]{width:62px;font-size:16px;padding:7px;border:1.5px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-family:inherit;text-align:center;-webkit-appearance:textfield;appearance:textfield;outline:none}
+.rm-btn{width:30px;height:30px;border-radius:7px;border:1.5px solid rgba(220,38,38,.3);background:var(--red-l);color:var(--red);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:inherit}
+.add-item-btns{display:flex;gap:7px}
+.add-item-btn{flex:1;padding:10px;border-radius:var(--r);border:1.5px dashed var(--border2);background:transparent;color:var(--text3);cursor:pointer;font-size:13px;font-family:inherit;font-weight:600}
+.qr-add-btn{padding:10px 14px;border-radius:var(--r);border:1.5px solid var(--blue);background:var(--blue-l);color:var(--blue);cursor:pointer;font-size:13px;font-family:inherit;font-weight:600;display:flex;align-items:center;gap:5px;white-space:nowrap}
+
+/* RANGE BTN */
+.range-btn{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--r);background:var(--card2);color:var(--text);font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;text-align:left;display:flex;align-items:center;gap:9px;-webkit-appearance:none;appearance:none;outline:none}
+.range-btn:focus{border-color:var(--blue)}
+.rb-ico{font-size:15px;flex-shrink:0}
+.rb-txt{flex:1;color:var(--text3)}
+.rb-txt.filled{color:var(--text)}
+.rb-arr{font-size:10px;color:var(--text3)}
+
+/* STOCK ROW */
+.stock-row{display:flex;align-items:center;gap:8px;padding:9px 11px;background:var(--bg);border-radius:var(--r);border:1px solid var(--border);margin-bottom:6px}
+.stock-row .nm{flex:1;font-size:12px;font-weight:500}
+.stock-row input{width:62px;font-size:13px;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-family:inherit;text-align:center;outline:none}
+.stock-row .del-btn{font-size:12px;padding:5px 10px;border-radius:6px;border:1px solid rgba(220,38,38,.3);background:var(--red-l);color:var(--red);cursor:pointer;font-family:inherit;font-weight:600}
+
+.hol-row{display:flex;align-items:center;gap:8px;padding:8px 11px;background:var(--bg);border-radius:var(--r);border:1px solid var(--border);margin-bottom:6px}
+.hol-row span{flex:1;font-size:13px;color:var(--red);font-weight:500}
+.hol-row button{font-size:12px;padding:4px 10px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text3);cursor:pointer;font-family:inherit}
+
+.day-item{padding:8px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px}
+.day-item:last-child{border-bottom:none}
+.d-sec{font-size:10px;font-weight:700;color:var(--text3);margin:10px 0 6px;text-transform:uppercase;letter-spacing:.07em}
+.chip2{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.inv-bar-w{width:48px;height:5px;background:var(--border);border-radius:99px;overflow:hidden;flex-shrink:0}
+.inv-bar-f{height:100%;border-radius:99px}
+
+/* CALENDAR */
+#cal-bd{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9000}
+.cal-popup{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9100;background:var(--card);border:1.5px solid var(--border2);border-radius:14px;box-shadow:0 20px 60px rgba(28,32,53,.3);padding:16px;width:min(580px,calc(100vw - 20px));max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;flex-direction:column;gap:10px}
+.cal-popup.open{display:flex}
+.cal-hint{font-size:11px;font-weight:600;color:var(--blue);padding:6px 10px;background:var(--blue-l);border-radius:6px}
+#cal-send .cal-hint{color:#7a5700;background:#FFF9C0}
+#cal-recv .cal-hint{color:#7a3e00;background:#FFE0B2}
+.cal-months{display:flex;gap:14px;flex-wrap:wrap}
+.cal-month{flex:1;min-width:220px}
+.cal-navrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.cal-navrow strong{font-size:13px}
+.cal-navrow button{width:34px;height:34px;border-radius:8px;border:1px solid var(--border2);background:var(--bg);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--text);font-family:inherit}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-dow{text-align:center;font-size:11px;font-weight:700;color:var(--text3);padding:4px 0}
+.cal-day{text-align:center;padding:6px 2px;font-size:12px;border-radius:7px;cursor:pointer;color:var(--text);font-weight:500;min-height:36px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.2;user-select:none}
+.cal-day.emp{visibility:hidden;pointer-events:none}
+.cal-day.hol{color:#EF4444}
+.cal-day.sat{color:#3B82F6}
+.cal-day.cur-day{font-weight:700;outline:2px solid var(--blue);outline-offset:-1px}
+#cal-send .cal-day.cur-day{outline-color:#cc0000}
+#cal-recv .cal-day.cur-day{outline-color:#cc7700}
+.cal-day.in-rng{background:var(--blue-ll);color:var(--blue);border-radius:0}
+.cal-day.sel-s{background:var(--blue)!important;color:#fff!important;font-weight:700;border-radius:7px 0 0 7px}
+.cal-day.sel-e{background:var(--blue)!important;color:#fff!important;font-weight:700;border-radius:0 7px 7px 0}
+.cal-day.sel-s.sel-e{border-radius:7px!important}
+#cal-send .cal-day.in-rng{background:#FFF9C0;color:#7a5700;border-radius:0}
+#cal-send .cal-day.sel-s{background:#ffff00!important;color:#333!important;outline:2px solid #ff0000;border-radius:7px 0 0 7px}
+#cal-send .cal-day.sel-e{background:#ffff00!important;color:#333!important;outline:2px solid #ff0000;border-radius:0 7px 7px 0}
+#cal-send .cal-day.sel-s.sel-e{border-radius:7px!important}
+#cal-recv .cal-day.in-rng{background:#FFE0B2;color:#7a3e00;border-radius:0}
+#cal-recv .cal-day.sel-s{background:#ff9900!important;color:#fff!important;border-radius:7px 0 0 7px}
+#cal-recv .cal-day.sel-e{background:#ff9900!important;color:#fff!important;border-radius:0 7px 7px 0}
+#cal-recv .cal-day.sel-s.sel-e{border-radius:7px!important}
+.cal-day.prev-rent-s{background:var(--blue)!important;color:#fff!important;font-weight:700;border-radius:7px 0 0 7px;opacity:.55}
+.cal-day.prev-rent-e{background:var(--blue)!important;color:#fff!important;font-weight:700;border-radius:0 7px 7px 0;opacity:.55}
+.cal-day.prev-rent-rng{background:var(--blue-ll);color:var(--blue);border-radius:0;opacity:.6}
+.cal-day.prev-send-s{background:#ffff00!important;color:#333!important;font-weight:700;border-radius:7px 0 0 7px;outline:2px solid #ff0000;opacity:.55}
+.cal-day.prev-send-e{background:#ffff00!important;color:#333!important;font-weight:700;border-radius:0 7px 7px 0;outline:2px solid #ff0000;opacity:.55}
+.cal-day.prev-send-rng{background:#FFF9C0;color:#7a5700;border-radius:0;opacity:.65}
+.cal-footer{display:flex;align-items:center;gap:8px;padding-top:10px;border-top:1px solid var(--border)}
+.cal-info{flex:1;font-size:12px;color:var(--text3)}
+.cal-prev-row{display:flex;align-items:center;flex-wrap:wrap;gap:4px;padding:6px 10px;background:var(--card2);border-radius:8px;margin-bottom:6px;border:1px solid var(--border)}
+.cal-prev-badge{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;white-space:nowrap}
+.rent-badge{background:#DBEAFE;color:#1D4ED8;border:1.5px solid #2563EB}
+.send-badge{background:#ffff00;color:#555;border:1.5px solid #ff0000}
+.recv-badge{background:#FFE0B2;color:#7a3e00;border:1.5px solid #ff9900}
+
+/* QR SCANNER POPUP */
+#qr-bd{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9500}
+.qr-pop{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9600;background:#0a0a0a;border-radius:18px;overflow:hidden;width:min(420px,calc(100vw - 24px));box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.qr-pop.open{display:block}
+.qr-pop-hdr{padding:13px 16px;background:#111;display:flex;align-items:center;justify-content:space-between;color:#fff}
+.qr-pop-hdr span{font-size:14px;font-weight:600}
+.qr-pop-hdr button{width:30px;height:30px;border-radius:7px;border:none;background:rgba(255,255,255,.15);color:#fff;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;font-family:inherit}
+.qr-video-wrap{position:relative;background:#000;min-height:260px;display:flex;align-items:center;justify-content:center}
+#qr-video{width:100%;display:block;max-height:340px;object-fit:cover}
+#qr-canvas{display:none}
+.qr-corner{position:absolute;width:26px;height:26px;border-color:rgba(255,220,0,.9);border-style:solid;border-width:0}
+.qrc1{top:12%;left:8%;border-top-width:3px;border-left-width:3px;border-radius:5px 0 0 0}
+.qrc2{top:12%;right:8%;border-top-width:3px;border-right-width:3px;border-radius:0 5px 0 0}
+.qrc3{bottom:12%;left:8%;border-bottom-width:3px;border-left-width:3px;border-radius:0 0 0 5px}
+.qrc4{bottom:12%;right:8%;border-bottom-width:3px;border-right-width:3px;border-radius:0 0 5px 0}
+.qr-scanline{position:absolute;left:10%;right:10%;height:2px;background:rgba(255,220,0,.85);border-radius:2px;animation:scan-anim 2s ease-in-out infinite}
+@keyframes scan-anim{0%,100%{top:14%}50%{top:82%}}
+.qr-pop-hint{padding:12px 14px;background:#111;color:rgba(255,255,255,.7);font-size:12px;text-align:center;line-height:1.5}
+.qr-manual{padding:10px 14px;background:#1a1a1a;display:flex;gap:8px}
+.qr-manual input{flex:1;padding:9px 12px;border-radius:8px;border:1.5px solid #333;background:#111;color:#fff;font-family:inherit;font-size:14px;outline:none}
+.qr-manual input:focus{border-color:#555}
+.qr-manual button{padding:9px 14px;border-radius:8px;border:none;background:var(--blue);color:#fff;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit}
+
+/* PROD PAGE */
+.prod-toolbar{flex-shrink:0;background:var(--card);border-bottom:1.5px solid var(--border);padding:9px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.prod-toolbar input[type=text],.prod-toolbar input[type=search]{flex:1;max-width:260px;padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--r);font-size:14px;background:var(--card2);color:var(--text);font-family:inherit;outline:none;-webkit-appearance:none}
+.prod-toolbar input:focus{border-color:var(--blue);background:#fff}
+.prod-toolbar select{padding:8px 28px 8px 11px;font-size:12px;border:1.5px solid var(--border2);border-radius:var(--r);background:var(--card);color:var(--text2);cursor:pointer;font-family:inherit;-webkit-appearance:none;background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpolygon points='0,0 10,0 5,6' fill='%239499B0'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;outline:none}
+.prod-scroll{flex:1;overflow-y:auto;padding:14px 16px}
+.prod-card{background:var(--card);border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid var(--border)}
+.prod-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
+.prod-name{font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px}
+.prod-id-line{font-size:11px;color:var(--text3);font-family:monospace}
+.prod-stats{display:flex;gap:12px;margin:8px 0 10px;font-size:11px;color:var(--text3);flex-wrap:wrap}
+.prod-stat strong{color:var(--text);font-size:13px;margin-right:2px}
+.prod-actions{display:flex;gap:6px;flex-wrap:wrap}
+.prod-actions .btn{font-size:11px;padding:6px 11px;flex:1;min-width:60px}
+.cnt-badge{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;background:var(--blue-l);color:var(--blue)}
+
+/* LOG PAGE */
+.log-card{background:var(--card);border-radius:10px;padding:10px 14px;margin-bottom:7px;border:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.log-type{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0}
+.log-type.rent{background:#FEF3C7;color:#D97706}
+.log-type.ret{background:#D1FAE5;color:#059669}
+.log-body{flex:1;min-width:0}
+.log-name{font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.log-meta{font-size:11px;color:var(--text3);margin-top:2px}
+.log-date{font-size:10px;color:var(--text3);white-space:nowrap;text-align:right;flex-shrink:0}
+
+/* QR GEN */
+.qrgen-wrap{display:flex;justify-content:center;padding:16px 0}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1C2035;color:#fff;font-size:13px;font-weight:500;padding:11px 20px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.3);z-index:9999;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;max-width:calc(100vw - 32px);text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.req{color:var(--red);font-size:10px;font-weight:700;margin-left:4px}
 </style>
 </head>
-<body>
-<div id="wrap">
-  <div id="main">
+<body style="display:flex;flex-direction:column;height:100%;overflow:hidden">
 
-    <!-- 대시보드 -->
-    <div class="pg on" id="pg-dash">
-      <div class="sgrid">
-        <div class="sbox"><div class="snum" id="d-tot">0</div><div class="slbl">전체 제품</div></div>
-        <div class="sbox"><div class="snum" id="d-rnt">0</div><div class="slbl">대여 중</div></div>
-        <div class="sbox"><div class="snum" id="d-avl">0</div><div class="slbl">보관 중</div></div>
-        <div class="sbox"><div class="snum" id="d-cnt">0</div><div class="slbl">총 대여 횟수</div></div>
-      </div>
-      <div class="card">
-        <div class="sec">많이 대여된 제품 TOP 5</div>
-        <div id="d-top"><div class="empty" style="padding:10px">없음</div></div>
-      </div>
-      <div class="card">
-        <div class="sec">최근 활동</div>
-        <div id="d-rec"><div class="empty" style="padding:10px">없음</div></div>
-      </div>
-    </div>
+<div id="cal-bd"></div>
+<div class="cal-popup" id="cal-rent"></div>
+<div class="cal-popup" id="cal-send"></div>
+<div class="cal-popup" id="cal-recv"></div>
 
-    <!-- QR 스캔 -->
-    <div class="pg" id="pg-scan">
-      <div class="card">
-        <div class="sec">QR 스캔</div>
-        <div class="scanbox" id="scanbox">
-          <div class="scan-idle" id="sidle">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.4"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM17 17h3v3h-3zM14 20h3"/></svg>
-            <span>카메라 시작 버튼을 눌러주세요</span>
-          </div>
-          <video id="svid" autoplay playsinline muted style="display:none"></video>
-          <canvas id="scvs"></canvas>
-          <div class="sline" id="sline"></div>
-          <div class="scorn c1" id="c1"></div>
-          <div class="scorn c2" id="c2"></div>
-          <div class="scorn c3" id="c3"></div>
-          <div class="scorn c4" id="c4"></div>
-        </div>
-        <div style="display:flex;gap:8px">
-          <button class="btn btnp btnf" id="btn-start" onclick="startScan()">카메라 시작</button>
-          <button class="btn btnf" id="btn-stop" style="display:none" onclick="stopScan()">중지</button>
-        </div>
-        <div id="sc-cf"></div>
-        <div id="sc-msg"></div>
-      </div>
-      <div class="card">
-        <div class="sec">수동 입력</div>
-        <div class="fld">
-          <input class="inp" id="mid" placeholder="제품 ID 직접 입력..."/>
-        </div>
-        <div style="display:flex;gap:8px">
-          <button class="btn btnp" style="flex:1" onclick="manualDo('rent')">대여 확인</button>
-          <button class="btn" style="flex:1" onclick="manualDo('return')">반납 확인</button>
-        </div>
-        <div id="m-cf"></div>
-        <div id="m-msg"></div>
-      </div>
-    </div>
-
-    <!-- 제품 관리 -->
-    <div class="pg" id="pg-prod">
-      <div class="sbar">
-        <input class="inp" id="sq" placeholder="이름 또는 ID 검색..." oninput="renderProds()"/>
-        <select class="inp" id="sst" onchange="renderProds()" style="width:100px;flex:none">
-          <option value="">전체</option>
-          <option value="avail">보관중</option>
-          <option value="rented">대여중</option>
-        </select>
-      </div>
-      <div style="display:flex;gap:8px;margin-bottom:14px">
-        <select class="inp" id="scat" onchange="renderProds()" style="flex:1"><option value="">전체 카테고리</option></select>
-        <button class="btn btnp" onclick="openAdd()">+ 추가</button>
-      </div>
-      <div id="plist"></div>
-      <div class="pgr" id="ppgr"></div>
-    </div>
-
-    <!-- 기록 -->
-    <div class="pg" id="pg-log">
-      <div class="sbar">
-        <input class="inp" id="lq" placeholder="제품명 검색..." oninput="renderLogs()"/>
-        <select class="inp" id="lft" onchange="renderLogs()" style="width:80px;flex:none">
-          <option value="">전체</option>
-          <option value="rent">대여</option>
-          <option value="return">반납</option>
-        </select>
-      </div>
-      <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
-        <button class="btn btnsm" onclick="exportCSV()">CSV 내보내기</button>
-      </div>
-      <div id="llist"></div>
-      <div class="pgr" id="lpgr"></div>
-    </div>
-
-  </div><!-- /main -->
-
-  <nav>
-    <button class="nb on" id="nb-dash" onclick="goPage('dash')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      대시보드
-    </button>
-    <button class="nb" id="nb-scan" onclick="goPage('scan')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M17 20h3v-3M20 17h-3"/></svg>
-      QR 스캔
-    </button>
-    <button class="nb" id="nb-prod" onclick="goPage('prod')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a1 1 0 00-1 1v11a1 1 0 001 1h16a1 1 0 001-1V8a1 1 0 00-1-1z"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
-      제품
-    </button>
-    <button class="nb" id="nb-log" onclick="goPage('log')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
-      기록
-    </button>
-  </nav>
+<!-- QR SCANNER -->
+<div id="qr-bd"></div>
+<div class="qr-pop" id="qr-pop">
+  <div class="qr-pop-hdr">
+    <span id="qr-pop-title">QR 스캔</span>
+    <button onclick="qrClose()">✕</button>
+  </div>
+  <div class="qr-video-wrap">
+    <video id="qr-video" autoplay playsinline muted></video>
+    <canvas id="qr-canvas"></canvas>
+    <div class="qr-corner qrc1"></div>
+    <div class="qr-corner qrc2"></div>
+    <div class="qr-corner qrc3"></div>
+    <div class="qr-corner qrc4"></div>
+    <div class="qr-scanline"></div>
+  </div>
+  <div class="qr-pop-hint" id="qr-pop-hint">제품 QR코드를 카메라에 비춰주세요</div>
+  <div class="qr-manual">
+    <input id="qr-manual-input" placeholder="직접 ID 입력..." autocomplete="off" onkeydown="if(event.key==='Enter')qrManualSubmit()">
+    <button onclick="qrManualSubmit()">입력</button>
+  </div>
 </div>
 
-<!-- 제품 추가 모달 -->
-<div class="ov" id="ov-add">
-<div class="modal">
-  <div class="mh" id="add-ttl">제품 추가</div>
-  <div class="fld">
-    <label>제품 이름 *</label>
-    <input class="inp" id="fn" placeholder="예: 캠핑 텐트 A형"/>
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo-icon">📦</div>
+  <div><div class="logo-title">렌탈 통합 관리</div><div class="logo-sub" id="today-lbl"></div></div>
+  <div class="topbar-space"></div>
+  <span class="save-lbl" id="save-lbl"></span>
+  <div class="month-nav" id="month-nav">
+    <button class="nav-btn" id="btn-prev">◀</button>
+    <span class="mon-txt" id="mon-lbl"></span>
+    <button class="nav-btn" id="btn-next">▶</button>
   </div>
-  <div class="fld">
-    <label>제품 ID * &nbsp;<small style="font-weight:400;color:#aaa">QR 스캔으로 자동 입력 가능</small></label>
-    <div style="display:flex;gap:8px">
-      <input class="inp" id="fi" placeholder="예: TENT-001" style="flex:1;font-family:monospace"/>
-      <button class="btn" id="iqbtn" onclick="toggleIdScan()" style="padding:0 14px;flex:none">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M17 20h3v-3M20 17h-3"/></svg>
+</div>
+
+<!-- TABS -->
+<div class="tab-bar">
+  <button class="tab-btn on" data-tab="schedule">📅 스케줄</button>
+  <button class="tab-btn" data-tab="products">📦 제품관리</button>
+  <button class="tab-btn" data-tab="logs">📋 대여기록</button>
+</div>
+
+<!-- PAGE SCHEDULE -->
+<div class="page on" id="page-schedule">
+  <div class="toolbar">
+    <button class="btn btn-blue" id="btn-add-rental">+ 대여 등록</button>
+    <button class="btn" id="btn-hol">📅 휴무 설정</button>
+    <button class="btn btn-green" id="btn-csv">📊 엑셀 내보내기</button>
+    <button class="btn" id="btn-save-html" style="color:var(--text3)">💾 HTML 저장</button>
+    <div class="legend">
+      <div class="leg"><div class="leg-dot" style="background:#ffff00;border:1.5px solid #ff0000"></div>발송중</div>
+      <div class="leg"><div class="leg-dot" style="background:#ff9900"></div>수거중</div>
+      <div class="leg"><div class="leg-dot" style="background:#2563EB"></div>택배발송+수거</div>
+      <div class="leg"><div class="leg-dot" style="background:#7C3AED"></div>직접</div>
+      <div class="leg"><div class="leg-dot" style="background:#0891B2"></div>공항</div>
+      <div class="leg"><div class="leg-dot" style="background:#059669"></div>발송+직접반납</div>
+      <div class="leg"><div class="leg-dot" style="background:#DB2777"></div>직접+수거</div>
+    </div>
+  </div>
+  <div class="search-bar">
+    <div class="search-wrap">
+      <input type="search" id="search-input" placeholder="고객명/품목/주소 검색..." autocomplete="off">
+      <span class="search-ico" id="search-ico">🔍</span>
+      <button class="search-clear hide" id="search-clear">✕</button>
+    </div>
+    <span class="search-count" id="search-count"></span>
+  </div>
+  <div class="sizebar">
+    <label>열 너비</label>
+    <button class="sz-btn" id="col-minus">－</button>
+    <span class="sz-val" id="col-val">88px</span>
+    <button class="sz-btn" id="col-plus">＋</button>
+    <div class="sz-div"></div>
+    <label>행 높이</label>
+    <button class="sz-btn" id="row-minus">－</button>
+    <span class="sz-val" id="row-val">52px</span>
+    <button class="sz-btn" id="row-plus">＋</button>
+    <div class="sz-div"></div>
+    <button class="sz-btn" id="btn-size-reset" style="color:var(--text3);font-size:11px">초기화</button>
+  </div>
+  <div class="main-scroll">
+    <div class="gantt-wrap"><div class="gantt-inner" id="gi"></div></div>
+  </div>
+</div>
+
+<!-- PAGE PRODUCTS -->
+<div class="page" id="page-products">
+  <div class="prod-toolbar">
+    <input type="search" id="prod-q" placeholder="제품명 또는 ID 검색..." autocomplete="off">
+    <select id="prod-cat-filter"><option value="">전체 카테고리</option></select>
+    <button class="btn btn-blue" id="btn-add-prod">+ 제품 추가</button>
+  </div>
+  <div class="prod-scroll"><div id="prod-list"></div></div>
+</div>
+
+<!-- PAGE LOGS -->
+<div class="page" id="page-logs">
+  <div class="prod-toolbar">
+    <input type="search" id="log-q" placeholder="제품/고객명 검색..." autocomplete="off">
+    <select id="log-filter">
+      <option value="">전체</option>
+      <option value="rent">대여만</option>
+      <option value="return">반납만</option>
+    </select>
+    <button class="btn btn-green" id="btn-log-csv">📊 CSV</button>
+    <button class="btn btn-outline-red" id="btn-clear-logs">🗑 전체삭제</button>
+  </div>
+  <div class="prod-scroll"><div id="log-list"></div></div>
+</div>
+
+<!-- 대여 등록/수정 모달 -->
+<div class="overlay" id="modal-rental">
+<div class="modal">
+  <button class="mx" data-close="modal-rental">✕</button>
+  <h3 id="rental-title">대여 등록</h3>
+  <div class="f-row"><label>고객명 <span class="req">* 필수</span></label><input id="f-cust" placeholder="홍길동" autocomplete="name"></div>
+  <div class="f-half">
+    <div class="f-row"><label>전화번호</label><input id="f-phone" placeholder="010-0000-0000" type="tel" autocomplete="tel" inputmode="tel"></div>
+    <div class="f-row"><label>주소</label><input id="f-addr" placeholder="서울시 강남구..." autocomplete="street-address"></div>
+  </div>
+  <div class="sec-sep">대여 품목 <span class="req">* 필수</span></div>
+  <div class="item-list" id="item-list"></div>
+  <div class="add-item-btns">
+    <button class="add-item-btn" id="btn-add-item">+ 품목 추가</button>
+    <button class="qr-add-btn" id="btn-qr-add-item">📷 QR 스캔</button>
+  </div>
+  <div class="sec-sep">대여 기간</div>
+  <div class="f-row">
+    <label>대여 시작 ~ 종료 <span class="req">* 필수</span></label>
+    <button class="range-btn" data-open-cal="rent">
+      <span class="rb-ico">📅</span><span class="rb-txt" id="lbl-rent">날짜를 선택하세요</span><span class="rb-arr">▼</span>
+    </button>
+  </div>
+  <div class="f-row"><label>배송 방식 <span class="req">* 필수</span></label>
+    <select id="f-ship">
+      <option value="direct">직접 수령 / 반납</option>
+      <option value="airport">공항 수령 / 반납</option>
+      <option value="send_only">택배 발송 + 직접 반납</option>
+      <option value="recv_only">직접 수령 + 택배 수거</option>
+      <option value="both">택배 발송 + 수거</option>
+    </select>
+  </div>
+  <div id="sec-airport" class="hide">
+    <div class="sec-sep">공항 정보</div>
+    <div class="f-half">
+      <div class="f-row"><label>수령 시간</label><input id="f-ap-pick" type="time" value="14:00"></div>
+      <div class="f-row"><label>반납 시간</label><input id="f-ap-ret" type="time" value="22:00"></div>
+    </div>
+    <div class="f-row"><label>장소 메모</label><input id="f-ap-memo" placeholder="인천공항 T1 3층 B카운터"></div>
+  </div>
+  <div id="sec-send" class="hide">
+    <div class="sec-sep">택배 발송 기간</div>
+    <div class="f-row">
+      <label>발송 시작 ~ 도착 예정</label>
+      <button class="range-btn" data-open-cal="send">
+        <span class="rb-ico">📦</span><span class="rb-txt" id="lbl-send">날짜를 선택하세요</span><span class="rb-arr">▼</span>
       </button>
     </div>
-    <div class="idsbox" id="idsbox">
-      <video id="idvid" autoplay playsinline muted></video>
-      <canvas id="idcvs"></canvas>
+  </div>
+  <div id="sec-recv" class="hide">
+    <div class="sec-sep">택배 수거 기간</div>
+    <div class="f-row">
+      <label>수거 시작 ~ 수거 완료</label>
+      <button class="range-btn" data-open-cal="recv">
+        <span class="rb-ico">📬</span><span class="rb-txt" id="lbl-recv">날짜를 선택하세요</span><span class="rb-arr">▼</span>
+      </button>
     </div>
-    <div id="id-msg"></div>
   </div>
-  <div class="fld">
-    <label>카테고리</label>
-    <input class="inp" id="fc" placeholder="예: 캠핑장비" list="cdl"/>
-    <datalist id="cdl"></datalist>
+  <div class="f-row" style="margin-top:12px"><label>메모</label><textarea id="f-memo" placeholder="특이사항..."></textarea></div>
+  <div id="del-confirm-row" class="hide" style="margin-top:12px;padding:12px;background:var(--red-l);border:1.5px solid rgba(220,38,38,.25);border-radius:var(--r);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <span style="flex:1;font-size:12px;font-weight:600;color:var(--red)">⚠️ 정말 삭제하시겠습니까?</span>
+    <button class="mbtn" style="padding:7px 14px;font-size:12px" onclick="hideDelConfirm()">취소</button>
+    <button class="mbtn mbtn-danger" style="padding:7px 14px;font-size:12px;margin-right:0" onclick="doDeleteConfirmed()">삭제 확인</button>
   </div>
-  <div class="fld">
-    <label>메모</label>
-    <input class="inp" id="fo" placeholder="선택사항"/>
-  </div>
-  <div style="display:flex;gap:8px;margin-top:4px">
-    <button class="btn btnf" onclick="closeOv('ov-add')">취소</button>
-    <button class="btn btnp btnf" onclick="saveProd()">저장</button>
+  <div class="modal-btns">
+    <button class="mbtn mbtn-danger hide" id="btn-del" onclick="showDelConfirm()">삭제</button>
+    <button class="mbtn mbtn-success hide" id="btn-done" onclick="doMarkDone()">✓ 반납완료</button>
+    <button class="mbtn mbtn-amber hide" id="btn-undone" onclick="doUndoDone()">↩ 반납완료 취소</button>
+    <button class="mbtn" onclick="modalClose('modal-rental')">취소</button>
+    <button class="mbtn mbtn-blue" id="btn-save-rental" onclick="doSaveRental()">저장</button>
   </div>
 </div>
 </div>
 
-<!-- 상세 모달 -->
-<div class="ov" id="ov-det">
+<!-- 제품 추가/수정 모달 -->
+<div class="overlay" id="modal-prod">
 <div class="modal">
-  <div class="mh" id="det-ttl"></div>
-  <div id="det-body"></div>
-  <button class="btn btnf" onclick="closeOv('ov-det')" style="margin-top:14px">닫기</button>
-</div>
-</div>
-
-<!-- QR 모달 -->
-<div class="ov" id="ov-qr">
-<div class="modal" style="text-align:center">
-  <div class="mh" id="qr-ttl" style="text-align:left"></div>
-  <div id="qrwrap" style="margin:16px 0;display:flex;justify-content:center"></div>
-  <p id="qr-sub" style="font-size:13px;color:#999;margin-bottom:16px"></p>
-  <div style="display:flex;gap:8px;justify-content:center">
-    <button class="btn btnp" onclick="dlQR()">저장</button>
-    <button class="btn" onclick="closeOv('ov-qr')">닫기</button>
+  <button class="mx" data-close="modal-prod">✕</button>
+  <h3 id="prod-title">제품 추가</h3>
+  <div class="f-row"><label>제품명 <span class="req">* 필수</span></label><input id="pf-name" placeholder="소니 A7C (카메라)"></div>
+  <div class="f-row">
+    <label>제품 QR ID <span style="color:var(--text3);font-weight:500">(선택 - QR 스캔용)</span></label>
+    <div style="display:flex;gap:8px">
+      <input id="pf-qrid" placeholder="CAM-001" style="flex:1;font-family:monospace" autocomplete="off">
+      <button class="qr-add-btn" id="btn-pf-scan" style="padding:10px 12px">📷</button>
+    </div>
+  </div>
+  <div class="f-half">
+    <div class="f-row"><label>카테고리</label><input id="pf-cat" placeholder="카메라/게임기 등" list="cat-dl"><datalist id="cat-dl"></datalist></div>
+    <div class="f-row"><label>총 보유수량 <span class="req">* 필수</span></label><input id="pf-total" type="number" min="1" value="1"></div>
+  </div>
+  <div class="f-row"><label>메모</label><textarea id="pf-note" placeholder="선택사항"></textarea></div>
+  <div class="modal-btns">
+    <button class="mbtn mbtn-danger hide" id="pf-del" onclick="deleteProd()">삭제</button>
+    <button class="mbtn" data-close="modal-prod">취소</button>
+    <button class="mbtn mbtn-blue" onclick="saveProd()">저장</button>
   </div>
 </div>
 </div>
 
-<!-- jsQR CDN -->
+<!-- 제품 상세 모달 -->
+<div class="overlay" id="modal-prod-detail">
+<div class="modal">
+  <button class="mx" data-close="modal-prod-detail">✕</button>
+  <h3 id="pdet-title"></h3>
+  <div id="pdet-body"></div>
+  <div class="modal-btns">
+    <button class="mbtn" data-close="modal-prod-detail">닫기</button>
+    <button class="mbtn mbtn-blue" id="pdet-edit-btn">수정</button>
+  </div>
+</div>
+</div>
+
+<!-- QR 코드 생성 모달 -->
+<div class="overlay" id="modal-qr-gen">
+<div class="modal" style="text-align:center">
+  <button class="mx" data-close="modal-qr-gen">✕</button>
+  <h3 id="qrgen-title" style="text-align:left"></h3>
+  <div class="qrgen-wrap" id="qrgen-wrap"></div>
+  <p id="qrgen-sub" style="font-size:13px;color:var(--text3);margin-bottom:8px"></p>
+  <div class="modal-btns">
+    <button class="mbtn" data-close="modal-qr-gen">닫기</button>
+    <button class="mbtn mbtn-blue" onclick="downloadQR()">💾 PNG 저장</button>
+  </div>
+</div>
+</div>
+
+<!-- 휴무 설정 -->
+<div class="overlay" id="modal-hol">
+<div class="modal">
+  <button class="mx" data-close="modal-hol">✕</button>
+  <h3>휴무일 설정</h3>
+  <p style="font-size:12px;color:var(--text3);margin-bottom:12px">달력에 빨간색으로 표시됩니다.</p>
+  <div id="hol-list"></div>
+  <div class="f-half">
+    <div class="f-row"><label>날짜</label><input id="hol-date" type="date"></div>
+    <div class="f-row"><label>사유</label><input id="hol-memo" placeholder="휴가, 병원 등"></div>
+  </div>
+  <button class="btn btn-outline-red" style="width:100%;margin-top:4px;padding:10px" id="btn-add-hol">+ 휴무일 추가</button>
+  <div class="modal-btns"><button class="mbtn" data-close="modal-hol">닫기</button></div>
+</div>
+</div>
+
+<!-- 날짜 상세 -->
+<div class="overlay" id="modal-day">
+<div class="modal">
+  <button class="mx" data-close="modal-day">✕</button>
+  <h3 id="day-title"></h3>
+  <div id="day-content"></div>
+  <div class="modal-btns"><button class="mbtn" data-close="modal-day">닫기</button></div>
+</div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
-<!-- qrcodejs CDN -->
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.js"></script>
 
 <script>
-// ── 데이터 ──
-var PK='rq5p', LK='rq5l';
-var prods=[], logs=[], editId=null;
-var scanStr=null, scanRaf=null, idStr=null, idRaf=null;
-var qrCvs=null, qrPid=null;
-var pp=1, lp=1, PER=10;
+'use strict';
+/* ===== 한국 공휴일 ===== */
+const KH={'2025-01-01':'신정','2025-01-28':'설날연휴','2025-01-29':'설날','2025-01-30':'설날연휴','2025-03-01':'삼일절','2025-05-05':'어린이날','2025-05-06':'대체공휴일','2025-05-12':'부처님오신날','2025-06-06':'현충일','2025-08-15':'광복절','2025-10-03':'개천절','2025-10-05':'추석연휴','2025-10-06':'추석','2025-10-07':'추석연휴','2025-10-08':'대체공휴일','2025-10-09':'한글날','2025-12-25':'크리스마스','2026-01-01':'신정','2026-01-28':'설날연휴','2026-01-29':'설날','2026-01-30':'설날연휴','2026-03-01':'삼일절','2026-05-05':'어린이날','2026-05-24':'부처님오신날','2026-06-06':'현충일','2026-08-15':'광복절','2026-09-24':'추석연휴','2026-09-25':'추석','2026-09-26':'추석연휴','2026-09-27':'대체공휴일','2026-10-03':'개천절','2026-10-09':'한글날','2026-12-25':'크리스마스','2027-01-01':'신정','2027-02-16':'설날연휴','2027-02-17':'설날','2027-02-18':'설날연휴','2027-03-01':'삼일절','2027-05-02':'부처님오신날','2027-05-05':'어린이날','2027-06-06':'현충일','2027-08-15':'광복절','2027-10-03':'개천절','2027-10-04':'추석연휴','2027-10-05':'추석','2027-10-06':'추석연휴','2027-10-09':'한글날','2027-12-25':'크리스마스'};
+const SCOL={both:'#2563EB',direct:'#7C3AED',airport:'#0891B2',send_only:'#059669',recv_only:'#DB2777'};
+const DAYS=['일','월','화','수','목','금','토'];
+const MNAMES=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
 
-function load(){
-  try{ prods=JSON.parse(localStorage.getItem(PK)||'[]'); }catch(e){ prods=[]; }
-  try{ logs=JSON.parse(localStorage.getItem(LK)||'[]'); }catch(e){ logs=[]; }
+/* ===== DB ===== */
+const KS='rmi_stock',KR='rmi_rentals',KHL='rmi_hol',KLG='rmi_logs',KLY='rmi_layout';
+function dbLoad(){
+  try{
+    const s=JSON.parse(localStorage.getItem(KS)||'null');
+    const r=JSON.parse(localStorage.getItem(KR)||'null');
+    const h=JSON.parse(localStorage.getItem(KHL)||'null');
+    const lg=JSON.parse(localStorage.getItem(KLG)||'null');
+    return{
+      stock: s||[
+        {id:'s1',name:'파워업밴드-마리오',total:4,cat:'게임기',qrId:'BAND-001',count:0,note:''},
+        {id:'s2',name:'파워업밴드-루이지',total:2,cat:'게임기',qrId:'BAND-002',count:0,note:''},
+        {id:'s3',name:'파워업밴드-피치공주',total:2,cat:'게임기',qrId:'BAND-003',count:0,note:''},
+        {id:'s4',name:'소니 A7C',total:2,cat:'카메라',qrId:'CAM-001',count:0,note:''},
+        {id:'s5',name:'맥북 에어 M3',total:1,cat:'노트북',qrId:'MAC-001',count:0,note:''},
+      ],
+      rentals: r||[
+        {id:'r1',cust:'김민준',items:[{sid:'s4',qty:1}],start:'2026-05-05',end:'2026-05-12',ship:'both',ss:'2026-05-03',se:'2026-05-04',vs:'2026-05-13',ve:'2026-05-14',apPick:'',apRet:'',apMemo:'',memo:'',done:false},
+        {id:'r2',cust:'이서연',items:[{sid:'s5',qty:1}],start:'2026-05-06',end:'2026-05-15',ship:'airport',ss:'',se:'',vs:'',ve:'',apPick:'09:30',apRet:'22:00',apMemo:'인천공항 T1',memo:'',done:false},
+        {id:'r3',cust:'박준혁',items:[{sid:'s1',qty:1},{sid:'s2',qty:1},{sid:'s3',qty:1}],start:'2026-05-08',end:'2026-05-14',ship:'both',ss:'2026-05-06',se:'2026-05-07',vs:'2026-05-15',ve:'2026-05-16',apPick:'',apRet:'',apMemo:'',memo:'',done:false},
+      ],
+      hol: h||[],
+      logs: lg||[],
+    };
+  }catch(e){return{stock:[],rentals:[],hol:[],logs:[]};}
 }
-function save(){
-  localStorage.setItem(PK, JSON.stringify(prods));
-  localStorage.setItem(LK, JSON.stringify(logs));
+function dbSave(){
+  try{
+    localStorage.setItem(KS,JSON.stringify(DB.stock));
+    localStorage.setItem(KR,JSON.stringify(DB.rentals));
+    localStorage.setItem(KHL,JSON.stringify(DB.hol));
+    localStorage.setItem(KLG,JSON.stringify(DB.logs));
+    const t=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+    localStorage.setItem('rmi_saved_at',t);
+    document.getElementById('save-lbl').textContent='저장됨 '+t;
+  }catch(e){}
 }
-load();
+let DB=dbLoad();
+// 기존 데이터 마이그레이션 (qrId, count 필드 없을 때)
+DB.stock.forEach(s=>{
+  if(s.qrId===undefined) s.qrId='';
+  if(s.count===undefined) s.count=0;
+  if(s.cat===undefined) s.cat='';
+  if(s.note===undefined) s.note='';
+});
 
-// ── 페이지 전환 ──
-function goPage(id){
-  document.querySelectorAll('.pg').forEach(function(el){ el.classList.remove('on'); });
-  document.querySelectorAll('.nb').forEach(function(el){ el.classList.remove('on'); });
-  document.getElementById('pg-'+id).classList.add('on');
-  document.getElementById('nb-'+id).classList.add('on');
-  stopScan(); stopIdScan();
-  if(id==='dash') renderDash();
-  if(id==='prod'){ pp=1; renderProds(); }
-  if(id==='log'){ lp=1; renderLogs(); }
-  document.getElementById('main').scrollTop=0;
+/* ===== LAYOUT ===== */
+let COL_W=88, ROW_H=52;
+(function(){
+  try{const d=JSON.parse(localStorage.getItem(KLY)||'{}');if(d.c>0)COL_W=d.c;if(d.r>0)ROW_H=d.r;}catch(e){}
+})();
+function saveLayout(){try{localStorage.setItem(KLY,JSON.stringify({c:COL_W,r:ROW_H}));}catch(e){}}
+function applyCss(){
+  document.documentElement.style.setProperty('--col',COL_W+'px');
+  document.getElementById('col-val').textContent=COL_W+'px';
+  document.getElementById('row-val').textContent=ROW_H+'px';
+  document.querySelectorAll('.g-row').forEach(el=>el.style.minHeight=ROW_H+'px');
+  document.querySelectorAll('.g-cell').forEach(el=>el.style.minHeight=ROW_H+'px');
 }
 
-// ── 유틸 ──
-function pad(n){ return String(n).padStart(2,'0'); }
-function fmt(iso){
-  var d=new Date(iso);
-  return d.getFullYear()+'.'+pad(d.getMonth()+1)+'.'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+/* ===== TAB ===== */
+let curTab='schedule';
+function switchTab(tab){
+  curTab=tab;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
+  document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id==='page-'+tab));
+  document.getElementById('month-nav').style.display=(tab==='schedule')?'flex':'none';
+  if(tab==='products')renderProducts();
+  if(tab==='logs')renderLogs();
 }
-function showMsg(eid, txt, t, dur){
-  dur = dur||5000;
-  var el=document.getElementById(eid); if(!el) return;
-  el.innerHTML='<div class="msg m'+t+'">'+txt+'</div>';
-  setTimeout(function(){ if(el) el.innerHTML=''; }, dur);
-}
-function openOv(id){ document.getElementById(id).classList.add('on'); }
-function closeOv(id){
-  document.getElementById(id).classList.remove('on');
-  if(id==='ov-add') stopIdScan();
+document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+
+/* ===== DATE UTILS ===== */
+let VY=new Date().getFullYear(), VM=new Date().getMonth();
+function pad(n){return String(n).padStart(2,'0')}
+function ds(d){return d?d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()):'';}
+function dp(s){if(!s)return null;const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
+function clr(d){const c=new Date(d);c.setHours(0,0,0,0);return c;}
+function same(a,b){return a&&b&&clr(a).getTime()===clr(b).getTime();}
+function fmtD(d){return d?(d.getMonth()+1)+'월'+d.getDate()+'일':'';}
+function fmtRange(s,e){if(!s)return null;if(!e)return fmtD(s)+' → 종료일 선택';return fmtD(s)+' ~ '+fmtD(e);}
+function fmtDt(iso){const d=new Date(iso);return d.getFullYear()+'.'+pad(d.getMonth()+1)+'.'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());}
+function monthDays(){const arr=[],f=new Date(VY,VM,1),l=new Date(VY,VM+1,0);for(let d=new Date(f);d<=l;d.setDate(d.getDate()+1))arr.push(clr(new Date(d)));return arr;}
+function isHol(d){const s=ds(clr(d));return !!(KH[s]||DB.hol.find(h=>h.date===s));}
+function holName(d){const s=ds(clr(d));return KH[s]||(DB.hol.find(h=>h.date===s)||{}).memo||'';}
+function fmtMon(s){const d=dp(s);return d?(d.getMonth()+1)+'/'+d.getDate():'';}
+
+/* ===== INVENTORY ===== */
+function calcInv(dstr){
+  const d=clr(dp(dstr));const rem={};
+  DB.stock.forEach(s=>rem[s.id]=s.total);
+  DB.rentals.forEach(r=>{
+    if(r.done)return;
+    const from=clr(dp(r.ss||r.start)),to=clr(dp(r.ve||r.end));
+    if(d>=from&&d<=to) r.items.forEach(it=>rem[it.sid]=(rem[it.sid]||0)-it.qty);
+  });
+  return rem;
 }
 
-// ── 대시보드 ──
-function renderDash(){
-  var rented=prods.filter(function(p){ return p.rented; }).length;
-  document.getElementById('d-tot').textContent=prods.length;
-  document.getElementById('d-rnt').textContent=rented;
-  document.getElementById('d-avl').textContent=prods.length-rented;
-  document.getElementById('d-cnt').textContent=logs.filter(function(l){ return l.type==='rent'; }).length;
-
-  var top=[].concat(prods).sort(function(a,b){ return b.count-a.count; }).slice(0,5);
-  document.getElementById('d-top').innerHTML = top.length
-    ? top.map(function(p,i){ return '<div class="ritem"><span style="color:#bbb;font-size:13px;min-width:18px">'+(i+1)+'</span><span style="flex:1;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+p.name+'</span><strong style="font-size:14px">'+p.count+'회</strong></div>'; }).join('')
-    : '<div class="empty" style="padding:10px">없음</div>';
-
-  var rec=[].concat(logs).reverse().slice(0,7);
-  document.getElementById('d-rec').innerHTML = rec.length
-    ? rec.map(function(l){ return '<div class="ritem"><span class="bdg '+(l.type==='rent'?'out':'ok')+'">'+(l.type==='rent'?'대여':'반납')+'</span><span style="flex:1;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0 8px">'+l.name+'</span><span style="font-size:11px;color:#bbb;white-space:nowrap">'+fmt(l.date)+'</span></div>'; }).join('')
-    : '<div class="empty" style="padding:10px">없음</div>';
+function getScheds(dstr){
+  const d=clr(dp(dstr));const out=[];
+  DB.rentals.forEach(r=>{
+    if(r.done)return;
+    const ss=r.ss?clr(dp(r.ss)):null,vs=r.vs?clr(dp(r.vs)):null;
+    if(ss&&same(d,ss))out.push({t:'send',lbl:r.cust+' 택배 발송',r});
+    if(vs&&same(d,vs))out.push({t:'recv',lbl:r.cust+' 수거 예약',r});
+    if(r.ship==='recv_only'&&same(d,clr(dp(r.end)))&&!vs)out.push({t:'recv',lbl:r.cust+' 수거 예약',r});
+  });
+  return out;
 }
 
-// ── jsQR 스캔 공통 ──
-function runScan(video, canvas, onFound){
-  if(!video.srcObject) return;
-  if(video.readyState < video.HAVE_ENOUGH_DATA){
-    return void(scanRaf=requestAnimationFrame(function(){ runScan(video,canvas,onFound); }));
+function iname(id){return(DB.stock.find(x=>x.id===id)||{name:'?'}).name;}
+function isum(r){return r.items.map(it=>iname(it.sid)+' x'+it.qty).join(', ');}
+function scol(ship){return SCOL[ship]||SCOL.both;}
+
+/* ===== BARS ===== */
+function makeBars(r,days){
+  const n=days.length,done=!!r.done;
+  const ss=r.ss?clr(dp(r.ss)):null,se=r.se?clr(dp(r.se)):null;
+  const rs=clr(dp(r.start)),re=clr(dp(r.end));
+  const vs=r.vs?clr(dp(r.vs)):null,ve=r.ve?clr(dp(r.ve)):null;
+  const hasSend=!done&&ss&&se,hasRecv=!done&&vs&&ve;
+  const col=scol(r.ship);
+  const shipLbl={both:'[택배]',direct:'[직접]',airport:'[공항]',send_only:'[발송]',recv_only:'[수거]'}[r.ship]||'';
+  const apNote=r.ship==='airport'?((r.apPick?'수령'+r.apPick:'')+(r.apRet?' 반납'+r.apRet:'')+(r.apMemo?' '+r.apMemo:'')):'';
+  const nameStr=r.cust+' '+fmtMon(r.start)+'~'+fmtMon(r.end)+' '+shipLbl+(apNote?' '+apNote:'');
+  const itemStr=isum(r),dim=done?' dimmed':'';
+  function span(from,to,extraCls,style,inner){
+    let si=-1,ei=-1;
+    for(let i=0;i<n;i++){if(days[i]>=from&&days[i]<=to){if(si<0)si=i;ei=i;}}
+    if(si<0)return'';
+    return `<div class="sbar ${extraCls}${dim}" data-edit="${r.id}" style="left:${si*COL_W+1}px;width:${(ei-si+1)*COL_W-2}px;${style}">${inner}</div>`;
   }
-  var w=video.videoWidth, h=video.videoHeight;
-  if(!w||!h) return void(scanRaf=requestAnimationFrame(function(){ runScan(video,canvas,onFound); }));
-  canvas.width=w; canvas.height=h;
-  canvas.getContext('2d').drawImage(video,0,0,w,h);
-  var img=canvas.getContext('2d').getImageData(0,0,w,h);
-  var code=jsQR(img.data,w,h,{inversionAttempts:'dontInvert'});
-  if(code){ onFound(code.data); return; }
-  scanRaf=requestAnimationFrame(function(){ runScan(video,canvas,onFound); });
+  let out='';
+  if(hasSend)out+=span(ss,se,'sbar-send','','<span>발송중</span>');
+  let mainCls='sbar-main';
+  if(hasSend&&hasRecv)mainCls+=' no-lr';else if(hasSend)mainCls+=' no-l';else if(hasRecv)mainCls+=' no-r';
+  out+=span(rs,re,mainCls,'background:'+col+';','<span class="sn">'+nameStr+'</span><span class="si">'+itemStr+'</span>');
+  if(hasRecv)out+=span(vs,ve,'sbar-recv','','<span>수거중</span>');
+  return out;
 }
 
-// ── 메인 스캔 ──
-function startScan(){
-  var video=document.getElementById('svid');
-  var canvas=document.getElementById('scvs');
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
-    showMsg('sc-msg','이 브라우저는 카메라를 지원하지 않습니다.','err'); return;
-  }
-  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:640},height:{ideal:480}}})
-  .then(function(stream){
-    scanStr=stream;
-    video.srcObject=stream;
-    video.style.display='block';
-    document.getElementById('sidle').style.display='none';
-    ['sline','c1','c2','c3','c4'].forEach(function(id){ document.getElementById(id).style.display='block'; });
-    document.getElementById('btn-start').style.display='none';
-    document.getElementById('btn-stop').style.display='block';
-    document.getElementById('sc-cf').innerHTML='';
-    document.getElementById('sc-msg').innerHTML='';
-    var found=false;
-    var ctx=canvas.getContext('2d');
-    function tick(){
-      if(found||!scanStr) return;
-      if(video.readyState < video.HAVE_ENOUGH_DATA){ scanRaf=requestAnimationFrame(tick); return; }
-      var w=video.videoWidth, h=video.videoHeight;
-      if(!w||!h){ scanRaf=requestAnimationFrame(tick); return; }
-      canvas.width=w; canvas.height=h;
-      ctx.drawImage(video,0,0,w,h);
-      var img=ctx.getImageData(0,0,w,h);
-      var code=jsQR(img.data,w,h,{inversionAttempts:'attemptBoth'});
-      if(code && code.data){ found=true; handleScan(code.data); return; }
-      scanRaf=requestAnimationFrame(tick);
-    }
-    video.onloadeddata=function(){ scanRaf=requestAnimationFrame(tick); };
-    if(video.readyState >= video.HAVE_ENOUGH_DATA){ scanRaf=requestAnimationFrame(tick); }
-  })
-  .catch(function(){
-    showMsg('sc-msg','카메라 권한이 필요합니다. 브라우저 주소창 왼쪽 자물쇠 아이콘을 눌러 허용해 주세요.','err',8000);
+function sortRentals(){
+  return [...DB.rentals].sort((a,b)=>{
+    if(a.done!==b.done)return a.done?1:-1;
+    const da=a.ss||a.start||'9999',db=b.ss||b.start||'9999';
+    if(da!==db)return da<db?-1:1;
+    return DB.rentals.indexOf(a)-DB.rentals.indexOf(b);
   });
 }
 
-function stopScan(){
-  if(scanStr){ scanStr.getTracks().forEach(function(t){ t.stop(); }); scanStr=null; }
-  cancelAnimationFrame(scanRaf);
-  var video=document.getElementById('svid');
-  if(video){ video.style.display='none'; video.srcObject=null; }
-  document.getElementById('sidle').style.display='flex';
-  ['sline','c1','c2','c3','c4'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.display='none'; });
-  var bs=document.getElementById('btn-start'); if(bs) bs.style.display='block';
-  var be=document.getElementById('btn-stop'); if(be) be.style.display='none';
+function render(){
+  const today=clr(new Date()),days=monthDays();
+  const todayIdx=days.findIndex(d=>same(d,today));
+  const sorted=sortRentals();
+  document.getElementById('mon-lbl').textContent=VY+'년 '+(VM+1)+'월';
+  document.getElementById('today-lbl').textContent=today.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
+  const savedAt=localStorage.getItem('rmi_saved_at');
+  if(savedAt)document.getElementById('save-lbl').textContent='저장됨 '+savedAt;
+
+  let h='';
+  h+='<div class="date-hdr"><div class="dh-lbl">대여 현황</div>';
+  days.forEach(d=>{
+    const dow=d.getDay(),tod=same(d,today),hol=isHol(d),hn=holName(d);
+    let cls='dh-col';
+    if(tod)cls+=' is-today';
+    if(hol||dow===0)cls+=' is-hol';else if(dow===6)cls+=' is-sat';
+    h+=`<div class="${cls}" data-day="${ds(d)}"><div>${d.getDate()}</div><div class="dow">${DAYS[dow]}</div>${hn?`<span class="hol-nm">${hn.slice(0,4)}</span>`:''}</div>`;
+  });
+  h+='</div>';
+  if(!sorted.length)h+='<div class="empty-state">등록된 대여 내역이 없습니다.<br>+ 대여 등록 버튼을 눌러 추가하세요.</div>';
+  sorted.forEach(r=>{
+    const done=!!r.done;
+    h+=`<div class="g-row" data-rid="${r.id}" style="min-height:${ROW_H}px">`;
+    h+=`<div class="g-lbl${done?' dimmed':''}" data-edit="${r.id}"><div class="g-dot" style="background:${scol(r.ship)}"></div><div style="min-width:0;overflow:hidden"><div class="g-name">${r.cust}${done?'<span class="done-badge">반납완료</span>':''}</div><div class="g-sub">${isum(r)}${r.phone?' · '+r.phone:''}</div></div></div>`;
+    h+='<div class="g-cells">';
+    days.forEach(d=>{
+      const dow=d.getDay(),tod=same(d,today),hol=isHol(d);
+      let cls='g-cell';
+      if(tod)cls+=' is-today';
+      if(hol)cls+=' is-hol';else if(dow===0||dow===6)cls+=' is-wknd';
+      h+=`<div class="${cls}" style="min-height:${ROW_H}px" data-day="${ds(d)}"></div>`;
+    });
+    if(todayIdx>=0)h+=`<div class="today-line" style="left:${todayIdx*COL_W}px;width:${COL_W}px"></div>`;
+    h+=makeBars(r,days);
+    h+='</div></div>';
+  });
+  h+='<div class="sec-hdr"><div class="sec-hdr-lbl">스케줄</div>';
+  days.forEach(d=>h+=`<div class="sec-hdr-cell${same(d,today)?' is-today':''}"></div>`);
+  h+='</div>';
+  h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#ff0000"></div>📦 택배 발송</div>';
+  days.forEach(d=>{
+    const dow=d.getDay(),tod=same(d,today),hol=isHol(d);
+    const ch=getScheds(ds(d)).filter(s=>s.t==='send').map(s=>`<span class="chip chip-send">${s.lbl}</span>`).join('');
+    let cls='sched-cell';if(tod)cls+=' is-today';if(hol)cls+=' is-hol';else if(dow===0||dow===6)cls+=' is-wknd';
+    h+=`<div class="${cls}" data-day="${ds(d)}">${ch}</div>`;
+  });
+  h+='</div>';
+  h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#ff9900"></div>📬 택배 수거</div>';
+  days.forEach(d=>{
+    const dow=d.getDay(),tod=same(d,today),hol=isHol(d);
+    const ch=getScheds(ds(d)).filter(s=>s.t==='recv').map(s=>`<span class="chip chip-recv">${s.lbl}</span>`).join('');
+    let cls='sched-cell';if(tod)cls+=' is-today';if(hol)cls+=' is-hol';else if(dow===0||dow===6)cls+=' is-wknd';
+    h+=`<div class="${cls}" data-day="${ds(d)}">${ch}</div>`;
+  });
+  h+='</div>';
+  h+='<div class="sec-hdr"><div class="sec-hdr-lbl">재고 현황</div>';
+  days.forEach(d=>h+=`<div class="sec-hdr-cell${same(d,today)?' is-today':''}"></div>`);
+  h+='</div><div class="inv-section">';
+  DB.stock.forEach(s=>{
+    h+=`<div class="inv-row"><div class="inv-name">${s.name} <span style="color:var(--text3);font-weight:400">(총 ${s.total})</span></div>`;
+    days.forEach(d=>{
+      const left=(calcInv(ds(d))[s.id]??s.total),ratio=s.total>0?left/s.total:1,tod=same(d,today);
+      const cls=left<=0?'danger':ratio<=.5?'warn':left===s.total?'full':'ok';
+      h+=`<div class="inv-cell ${cls}${tod?' is-today':''}">${left<=0?'✕':left}</div>`;
+    });
+    h+='</div>';
+  });
+  h+='</div>';
+
+  const gi=document.getElementById('gi');
+  gi.innerHTML=h;
+  gi.querySelectorAll('.g-row').forEach((row,i)=>{
+    const r=sorted[i];if(!r)return;
+    const lbl=row.querySelector('.g-lbl');if(!lbl)return;
+    const wrap=document.createElement('div');wrap.className='ord-btns';
+    ['▲','▼'].forEach((sym,di)=>{
+      const b=document.createElement('button');b.className='ord-btn';b.textContent=sym;b.title=di===0?'위로':'아래로';
+      b.addEventListener('click',ev=>{
+        ev.stopPropagation();
+        const idx=DB.rentals.findIndex(x=>x.id===r.id);if(idx<0)return;
+        const to=idx+(di===0?-1:1);if(to<0||to>=DB.rentals.length)return;
+        const[item]=DB.rentals.splice(idx,1);DB.rentals.splice(to,0,item);
+        dbSave();render();
+      });
+      wrap.appendChild(b);
+    });
+    lbl.appendChild(wrap);
+  });
+  applyCss();
 }
 
-function handleScan(raw){
-  var id=raw.startsWith('RENTAL:') ? raw.replace('RENTAL:','') : raw;
-  stopScan();
-  var p=prods.find(function(x){ return x.id===id; });
-  if(!p){ showMsg('sc-msg','등록되지 않은 제품입니다.<br>ID: '+id,'err'); return; }
-  buildConfirm(p, p.rented?'return':'rent', 'sc-cf', 'sc-msg');
+/* ===== CALENDAR ===== */
+const CSTATE={
+  rent:{s:null,e:null,step:'s',y:new Date().getFullYear(),m:new Date().getMonth()},
+  send:{s:null,e:null,step:'s',y:new Date().getFullYear(),m:new Date().getMonth()},
+  recv:{s:null,e:null,step:'s',y:new Date().getFullYear(),m:new Date().getMonth()},
+};
+let openCalKey=null;
+function calSetDate(key,s,e){
+  const c=CSTATE[key];c.s=dp(s);c.e=dp(e);c.step='s';
+  if(c.s){c.y=c.s.getFullYear();c.m=c.s.getMonth();}
+  calUpdateBtn(key);
 }
-
-// ── 대여/반납 확인창 ──
-function buildConfirm(p, action, cfId, msgId){
-  var cfEl=document.getElementById(cfId);
-  cfEl.innerHTML='<div class="cfbox">'
-    +'<div class="cfname">'+p.name+'</div>'
-    +'<div class="cfmeta">ID: '+p.id+'<br>현재: <span class="bdg '+(p.rented?'out':'ok')+'">'+(p.rented?'대여중':'보관중')+'</span><br>지금까지 대여 <strong>'+p.count+'회</strong></div>'
-    +'<button class="btn '+(action==='rent'?'btnp':'btng')+' btnf" onclick="doConfirm(\''+p.id+'\',\''+cfId+'\',\''+msgId+'\')">'+(action==='rent'?'대여 시작':'반납 처리')+'</button>'
-    +'<button class="btn btnf" onclick="document.getElementById(\''+cfId+'\').innerHTML=\'\'" style="margin-top:8px">취소</button>'
-    +'</div>';
+function calUpdateBtn(key){
+  const c=CSTATE[key];
+  const txt=fmtRange(c.s,c.e)||'날짜를 선택하세요';
+  const el=document.getElementById('lbl-'+key);
+  if(el){el.textContent=txt;el.classList.toggle('filled',!!(c.s&&c.e));}
 }
-
-function doConfirm(id, cfId, msgId){
-  var p=prods.find(function(x){ return x.id===id; });
-  if(!p) return;
-  var type=p.rented?'return':'rent';
-  p.rented=!p.rented;
-  if(type==='rent') p.count++;
-  logs.push({productId:id, name:p.name, type:type, date:new Date().toISOString()});
-  save();
-  document.getElementById(cfId).innerHTML='';
-  showMsg(msgId, (type==='rent'?'✓ 대여 완료: ':'✓ 반납 완료: ')+p.name+(type==='rent'?' (총 '+p.count+'회)':''), 'ok');
+function calOpen(key){
+  if(openCalKey&&openCalKey!==key)document.getElementById('cal-'+openCalKey).classList.remove('open');
+  const popup=document.getElementById('cal-'+key);
+  if(popup.classList.contains('open')){calClose();return;}
+  openCalKey=key;calBuild(key);popup.classList.add('open');
+  document.getElementById('cal-bd').style.display='block';
 }
-
-function manualDo(action){
-  var id=document.getElementById('mid').value.trim();
-  if(!id){ showMsg('m-msg','ID를 입력해 주세요.','warn'); return; }
-  var p=prods.find(function(x){ return x.id===id; });
-  if(!p){ showMsg('m-msg','등록되지 않은 제품 ID입니다.','err'); return; }
-  if(action==='rent'&&p.rented){ showMsg('m-msg','이미 대여 중인 제품입니다.','warn'); return; }
-  if(action==='return'&&!p.rented){ showMsg('m-msg','현재 대여 중이 아닙니다.','warn'); return; }
-  document.getElementById('m-msg').innerHTML='';
-  buildConfirm(p, action, 'm-cf', 'm-msg');
+function calClose(){
+  ['rent','send','recv'].forEach(k=>document.getElementById('cal-'+k).classList.remove('open'));
+  document.getElementById('cal-bd').style.display='none';
+  openCalKey=null;
 }
-
-// ── ID 스캔 (제품 추가 모달) ──
-var idScanOn=false;
-function toggleIdScan(){
-  idScanOn ? stopIdScan() : startIdScan();
-}
-function startIdScan(){
-  var box=document.getElementById('idsbox');
-  var video=document.getElementById('idvid');
-  var canvas=document.getElementById('idcvs');
-  var msgEl=document.getElementById('id-msg');
-  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:640},height:{ideal:480}}})
-  .then(function(stream){
-    idStr=stream;
-    video.srcObject=stream;
-    box.style.display='flex';
-    idScanOn=true;
-    document.getElementById('iqbtn').style.background='#fce4ec';
-    msgEl.innerHTML='<div style="font-size:13px;color:#999;margin-top:6px;text-align:center">QR을 카메라에 비춰주세요</div>';
-    var found=false;
-    var ctx=canvas.getContext('2d');
-    function tick(){
-      if(found||!idStr) return;
-      if(video.readyState < video.HAVE_ENOUGH_DATA){ idRaf=requestAnimationFrame(tick); return; }
-      var w=video.videoWidth, h=video.videoHeight;
-      if(!w||!h){ idRaf=requestAnimationFrame(tick); return; }
-      canvas.width=w; canvas.height=h;
-      ctx.drawImage(video,0,0,w,h);
-      var img=ctx.getImageData(0,0,w,h);
-      var code=jsQR(img.data,w,h,{inversionAttempts:'attemptBoth'});
-      if(code && code.data){
-        found=true;
-        var raw=code.data;
-        var id=raw.startsWith('RENTAL:') ? raw.replace('RENTAL:','') : raw;
-        document.getElementById('fi').value=id;
-        stopIdScan();
-        msgEl.innerHTML='<div class="msg mok">ID 입력 완료: <strong>'+id+'</strong></div>';
-        return;
+function calBuild(key){
+  const c=CSTATE[key],today=clr(new Date());
+  const S=c.s?clr(c.s):null,E=c.e?clr(c.e):null;
+  const prevRent=key!=='rent'?{s:CSTATE.rent.s?clr(CSTATE.rent.s):null,e:CSTATE.rent.e?clr(CSTATE.rent.e):null}:null;
+  const prevSend=key==='recv'?{s:CSTATE.send.s?clr(CSTATE.send.s):null,e:CSTATE.send.e?clr(CSTATE.send.e):null}:null;
+  const hint=(!S||c.step==='s')?'① 시작일을 탭하세요':'② 종료일을 탭하세요 (시작: '+fmtD(S)+')';
+  let previewBadges='';
+  if(key==='send'&&prevRent&&(prevRent.s||prevRent.e))previewBadges+=`<div class="cal-prev-row"><span class="cal-prev-badge rent-badge">📅 대여기간: ${fmtRange(prevRent.s,prevRent.e)||'미선택'}</span></div>`;
+  if(key==='recv'){
+    if(prevRent&&(prevRent.s||prevRent.e))previewBadges+=`<div class="cal-prev-row" style="margin-bottom:4px"><span class="cal-prev-badge rent-badge">📅 대여기간: ${fmtRange(prevRent.s,prevRent.e)||'미선택'}</span>`;
+    if(prevSend&&(prevSend.s||prevSend.e))previewBadges+=`<span class="cal-prev-badge send-badge" style="margin-left:6px">📦 발송기간: ${fmtRange(prevSend.s,prevSend.e)||'미선택'}</span>`;
+    if(previewBadges)previewBadges+='</div>';
+  }
+  let months='';
+  for(let mi=0;mi<2;mi++){
+    let cy=c.y,cm=c.m+mi;
+    if(cm>11){cm-=12;cy++;}
+    const dim=new Date(cy,cm+1,0).getDate();
+    const sdow=new Date(cy,cm,1).getDay();
+    let grid=DAYS.map(d=>`<div class="cal-dow">${d}</div>`).join('');
+    for(let i=0;i<sdow;i++)grid+=`<div class="cal-day emp"></div>`;
+    for(let day=1;day<=dim;day++){
+      const cur=clr(new Date(cy,cm,day)),dstr=ds(cur),dow=cur.getDay();
+      const iS=S&&cur.getTime()===S.getTime(),iE=E&&cur.getTime()===E.getTime();
+      const inR=S&&E&&cur>S&&cur<E,isTod=cur.getTime()===today.getTime();
+      const hol=!!KH[dstr]||DB.hol.some(h=>h.date===dstr)||dow===0;
+      let previewCls='';
+      if(prevRent&&prevRent.s&&prevRent.e){
+        const pS=prevRent.s,pE=prevRent.e;
+        if(cur.getTime()===pS.getTime())previewCls='prev-rent-s';
+        else if(cur.getTime()===pE.getTime())previewCls='prev-rent-e';
+        else if(cur>pS&&cur<pE)previewCls='prev-rent-rng';
       }
-      idRaf=requestAnimationFrame(tick);
+      if(prevSend&&prevSend.s&&prevSend.e){
+        const pS=prevSend.s,pE=prevSend.e;
+        if(cur.getTime()===pS.getTime())previewCls='prev-send-s';
+        else if(cur.getTime()===pE.getTime())previewCls='prev-send-e';
+        else if(cur>pS&&cur<pE)previewCls='prev-send-rng';
+      }
+      let cls='cal-day';
+      if(iS)cls+=' sel-s';if(iE)cls+=' sel-e';if(inR)cls+=' in-rng';if(isTod)cls+=' cur-day';
+      if(hol)cls+=' hol';else if(dow===6)cls+=' sat';
+      const isPreviewOnly=previewCls&&!iS&&!iE&&!inR;
+      if(isPreviewOnly)cls+=' '+previewCls;
+      const hn=(DB.hol.find(h=>h.date===dstr)||{}).memo||KH[dstr]||'';
+      const hnlbl=hn?`<span style="font-size:8px;display:block;line-height:1">${hn.slice(0,4)}</span>`:'';
+      const clickAttr=isPreviewOnly?'':`data-cal-day="${key}|${dstr}"`;
+      const cursorStyle=isPreviewOnly?'style="cursor:default"':'';
+      grid+=`<div class="${cls}" ${clickAttr} ${cursorStyle}>${day}${hnlbl}</div>`;
     }
-    video.onloadeddata=function(){ idRaf=requestAnimationFrame(tick); };
-    if(video.readyState >= video.HAVE_ENOUGH_DATA){ idRaf=requestAnimationFrame(tick); }
-  })
-  .catch(function(){
-    msgEl.innerHTML='<div class="msg merr">카메라 권한이 필요합니다.</div>';
+    const prevBtn=mi===0?`<button data-cal-nav="${key}|-1">&#8592;</button>`:'<span></span>';
+    const nextBtn=mi===1?`<button data-cal-nav="${key}|1">&#8594;</button>`:'<span></span>';
+    months+=`<div class="cal-month"><div class="cal-navrow">${prevBtn}<strong>${cy}년 ${MNAMES[cm]}</strong>${nextBtn}</div><div class="cal-grid">${grid}</div></div>`;
+  }
+  const infoTxt=fmtRange(S,E)||'시작일을 탭하세요';
+  document.getElementById('cal-'+key).innerHTML=
+    (previewBadges||'')
+    +`<div class="cal-hint">${hint}</div>`
+    +`<div class="cal-months">${months}</div>`
+    +`<div class="cal-footer"><span class="cal-info">${infoTxt}</span><button class="mbtn" data-cal-clear="${key}">초기화</button><button class="mbtn mbtn-blue" data-cal-confirm="${key}">확인</button></div>`;
+}
+
+/* ===== MODAL ===== */
+function modalOpen(id){document.getElementById(id).classList.add('open');}
+function modalClose(id){document.getElementById(id).classList.remove('open');}
+
+/* ===== HOLIDAY ===== */
+function holOpen(){
+  holRender();
+  document.getElementById('hol-date').value=ds(new Date());
+  document.getElementById('hol-memo').value='';
+  modalOpen('modal-hol');
+}
+function holRender(){
+  document.getElementById('hol-list').innerHTML=DB.hol.length===0
+    ?'<p style="font-size:12px;color:var(--text3);padding:6px 0">등록된 휴무일 없음</p>'
+    :DB.hol.sort((a,b)=>a.date.localeCompare(b.date)).map(h=>`<div class="hol-row"><span>${h.date}${h.memo?' ('+h.memo+')':''}</span><button data-del-hol="${h.date}">삭제</button></div>`).join('');
+}
+
+/* ===== RENTAL MODAL ===== */
+let editId=null;
+function rentalAdd(){
+  editId=null;
+  document.getElementById('rental-title').textContent='대여 등록';
+  document.getElementById('btn-del').classList.add('hide');
+  document.getElementById('btn-done').classList.add('hide');
+  document.getElementById('btn-undone').classList.add('hide');
+  ['f-cust','f-phone','f-addr','f-memo','f-ap-memo'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-ap-pick').value='14:00';
+  document.getElementById('f-ap-ret').value='22:00';
+  document.getElementById('f-ship').value='both';
+  const now=new Date();
+  function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
+  calSetDate('rent',ds(now),ds(addDays(now,3)));
+  calSetDate('send',ds(addDays(now,-2)),ds(addDays(now,-1)));
+  calSetDate('recv',ds(addDays(now,4)),ds(addDays(now,5)));
+  itemsClear();itemsAdd();
+  shipToggle();
+  document.getElementById('del-confirm-row').classList.add('hide');
+  modalOpen('modal-rental');
+}
+function rentalEdit(id){
+  const r=DB.rentals.find(x=>x.id===id);if(!r)return;
+  editId=id;
+  document.getElementById('rental-title').textContent='대여 수정';
+  document.getElementById('btn-del').classList.remove('hide');
+  document.getElementById('btn-done').classList.toggle('hide',r.done);
+  document.getElementById('btn-undone').classList.toggle('hide',!r.done);
+  document.getElementById('f-cust').value=r.cust;
+  document.getElementById('f-phone').value=r.phone||'';
+  document.getElementById('f-addr').value=r.addr||'';
+  document.getElementById('f-ship').value=r.ship;
+  document.getElementById('f-ap-pick').value=r.apPick||'';
+  document.getElementById('f-ap-ret').value=r.apRet||'';
+  document.getElementById('f-ap-memo').value=r.apMemo||'';
+  document.getElementById('f-memo').value=r.memo||'';
+  calSetDate('rent',r.start,r.end);
+  calSetDate('send',r.ss,r.se);
+  calSetDate('recv',r.vs,r.ve);
+  itemsClear();
+  if(r.items.length)r.items.forEach(it=>itemsAdd(it.sid,it.qty));else itemsAdd();
+  shipToggle();
+  document.getElementById('del-confirm-row').classList.add('hide');
+  modalOpen('modal-rental');
+}
+function shipToggle(){
+  const v=document.getElementById('f-ship').value;
+  document.getElementById('sec-airport').classList.toggle('hide',v!=='airport');
+  document.getElementById('sec-send').classList.toggle('hide',!(v==='send_only'||v==='both'));
+  document.getElementById('sec-recv').classList.toggle('hide',!(v==='recv_only'||v==='both'));
+}
+function itemsAdd(sid='',qty=1){
+  const id='ir_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+  const opts=DB.stock.length
+    ?DB.stock.map(s=>`<option value="${s.id}"${s.id===sid?' selected':''}>${s.name}${s.qrId?' ['+s.qrId+']':''}</option>`).join('')
+    :'<option value="">제품관리 탭에서 추가하세요</option>';
+  const div=document.createElement('div');
+  div.className='item-row';div.id=id;
+  div.innerHTML=`<select>${opts}</select><input type="number" min="1" value="${qty}"><button class="rm-btn" data-rm-item="${id}">✕</button>`;
+  document.getElementById('item-list').appendChild(div);
+}
+function itemsClear(){document.getElementById('item-list').innerHTML='';}
+function itemsGet(){
+  return Array.from(document.getElementById('item-list').children).map(row=>{
+    const s=row.querySelector('select'),n=row.querySelector('input[type=number]');
+    return{sid:s?s.value:'',qty:parseInt(n?n.value:1)||1};
+  }).filter(x=>x.sid);
+}
+// QR로 품목 추가
+function addItemByQrId(qrId){
+  const s=DB.stock.find(x=>x.qrId===qrId);
+  if(!s){
+    toast('⚠️ 등록되지 않은 QR ID: '+qrId);
+    return false;
+  }
+  // 이미 리스트에 있는지 확인
+  const rows=Array.from(document.getElementById('item-list').children);
+  for(const row of rows){
+    const sel=row.querySelector('select');
+    if(sel&&sel.value===s.id){
+      // 수량 +1
+      const inp=row.querySelector('input[type=number]');
+      inp.value=(parseInt(inp.value)||0)+1;
+      toast('✅ '+s.name+' 수량 +1');
+      return true;
+    }
+  }
+  // 빈 행이 있으면 거기 채우기
+  for(const row of rows){
+    const sel=row.querySelector('select');
+    if(sel&&!sel.value){
+      sel.value=s.id;
+      toast('✅ '+s.name+' 추가');
+      return true;
+    }
+  }
+  // 새 행 추가
+  itemsAdd(s.id,1);
+  toast('✅ '+s.name+' 추가');
+  return true;
+}
+
+/* ===== DAY DETAIL ===== */
+function dayOpen(dstr){
+  const d=new Date(dstr+'T00:00:00');
+  const hol=isHol(dp(dstr)),hn=holName(dp(dstr));
+  document.getElementById('day-title').textContent=(d.getMonth()+1)+'월'+d.getDate()+'일 ('+DAYS[d.getDay()]+')'+(hol?' 🔴'+hn:'');
+  const scheds=getScheds(dstr),inv=calcInv(dstr),dd=clr(dp(dstr));
+  let h='';
+  if(hol)h+=`<div style="background:var(--red-l);color:var(--red);padding:9px 12px;border-radius:7px;font-size:13px;font-weight:600;margin-bottom:10px">🔴 ${hn||'휴무일'}</div>`;
+  const sendS=scheds.filter(s=>s.t==='send'),recvS=scheds.filter(s=>s.t==='recv');
+  h+='<div class="d-sec" style="color:#cc0000">📦 택배 발송</div>';
+  if(!sendS.length)h+='<p style="font-size:12px;color:var(--text3);padding:4px 0">해당 없음</p>';
+  sendS.forEach(s=>h+=`<div class="day-item"><span class="chip2" style="background:#fff9c0;color:#7a5700;border:1.5px solid #ff0000">${s.lbl}</span><span style="color:var(--text2);font-size:12px">${isum(s.r)}</span></div>`);
+  h+='<div class="d-sec" style="color:#cc6600;margin-top:10px">📬 택배 수거</div>';
+  if(!recvS.length)h+='<p style="font-size:12px;color:var(--text3);padding:4px 0">해당 없음</p>';
+  recvS.forEach(s=>h+=`<div class="day-item"><span class="chip2" style="background:#ffe0b2;color:#7a3e00">${s.lbl}</span><span style="color:var(--text2);font-size:12px">${isum(s.r)}</span></div>`);
+  h+='<div class="d-sec">재고 현황</div>';
+  DB.stock.forEach(s=>{
+    const left=inv[s.id]??s.total,ratio=s.total>0?left/s.total:1;
+    const c=left<=0?'#DC2626':ratio<=.5?'#D97706':'#059669';
+    h+=`<div class="day-item"><span style="flex:1;font-size:12px">${s.name}</span><span style="color:${c};font-weight:700;font-size:13px;margin-right:10px">${left}<span style="font-size:10px;color:var(--text3)">/${s.total}</span></span><div class="inv-bar-w"><div class="inv-bar-f" style="width:${Math.max(0,Math.round(ratio*100))}%;background:${c}"></div></div></div>`;
   });
-}
-function stopIdScan(){
-  if(idStr){ idStr.getTracks().forEach(function(t){ t.stop(); }); idStr=null; }
-  cancelAnimationFrame(idRaf); idScanOn=false;
-  var box=document.getElementById('idsbox');
-  var video=document.getElementById('idvid');
-  if(box) box.style.display='none';
-  if(video) video.srcObject=null;
-  var btn=document.getElementById('iqbtn');
-  if(btn) btn.style.background='';
+  const active=DB.rentals.filter(r=>{if(r.done)return false;return dd>=clr(dp(r.ss||r.start))&&dd<=clr(dp(r.ve||r.end));});
+  if(active.length){
+    h+='<div class="d-sec">이 날 대여 중인 항목</div>';
+    active.forEach(r=>{
+      const inS=r.ss&&dd>=clr(dp(r.ss))&&dd<=(r.se?clr(dp(r.se)):clr(dp(r.start)));
+      const inV=r.vs&&dd>=clr(dp(r.vs))&&dd<=(r.ve?clr(dp(r.ve)):clr(dp(r.end)));
+      const phase=inS?'발송중':inV?'수거중':'대여중',pc=inS?'#D97706':inV?'#ff9900':'#2563EB';
+      h+=`<div class="day-item"><div style="width:9px;height:9px;border-radius:50%;background:${scol(r.ship)};flex-shrink:0"></div><div style="flex:1;min-width:0"><div style="font-size:12px">${r.cust}${r.phone?' <span style="color:var(--text3)">'+r.phone+'</span>':''}</div>${r.addr?'<div style="font-size:10px;color:var(--text3)">'+r.addr+'</div>':''}<div style="font-size:11px;color:var(--text2)">${isum(r)}</div></div><span style="font-size:11px;font-weight:700;color:${pc};flex-shrink:0">${phase}</span></div>`;
+    });
+  }
+  document.getElementById('day-content').innerHTML=h;
+  modalOpen('modal-day');
 }
 
-// ── 제품 ──
-function getCats(){ return [].concat([...new Set(prods.map(function(p){ return p.cat; }).filter(Boolean))]).sort(); }
+/* ===== STOCK CHECK ===== */
+function checkStock(items,startStr,endStr,skipId){
+  const from=clr(dp(startStr)),to=clr(dp(endStr));
+  for(let d=new Date(from);d<=to;d.setDate(d.getDate()+1)){
+    const dstr=ds(clr(d)),used={};
+    DB.rentals.forEach(r=>{
+      if(r.done||r.id===skipId)return;
+      const rFrom=clr(dp(r.ss||r.start)),rTo=clr(dp(r.ve||r.end)),cur=clr(dp(dstr));
+      if(cur>=rFrom&&cur<=rTo)r.items.forEach(it=>{used[it.sid]=(used[it.sid]||0)+it.qty;});
+    });
+    for(const it of items){
+      const stock=DB.stock.find(s=>s.id===it.sid);if(!stock)continue;
+      if((used[it.sid]||0)+it.qty>stock.total)return `"${stock.name}" 재고 부족 (${dstr}: ${stock.total}개 중 ${used[it.sid]||0}개 사용중)`;
+    }
+  }
+  return null;
+}
 
-function filtProds(){
-  var q=(document.getElementById('sq')||{value:''}).value.toLowerCase();
-  var cat=(document.getElementById('scat')||{value:''}).value;
-  var st=(document.getElementById('sst')||{value:''}).value;
-  return prods.filter(function(p){
-    if(q && p.name.toLowerCase().indexOf(q)<0 && p.id.toLowerCase().indexOf(q)<0) return false;
-    if(cat && p.cat!==cat) return false;
-    if(st==='avail' && p.rented) return false;
-    if(st==='rented' && !p.rented) return false;
+/* ===== SAVE RENTAL (대여 횟수 자동 카운트!) ===== */
+function doSaveRental(){
+  const cust=document.getElementById('f-cust').value.trim();
+  const ship=document.getElementById('f-ship').value;
+  const rc=CSTATE.rent,sc=CSTATE.send,vc=CSTATE.recv;
+  if(!cust){toast('⚠️ 고객명을 입력해주세요');const el=document.getElementById('f-cust');el.style.borderColor='var(--red)';el.focus();setTimeout(()=>el.style.borderColor='',2000);return;}
+  if(!rc.s||!rc.e){toast('⚠️ 대여 기간을 선택해주세요');return;}
+  const items=itemsGet();
+  if(!items.length){toast('⚠️ 대여 품목을 추가해주세요');return;}
+  const stockErr=checkStock(items,ds(rc.s),ds(rc.e),editId);
+  if(stockErr){toast('⚠️ '+stockErr);return;}
+  const rec={
+    cust,
+    phone:document.getElementById('f-phone').value.trim(),
+    addr:document.getElementById('f-addr').value.trim(),
+    items,start:ds(rc.s),end:ds(rc.e),ship,
+    ss:sc.s?ds(sc.s):'',se:sc.e?ds(sc.e):'',
+    vs:vc.s?ds(vc.s):'',ve:vc.e?ds(vc.e):'',
+    apPick:document.getElementById('f-ap-pick').value,
+    apRet:document.getElementById('f-ap-ret').value,
+    apMemo:document.getElementById('f-ap-memo').value.trim(),
+    memo:document.getElementById('f-memo').value.trim(),
+  };
+  if(editId){
+    const ex=DB.rentals.find(x=>x.id===editId);
+    if(ex){
+      // 수정: 품목 변경된 경우 차이만큼 카운트 조정
+      const oldItems=ex.items||[];
+      const oldMap={};oldItems.forEach(it=>oldMap[it.sid]=(oldMap[it.sid]||0)+it.qty);
+      const newMap={};items.forEach(it=>newMap[it.sid]=(newMap[it.sid]||0)+it.qty);
+      const allSids=new Set([...Object.keys(oldMap),...Object.keys(newMap)]);
+      allSids.forEach(sid=>{
+        const diff=(newMap[sid]||0)-(oldMap[sid]||0);
+        if(diff>0){
+          const s=DB.stock.find(x=>x.id===sid);
+          if(s)s.count=(s.count||0)+diff;
+          // 추가된 만큼 rent 로그
+          DB.logs.push({id:'lg'+Date.now()+'_'+Math.random().toString(36).slice(2,5),type:'rent',sid,name:(s?s.name:'?'),qty:diff,rentalId:editId,cust,date:new Date().toISOString()});
+        } else if(diff<0){
+          // 감소 시 카운트 차감
+          const s=DB.stock.find(x=>x.id===sid);
+          if(s)s.count=Math.max(0,(s.count||0)+diff);
+        }
+      });
+      Object.assign(ex,{...rec,done:ex.done});
+    }
+  } else {
+    // 신규 등록: 각 품목 count += qty, rent 로그 기록
+    const newId='r'+Date.now();
+    DB.rentals.push({id:newId,done:false,...rec});
+    items.forEach(it=>{
+      const s=DB.stock.find(x=>x.id===it.sid);
+      if(s)s.count=(s.count||0)+it.qty;
+      DB.logs.push({id:'lg'+Date.now()+'_'+Math.random().toString(36).slice(2,5),type:'rent',sid:it.sid,name:(s?s.name:'?'),qty:it.qty,rentalId:newId,cust,date:new Date().toISOString()});
+    });
+    toast('✅ 대여 등록 완료 - 대여횟수 자동 카운트됨');
+  }
+  dbSave();modalClose('modal-rental');render();
+}
+function showDelConfirm(){document.getElementById('del-confirm-row').classList.remove('hide');}
+function hideDelConfirm(){document.getElementById('del-confirm-row').classList.add('hide');}
+function doDeleteConfirmed(){
+  if(!editId)return;
+  // 삭제 시 카운트 차감 (반납완료가 아니었다면)
+  const r=DB.rentals.find(x=>x.id===editId);
+  if(r&&!r.done){
+    r.items.forEach(it=>{
+      const s=DB.stock.find(x=>x.id===it.sid);
+      if(s)s.count=Math.max(0,(s.count||0)-it.qty);
+    });
+  }
+  DB.rentals=DB.rentals.filter(x=>x.id!==editId);
+  // 관련 로그도 제거
+  DB.logs=DB.logs.filter(l=>l.rentalId!==editId);
+  dbSave();modalClose('modal-rental');render();
+}
+function doMarkDone(){
+  if(!editId)return;
+  const r=DB.rentals.find(x=>x.id===editId);if(!r)return;
+  r.done=true;
+  // 반납완료 로그
+  r.items.forEach(it=>{
+    const s=DB.stock.find(x=>x.id===it.sid);
+    DB.logs.push({id:'lg'+Date.now()+'_'+Math.random().toString(36).slice(2,5),type:'return',sid:it.sid,name:(s?s.name:'?'),qty:it.qty,rentalId:editId,cust:r.cust,date:new Date().toISOString()});
+  });
+  toast('✅ 반납완료 처리');
+  dbSave();modalClose('modal-rental');render();
+}
+function doUndoDone(){
+  if(!editId)return;
+  const r=DB.rentals.find(x=>x.id===editId);if(!r)return;
+  r.done=false;
+  // 가장 최근 반납 로그 제거
+  for(let i=DB.logs.length-1;i>=0;i--){
+    if(DB.logs[i].rentalId===editId&&DB.logs[i].type==='return'){
+      DB.logs.splice(i,1);
+    }
+  }
+  dbSave();modalClose('modal-rental');render();
+}
+
+/* ===== HOL & CSV & HTML ===== */
+function exportCSV(){
+  if(!DB.rentals.length){alert('내보낼 대여 내역이 없습니다.');return;}
+  const SHIP={both:'택배발송+수거',direct:'직접수령/반납',airport:'공항수령/반납',send_only:'택배발송+직접반납',recv_only:'직접수령+택배수거'};
+  const hdrs=['고객명','대여품목','수량','대여시작','반납예정','배송방식','발송시작','발송종료','수거시작','수거종료','공항수령시간','공항반납시간','공항장소','메모','상태'];
+  const rows=DB.rentals.map(r=>[r.cust,r.items.map(it=>iname(it.sid)).join('/'),r.items.map(it=>it.qty).join('/'),r.start,r.end,SHIP[r.ship]||r.ship,r.ss||'',r.se||'',r.vs||'',r.ve||'',r.apPick||'',r.apRet||'',r.apMemo||'',r.memo||'',r.done?'반납완료':'대여중']);
+  const sh=['품목명','QR_ID','카테고리','총보유','누적대여횟수','현재대여중','가용재고'];
+  const inv=calcInv(ds(clr(new Date())));
+  const sr=DB.stock.map(s=>[s.name,s.qrId||'',s.cat||'',s.total,s.count||0,s.total-(inv[s.id]??s.total),inv[s.id]??s.total]);
+  function esc(v){return'"'+String(v??'').replace(/"/g,'""')+'"';}
+  function toCSV(hdrs,rows){return[hdrs.map(esc),...rows.map(r=>r.map(esc))].map(r=>r.join(',')).join('\n');}
+  const csv='\uFEFF=== 대여 현황 ===\n'+toCSV(hdrs,rows)+'\n\n=== 제품/재고 현황 ===\n'+toCSV(sh,sr);
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download='렌탈관리_'+ds(new Date())+'.csv';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+function saveHTML(){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([document.documentElement.outerHTML],{type:'text/html;charset=utf-8'}));
+  a.download='렌탈통합관리시스템.html';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+
+/* ============================================
+   PRODUCTS PAGE
+   ============================================ */
+let editProdId=null;
+function getCats(){return[...new Set(DB.stock.map(s=>s.cat).filter(Boolean))].sort();}
+
+function renderProducts(){
+  const cats=getCats();
+  const sel=document.getElementById('prod-cat-filter'),cv=sel.value;
+  sel.innerHTML='<option value="">전체 카테고리</option>'+cats.map(c=>`<option value="${c}"${c===cv?' selected':''}>${c}</option>`).join('');
+  const dl=document.getElementById('cat-dl');
+  if(dl)dl.innerHTML=cats.map(c=>`<option value="${c}">`).join('');
+  const q=(document.getElementById('prod-q').value||'').toLowerCase();
+  const cat=document.getElementById('prod-cat-filter').value;
+  const inv=calcInv(ds(clr(new Date())));
+  const list=DB.stock.filter(s=>{
+    if(q&&s.name.toLowerCase().indexOf(q)<0&&(s.qrId||'').toLowerCase().indexOf(q)<0)return false;
+    if(cat&&s.cat!==cat)return false;
     return true;
   });
-}
-
-function renderProds(){
-  var cats=getCats();
-  var sel=document.getElementById('scat');
-  var cv=sel.value;
-  sel.innerHTML='<option value="">전체 카테고리</option>'+cats.map(function(c){ return '<option value="'+c+'"'+(c===cv?' selected':'')+'>'+c+'</option>'; }).join('');
-  var dl=document.getElementById('cdl');
-  if(dl) dl.innerHTML=cats.map(function(c){ return '<option value="'+c+'">'; }).join('');
-
-  var list=filtProds();
-  var pages=Math.max(1,Math.ceil(list.length/PER));
-  if(pp>pages) pp=pages;
-  var slice=list.slice((pp-1)*PER, pp*PER);
-  var el=document.getElementById('plist');
-
-  if(!slice.length){
-    el.innerHTML='<div class="empty">제품이 없습니다.<br>+ 추가 버튼으로 등록해 주세요.</div>';
-    document.getElementById('ppgr').innerHTML=''; return;
-  }
-  el.innerHTML=slice.map(function(p){ return '<div class="pc">'
-    +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">'
-    +'<div><div class="pcn">'+p.name+'</div>'
-    +'<div class="pcs">'+p.id+(p.cat?' · '+p.cat:'')+' · 대여 '+p.count+'회</div></div>'
-    +'<span class="bdg '+(p.rented?'out':'ok')+'">'+(p.rented?'대여중':'보관중')+'</span></div>'
-    +'<div class="pcb">'
-    +'<button class="btn btnsm" onclick=\'openDet("'+p.id+'")\'>상세</button>'
-    +'<button class="btn btnsm" onclick=\'showQR("'+p.id+'")\'>QR</button>'
-    +'<button class="btn btnsm btnp" onclick=\'quickRent("'+p.id+'")\''+'>'+(p.rented?'반납':'대여')+'</button>'
-    +'</div></div>';
+  const el=document.getElementById('prod-list');
+  if(!list.length){el.innerHTML='<div class="empty-state">등록된 제품이 없습니다.<br>+ 제품 추가 버튼을 눌러 등록하세요.</div>';return;}
+  el.innerHTML=list.map(s=>{
+    const left=inv[s.id]??s.total,using=s.total-left;
+    return `<div class="prod-card">
+      <div class="prod-card-top">
+        <div style="flex:1;min-width:0">
+          <div class="prod-name">${s.name}</div>
+          <div class="prod-id-line">${s.qrId?'🔖 '+s.qrId:'<span style="color:var(--text3)">QR ID 미설정</span>'}${s.cat?' · '+s.cat:''}</div>
+        </div>
+        <span class="cnt-badge">📊 ${s.count||0}회</span>
+      </div>
+      <div class="prod-stats">
+        <span class="prod-stat"><strong>${s.total}</strong>개 총보유</span>
+        <span class="prod-stat" style="color:${using>0?'var(--amber)':'var(--text3)'}"><strong>${using}</strong>개 대여중</span>
+        <span class="prod-stat" style="color:${left<=0?'var(--red)':'var(--teal)'}"><strong>${left}</strong>개 가용</span>
+      </div>
+      ${s.note?`<div style="font-size:11px;color:var(--text3);margin-bottom:8px">${s.note}</div>`:''}
+      <div class="prod-actions">
+        <button class="btn" data-prod-detail="${s.id}">상세</button>
+        <button class="btn" data-prod-edit="${s.id}">수정</button>
+        ${s.qrId?`<button class="btn btn-blue" data-prod-qr="${s.id}">📷 QR 생성</button>`:''}
+      </div>
+    </div>`;
   }).join('');
-
-  var pg=document.getElementById('ppgr');
-  if(pages<=1){ pg.innerHTML=''; return; }
-  pg.innerHTML='<button class="btn btnsm" onclick="pp=Math.max(1,pp-1);renderProds()" '+(pp===1?'disabled':'')+'>이전</button>'
-    +'<span>'+pp+' / '+pages+'</span>'
-    +'<button class="btn btnsm" onclick="pp=Math.min('+pages+',pp+1);renderProds()" '+(pp===pages?'disabled':'')+'>다음</button>';
 }
 
-function quickRent(id){
-  var p=prods.find(function(x){ return x.id===id; }); if(!p) return;
-  var type=p.rented?'return':'rent';
-  p.rented=!p.rented;
-  if(type==='rent') p.count++;
-  logs.push({productId:id, name:p.name, type:type, date:new Date().toISOString()});
-  save(); renderProds();
+function openProdAdd(){
+  editProdId=null;
+  document.getElementById('prod-title').textContent='제품 추가';
+  document.getElementById('pf-del').classList.add('hide');
+  document.getElementById('pf-name').value='';
+  document.getElementById('pf-qrid').value='';
+  document.getElementById('pf-cat').value='';
+  document.getElementById('pf-total').value='1';
+  document.getElementById('pf-note').value='';
+  modalOpen('modal-prod');
 }
-
-function openAdd(id){
-  editId=id||null;
-  var p=id?prods.find(function(x){ return x.id===id; }):null;
-  document.getElementById('add-ttl').textContent=p?'제품 수정':'제품 추가';
-  document.getElementById('fn').value=p?p.name:'';
-  document.getElementById('fi').value=p?p.id:'';
-  document.getElementById('fi').disabled=!!p;
-  document.getElementById('fc').value=p?p.cat||'':'';
-  document.getElementById('fo').value=p?p.note||'':'';
-  document.getElementById('idsbox').style.display='none';
-  document.getElementById('id-msg').innerHTML='';
-  openOv('ov-add');
+function openProdEdit(id){
+  const s=DB.stock.find(x=>x.id===id);if(!s)return;
+  editProdId=id;
+  document.getElementById('prod-title').textContent='제품 수정';
+  document.getElementById('pf-del').classList.remove('hide');
+  document.getElementById('pf-name').value=s.name;
+  document.getElementById('pf-qrid').value=s.qrId||'';
+  document.getElementById('pf-cat').value=s.cat||'';
+  document.getElementById('pf-total').value=s.total;
+  document.getElementById('pf-note').value=s.note||'';
+  modalOpen('modal-prod');
 }
-
 function saveProd(){
-  var name=document.getElementById('fn').value.trim();
-  var id=document.getElementById('fi').value.trim();
-  var cat=document.getElementById('fc').value.trim();
-  var note=document.getElementById('fo').value.trim();
-  if(!name||!id){ alert('이름과 ID는 필수입니다.'); return; }
-  if(!editId && prods.find(function(p){ return p.id===id; })){ alert('이미 사용 중인 ID입니다.'); return; }
-  stopIdScan();
-  if(editId){
-    var p=prods.find(function(x){ return x.id===editId; });
-    if(p){ p.name=name; p.cat=cat; p.note=note; }
-  } else {
-    prods.push({id:id, name:name, cat:cat, note:note, count:0, rented:false});
+  const name=document.getElementById('pf-name').value.trim();
+  const qrId=document.getElementById('pf-qrid').value.trim();
+  const cat=document.getElementById('pf-cat').value.trim();
+  const total=Math.max(1,parseInt(document.getElementById('pf-total').value)||1);
+  const note=document.getElementById('pf-note').value.trim();
+  if(!name){toast('⚠️ 제품명을 입력하세요');return;}
+  if(qrId){
+    const dup=DB.stock.find(s=>s.qrId===qrId&&s.id!==editProdId);
+    if(dup){toast('⚠️ 이미 사용중인 QR ID');return;}
   }
-  save(); closeOv('ov-add'); renderProds();
+  if(editProdId){
+    const s=DB.stock.find(x=>x.id===editProdId);
+    if(s){s.name=name;s.qrId=qrId;s.cat=cat;s.total=total;s.note=note;}
+  } else {
+    DB.stock.push({id:'s'+Date.now(),name,qrId,cat,total,note,count:0});
+  }
+  dbSave();modalClose('modal-prod');renderProducts();render();
+  toast('✅ 저장됨');
+}
+function deleteProd(){
+  if(!editProdId)return;
+  const s=DB.stock.find(x=>x.id===editProdId);
+  if(!s)return;
+  // 사용중인 대여 확인
+  const used=DB.rentals.some(r=>!r.done&&r.items.some(it=>it.sid===editProdId));
+  if(used){
+    if(!confirm('현재 대여중인 제품입니다. 그래도 삭제하시면 관련 대여 내역도 함께 삭제됩니다. 계속하시겠습니까?'))return;
+  } else {
+    if(!confirm(s.name+' 제품을 삭제하시겠습니까?\n(과거 대여기록은 유지됩니다)'))return;
+  }
+  DB.stock=DB.stock.filter(x=>x.id!==editProdId);
+  DB.rentals=DB.rentals.filter(r=>!r.items.some(it=>it.sid===editProdId));
+  dbSave();modalClose('modal-prod');renderProducts();render();
 }
 
-function openDet(id){
-  var p=prods.find(function(x){ return x.id===id; }); if(!p) return;
-  document.getElementById('det-ttl').textContent=p.name;
-  var pLogs=[].concat(logs).filter(function(l){ return l.productId===id; }).reverse().slice(0,10);
-  document.getElementById('det-body').innerHTML=
-    '<div class="sgrid" style="margin-bottom:14px">'
-    +'<div class="sbox"><div class="snum">'+p.count+'</div><div class="slbl">총 대여 횟수</div></div>'
-    +'<div class="sbox" style="display:flex;align-items:center;justify-content:center"><span class="bdg '+(p.rented?'out':'ok')+'" style="font-size:15px;padding:6px 14px">'+(p.rented?'대여중':'보관중')+'</span></div>'
-    +'</div>'
-    +'<p style="font-size:13px;color:#999;margin-bottom:4px">ID: <span style="font-family:monospace">'+p.id+'</span>'+(p.cat?' &nbsp;|&nbsp; '+p.cat:'')+'</p>'
-    +(p.note?'<p style="font-size:13px;color:#999;margin-bottom:12px">메모: '+p.note+'</p>':'')
-    +'<hr/><div class="sec" style="margin-top:12px">대여 기록</div>'
-    +(pLogs.length
-      ? pLogs.map(function(l){ return '<div class="ritem"><span class="bdg '+(l.type==='rent'?'out':'ok')+'">'+(l.type==='rent'?'대여':'반납')+'</span><span style="flex:1;font-size:12px;color:#bbb;text-align:right">'+fmt(l.date)+'</span></div>'; }).join('')
-      : '<p style="font-size:13px;color:#bbb">기록 없음</p>')
-    +'<div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">'
-    +'<button class="btn btnsm" style="flex:1" onclick=\'openAdd("'+p.id+'");closeOv("ov-det")\'>수정</button>'
-    +'<button class="btn btnsm" style="flex:1" onclick=\'showQR("'+p.id+'")\'>QR 생성</button>'
-    +'<button class="btn btnsm btnp" style="flex:1" onclick=\'quickRent("'+p.id+'");closeOv("ov-det")\'>'+(p.rented?'반납':'대여')+'</button>'
-    +'</div>'
-    +'<button class="btn btnsm btnr btnf" onclick=\'delProd("'+p.id+'")\' style="margin-top:8px">삭제</button>';
-  openOv('ov-det');
+function openProdDetail(id){
+  const s=DB.stock.find(x=>x.id===id);if(!s)return;
+  document.getElementById('pdet-title').textContent=s.name;
+  const pLogs=DB.logs.filter(l=>l.sid===id).slice().reverse().slice(0,20);
+  const inv=calcInv(ds(clr(new Date())));
+  const left=inv[s.id]??s.total,using=s.total-left;
+  let h=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+    <div style="background:var(--card2);border-radius:10px;padding:14px;text-align:center"><div style="font-size:28px;font-weight:700;color:var(--blue)">${s.count||0}</div><div style="font-size:11px;color:var(--text3)">누적 대여 횟수</div></div>
+    <div style="background:var(--card2);border-radius:10px;padding:14px;text-align:center"><div style="font-size:28px;font-weight:700;color:${left<=0?'var(--red)':'var(--teal)'}">${left}<span style="font-size:14px;color:var(--text3)">/${s.total}</span></div><div style="font-size:11px;color:var(--text3)">현재 가용 / 총보유</div></div>
+  </div>`;
+  h+=`<p style="font-size:12px;color:var(--text3);margin-bottom:4px">QR ID: <span style="font-family:monospace;color:var(--text2)">${s.qrId||'미설정'}</span>${s.cat?' · '+s.cat:''}</p>`;
+  if(s.note)h+=`<p style="font-size:12px;color:var(--text3);margin-bottom:12px">메모: ${s.note}</p>`;
+  h+='<div class="d-sec" style="margin-top:14px">대여/반납 기록 (최근 20건)</div>';
+  if(!pLogs.length)h+='<p style="font-size:12px;color:var(--text3);padding:6px 0">기록 없음</p>';
+  pLogs.forEach(l=>{
+    h+=`<div class="day-item">
+      <span class="log-type ${l.type==='rent'?'rent':'ret'}">${l.type==='rent'?'대여':'반납'}</span>
+      <div style="flex:1;font-size:12px">
+        <div>${l.cust||'-'} <span style="color:var(--text3)">x${l.qty||1}</span></div>
+        <div style="font-size:10px;color:var(--text3)">${fmtDt(l.date)}</div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('pdet-body').innerHTML=h;
+  document.getElementById('pdet-edit-btn').onclick=function(){modalClose('modal-prod-detail');openProdEdit(id);};
+  modalOpen('modal-prod-detail');
 }
 
-function delProd(id){
-  if(!confirm('정말 삭제할까요?')) return;
-  prods=prods.filter(function(p){ return p.id!==id; });
-  save(); closeOv('ov-det'); renderProds();
-}
-
-// ── QR 생성 ──
-function showQR(id){
-  var p=prods.find(function(x){ return x.id===id; });
-  qrPid=id;
-  document.getElementById('qr-ttl').textContent=(p?p.name+' — ':'')+'QR 코드';
-  document.getElementById('qr-sub').textContent='ID: '+id;
-  var wrap=document.getElementById('qrwrap');
-  wrap.innerHTML=''; qrCvs=null;
-  openOv('ov-qr');
-  setTimeout(function(){
-    var div=document.createElement('div');
-    new QRCode(div,{text:'RENTAL:'+id, width:200, height:200, correctLevel:QRCode.CorrectLevel.H});
-    setTimeout(function(){
-      var img=div.querySelector('img');
+/* ===== QR GENERATE ===== */
+let qrGenCvs=null,qrGenName='';
+function openQrGen(id){
+  const s=DB.stock.find(x=>x.id===id);if(!s||!s.qrId)return;
+  qrGenName=s.qrId;
+  document.getElementById('qrgen-title').textContent=s.name+' — QR코드';
+  document.getElementById('qrgen-sub').textContent='QR ID: '+s.qrId;
+  const wrap=document.getElementById('qrgen-wrap');
+  wrap.innerHTML='';qrGenCvs=null;
+  modalOpen('modal-qr-gen');
+  setTimeout(()=>{
+    const div=document.createElement('div');
+    new QRCode(div,{text:'RENTAL:'+s.qrId,width:220,height:220,correctLevel:QRCode.CorrectLevel.H});
+    setTimeout(()=>{
+      const img=div.querySelector('img');
       if(img){
-        var cvs=document.createElement('canvas'); cvs.width=200; cvs.height=200;
-        var i=new Image();
-        i.onload=function(){ cvs.getContext('2d').drawImage(i,0,0,200,200); qrCvs=cvs; wrap.innerHTML=''; wrap.appendChild(cvs); };
+        const cvs=document.createElement('canvas');cvs.width=220;cvs.height=220;
+        const i=new Image();
+        i.onload=function(){
+          cvs.getContext('2d').drawImage(i,0,0,220,220);
+          qrGenCvs=cvs;wrap.innerHTML='';wrap.appendChild(cvs);
+        };
         i.src=img.src;
       }
-    },150);
+    },120);
   },80);
 }
-function dlQR(){
-  if(!qrCvs) return;
-  var a=document.createElement('a');
-  a.download=(qrPid||'qr')+'.png';
-  a.href=qrCvs.toDataURL(); a.click();
+function downloadQR(){
+  if(!qrGenCvs){toast('⚠️ QR 생성 중');return;}
+  const a=document.createElement('a');
+  a.download=(qrGenName||'qr')+'.png';
+  a.href=qrGenCvs.toDataURL();a.click();
 }
 
-// ── 기록 ──
+/* ============================================
+   QR SCANNER
+   ============================================ */
+let qrStream=null,qrRaf=null,qrMode=null; // qrMode: 'item' (대여등록 품목추가) | 'prodId' (제품등록 ID 입력)
+function qrOpen(mode){
+  qrMode=mode;
+  document.getElementById('qr-pop-title').textContent=mode==='prodId'?'제품 QR ID 입력':'대여 품목 QR 스캔';
+  document.getElementById('qr-pop-hint').innerHTML=mode==='prodId'?'제품에 부착된 QR을 스캔하면<br>ID가 자동 입력됩니다':'제품 QR을 스캔하면<br>품목 리스트에 자동 추가됩니다';
+  document.getElementById('qr-manual-input').value='';
+  document.getElementById('qr-bd').style.display='block';
+  document.getElementById('qr-pop').classList.add('open');
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    document.getElementById('qr-pop-hint').innerHTML='<span style="color:#ff6b6b">⚠️ 카메라 미지원</span><br>아래 입력란으로 직접 입력하세요';
+    return;
+  }
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:640},height:{ideal:480}}})
+    .then(stream=>{
+      qrStream=stream;
+      const video=document.getElementById('qr-video');
+      video.srcObject=stream;
+      const canvas=document.getElementById('qr-canvas');
+      const ctx=canvas.getContext('2d');
+      let found=false;
+      function tick(){
+        if(found||!qrStream)return;
+        if(video.readyState<video.HAVE_ENOUGH_DATA){qrRaf=requestAnimationFrame(tick);return;}
+        const w=video.videoWidth,h=video.videoHeight;
+        if(!w||!h){qrRaf=requestAnimationFrame(tick);return;}
+        canvas.width=w;canvas.height=h;ctx.drawImage(video,0,0,w,h);
+        const img=ctx.getImageData(0,0,w,h);
+        const code=jsQR(img.data,w,h,{inversionAttempts:'attemptBoth'});
+        if(code&&code.data&&code.data.trim()){
+          found=true;
+          let id=code.data.trim();
+          if(id.startsWith('RENTAL:'))id=id.replace('RENTAL:','');
+          handleQrResult(id);
+          return;
+        }
+        qrRaf=requestAnimationFrame(tick);
+      }
+      video.onloadeddata=()=>{qrRaf=requestAnimationFrame(tick);};
+      if(video.readyState>=video.HAVE_ENOUGH_DATA)qrRaf=requestAnimationFrame(tick);
+    })
+    .catch(()=>{
+      document.getElementById('qr-pop-hint').innerHTML='<span style="color:#ff6b6b">⚠️ 카메라 권한 거부</span><br>아래 입력란으로 직접 입력하세요';
+    });
+}
+function qrClose(){
+  if(qrStream){qrStream.getTracks().forEach(t=>t.stop());qrStream=null;}
+  cancelAnimationFrame(qrRaf);
+  const video=document.getElementById('qr-video');
+  if(video)video.srcObject=null;
+  document.getElementById('qr-bd').style.display='none';
+  document.getElementById('qr-pop').classList.remove('open');
+  qrMode=null;
+}
+function qrManualSubmit(){
+  const v=document.getElementById('qr-manual-input').value.trim();
+  if(!v){toast('⚠️ ID를 입력하세요');return;}
+  handleQrResult(v);
+}
+function handleQrResult(id){
+  if(qrMode==='prodId'){
+    document.getElementById('pf-qrid').value=id;
+    toast('✅ QR ID 입력: '+id);
+    qrClose();
+  } else if(qrMode==='item'){
+    const ok=addItemByQrId(id);
+    if(ok){
+      // 계속 스캔 가능하도록 잠깐 후 재개
+      setTimeout(()=>{
+        if(qrStream){ // 아직 열려있으면 재개
+          const video=document.getElementById('qr-video');
+          const canvas=document.getElementById('qr-canvas');
+          const ctx=canvas.getContext('2d');
+          let f=false;
+          (function loop(){
+            if(f||!qrStream)return;
+            if(video.readyState<video.HAVE_ENOUGH_DATA){qrRaf=requestAnimationFrame(loop);return;}
+            const w=video.videoWidth,h=video.videoHeight;
+            if(!w||!h){qrRaf=requestAnimationFrame(loop);return;}
+            canvas.width=w;canvas.height=h;ctx.drawImage(video,0,0,w,h);
+            const code=jsQR(ctx.getImageData(0,0,w,h).data,w,h,{inversionAttempts:'attemptBoth'});
+            if(code&&code.data&&code.data.trim()){
+              f=true;
+              let nid=code.data.trim();
+              if(nid.startsWith('RENTAL:'))nid=nid.replace('RENTAL:','');
+              handleQrResult(nid);
+              return;
+            }
+            qrRaf=requestAnimationFrame(loop);
+          })();
+        }
+      },800);
+    }
+  }
+}
+
+/* ============================================
+   LOGS PAGE
+   ============================================ */
 function renderLogs(){
-  var q=(document.getElementById('lq')||{value:''}).value.toLowerCase();
-  var f=(document.getElementById('lft')||{value:''}).value;
-  var list=[].concat(logs).reverse().filter(function(l){
-    if(q && l.name.toLowerCase().indexOf(q)<0) return false;
-    if(f && l.type!==f) return false;
+  const q=(document.getElementById('log-q').value||'').toLowerCase();
+  const f=document.getElementById('log-filter').value;
+  const list=DB.logs.slice().reverse().filter(l=>{
+    if(q&&(l.name||'').toLowerCase().indexOf(q)<0&&(l.cust||'').toLowerCase().indexOf(q)<0)return false;
+    if(f&&l.type!==f)return false;
     return true;
   });
-  var pages=Math.max(1,Math.ceil(list.length/PER));
-  if(lp>pages) lp=pages;
-  var slice=list.slice((lp-1)*PER, lp*PER);
-  var el=document.getElementById('llist');
-  if(!slice.length){
-    el.innerHTML='<div class="empty">기록이 없습니다</div>';
-    document.getElementById('lpgr').innerHTML=''; return;
+  const el=document.getElementById('log-list');
+  if(!list.length){el.innerHTML='<div class="empty-state">기록이 없습니다.</div>';return;}
+  el.innerHTML=list.map(l=>`<div class="log-card">
+    <span class="log-type ${l.type==='rent'?'rent':'ret'}">${l.type==='rent'?'대여':'반납'}</span>
+    <div class="log-body">
+      <div class="log-name">${l.name||'?'} ${l.qty>1?`<span style="color:var(--text3);font-weight:500">x${l.qty}</span>`:''}</div>
+      <div class="log-meta">${l.cust||'-'}</div>
+    </div>
+    <div class="log-date">${fmtDt(l.date)}</div>
+  </div>`).join('');
+}
+function exportLogCSV(){
+  if(!DB.logs.length){toast('내보낼 기록이 없습니다');return;}
+  const rows=[['날짜시각','유형','제품명','수량','고객명']].concat(DB.logs.map(l=>[fmtDt(l.date),l.type==='rent'?'대여':'반납',l.name||'',l.qty||1,l.cust||'']));
+  const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
+  a.download='대여기록_'+ds(new Date())+'.csv';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+
+/* ============================================
+   EVENTS
+   ============================================ */
+document.addEventListener('click',function(ev){
+  const t=ev.target;
+  // 달력
+  const calDay=t.closest('[data-cal-day]');
+  if(calDay){
+    const[key,dstr]=calDay.dataset.calDay.split('|');
+    const c=CSTATE[key],d=clr(dp(dstr));
+    if(!c.s||c.step==='s'||(c.s&&c.e)){c.s=d;c.e=null;c.step='e';}
+    else{if(d<c.s){c.s=d;c.e=null;c.step='e';}else{c.e=d;c.step='done';}}
+    calBuild(key);calUpdateBtn(key);return;
   }
-  el.innerHTML='<div class="card" style="padding:4px 16px">'+slice.map(function(l){ return '<div class="ritem">'
-    +'<div style="flex:1;min-width:0"><div style="font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+l.name+'</div>'
-    +'<div style="font-size:11px;color:#bbb;font-family:monospace">'+l.productId+'</div></div>'
-    +'<span class="bdg '+(l.type==='rent'?'out':'ok')+'" style="margin:0 8px">'+(l.type==='rent'?'대여':'반납')+'</span>'
-    +'<span style="font-size:11px;color:#bbb;white-space:nowrap">'+fmt(l.date)+'</span></div>';
-  }).join('')+'</div>';
-  var pg=document.getElementById('lpgr');
-  if(pages<=1){ pg.innerHTML=''; return; }
-  pg.innerHTML='<button class="btn btnsm" onclick="lp=Math.max(1,lp-1);renderLogs()" '+(lp===1?'disabled':'')+'>이전</button>'
-    +'<span>'+lp+'/'+pages+' ('+list.length+'건)</span>'
-    +'<button class="btn btnsm" onclick="lp=Math.min('+pages+',lp+1);renderLogs()" '+(lp===pages?'disabled':'')+'>다음</button>';
+  const calNav=t.closest('[data-cal-nav]');
+  if(calNav){const[key,dir]=calNav.dataset.calNav.split('|');const c=CSTATE[key];c.m+=parseInt(dir);if(c.m>11){c.m=0;c.y++;}if(c.m<0){c.m=11;c.y--;}calBuild(key);return;}
+  const calClr=t.closest('[data-cal-clear]');
+  if(calClr){const key=calClr.dataset.calClear;const c=CSTATE[key];c.s=null;c.e=null;c.step='s';calBuild(key);calUpdateBtn(key);return;}
+  const calCfm=t.closest('[data-cal-confirm]');
+  if(calCfm){calUpdateBtn(calCfm.dataset.calConfirm);calClose();return;}
+  const openCal=t.closest('[data-open-cal]');
+  if(openCal){calOpen(openCal.dataset.openCal);return;}
+  // 모달
+  const closeBtn=t.closest('[data-close]');
+  if(closeBtn){modalClose(closeBtn.dataset.close);return;}
+  // 간트 행 / 날짜
+  const editBtn=t.closest('[data-edit]');
+  if(editBtn){rentalEdit(editBtn.dataset.edit);return;}
+  const dayBtn=t.closest('[data-day]');
+  if(dayBtn){dayOpen(dayBtn.dataset.day);return;}
+  // 품목 삭제
+  const rmItem=t.closest('[data-rm-item]');
+  if(rmItem){const el=document.getElementById(rmItem.dataset.rmItem);if(el)el.remove();if(!document.getElementById('item-list').children.length)itemsAdd();return;}
+  // 휴무 삭제
+  const delHol=t.closest('[data-del-hol]');
+  if(delHol){DB.hol=DB.hol.filter(h=>h.date!==delHol.dataset.delHol);dbSave();holRender();render();if(openCalKey)calBuild(openCalKey);return;}
+  // 제품 액션
+  const pdet=t.closest('[data-prod-detail]');
+  if(pdet){openProdDetail(pdet.dataset.prodDetail);return;}
+  const pedt=t.closest('[data-prod-edit]');
+  if(pedt){openProdEdit(pedt.dataset.prodEdit);return;}
+  const pqr=t.closest('[data-prod-qr]');
+  if(pqr){openQrGen(pqr.dataset.prodQr);return;}
+  // overlay 배경 클릭
+  if(t.classList.contains('overlay')){modalClose(t.id);return;}
+});
+document.addEventListener('change',ev=>{if(ev.target.id==='f-ship')shipToggle();});
+document.getElementById('cal-bd').addEventListener('click',calClose);
+document.getElementById('qr-bd').addEventListener('click',qrClose);
+
+/* ===== TOOLBAR ===== */
+document.getElementById('btn-prev').addEventListener('click',()=>{VM--;if(VM<0){VM=11;VY--;}render();});
+document.getElementById('btn-next').addEventListener('click',()=>{VM++;if(VM>11){VM=0;VY++;}render();});
+document.getElementById('btn-add-rental').addEventListener('click',rentalAdd);
+document.getElementById('btn-hol').addEventListener('click',holOpen);
+document.getElementById('btn-csv').addEventListener('click',exportCSV);
+document.getElementById('btn-save-html').addEventListener('click',saveHTML);
+document.getElementById('btn-add-item').addEventListener('click',()=>itemsAdd());
+document.getElementById('btn-qr-add-item').addEventListener('click',()=>qrOpen('item'));
+document.getElementById('btn-pf-scan').addEventListener('click',()=>qrOpen('prodId'));
+document.getElementById('btn-add-prod').addEventListener('click',openProdAdd);
+document.getElementById('btn-log-csv').addEventListener('click',exportLogCSV);
+document.getElementById('btn-clear-logs').addEventListener('click',function(){
+  if(!confirm('모든 대여기록을 삭제하시겠습니까?\n(대여 데이터는 유지되며 로그만 삭제됩니다)'))return;
+  DB.logs=[];dbSave();renderLogs();toast('✅ 기록 삭제됨');
+});
+document.getElementById('prod-q').addEventListener('input',renderProducts);
+document.getElementById('prod-cat-filter').addEventListener('change',renderProducts);
+document.getElementById('log-q').addEventListener('input',renderLogs);
+document.getElementById('log-filter').addEventListener('change',renderLogs);
+
+document.getElementById('col-minus').addEventListener('click',()=>{COL_W=Math.max(40,COL_W-8);saveLayout();render();});
+document.getElementById('col-plus').addEventListener('click',()=>{COL_W=Math.min(200,COL_W+8);saveLayout();render();});
+document.getElementById('row-minus').addEventListener('click',()=>{ROW_H=Math.max(28,ROW_H-4);saveLayout();applyCss();});
+document.getElementById('row-plus').addEventListener('click',()=>{ROW_H=Math.min(120,ROW_H+4);saveLayout();applyCss();});
+document.getElementById('btn-size-reset').addEventListener('click',()=>{COL_W=88;ROW_H=52;saveLayout();render();});
+
+document.getElementById('btn-add-hol').addEventListener('click',function(){
+  const date=document.getElementById('hol-date').value;
+  const memo=document.getElementById('hol-memo').value.trim();
+  if(!date){alert('날짜를 선택하세요.');return;}
+  if(DB.hol.some(h=>h.date===date)){alert('이미 등록된 날짜입니다.');return;}
+  DB.hol.push({date,memo});dbSave();holRender();render();
+  if(openCalKey)calBuild(openCalKey);
+});
+
+/* ===== TOAST ===== */
+function toast(msg){
+  let t=document.getElementById('toast-el');
+  if(!t){t=document.createElement('div');t.id='toast-el';t.className='toast';document.body.appendChild(t);}
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._tid);t._tid=setTimeout(()=>t.classList.remove('show'),2500);
 }
 
-function exportCSV(){
-  var rows=[['날짜','제품명','ID','유형']].concat(logs.map(function(l){ return [fmt(l.date),l.name,l.productId,l.type==='rent'?'대여':'반납']; }));
-  var csv=rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
-  var a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv'}));
-  a.download='rental_logs.csv'; a.click();
+/* ===== SEARCH (간트 필터링) ===== */
+let searchQuery='';
+function initSearch(){
+  const inp=document.getElementById('search-input');
+  const clrBtn=document.getElementById('search-clear');
+  const ico=document.getElementById('search-ico');
+  if(!inp)return;
+  inp.addEventListener('input',function(){
+    searchQuery=this.value.trim().toLowerCase();
+    clrBtn.classList.toggle('hide',!searchQuery);
+    ico.classList.toggle('hide',!!searchQuery);
+    applySearch();
+  });
+  clrBtn.addEventListener('click',function(){
+    inp.value='';searchQuery='';clrBtn.classList.add('hide');ico.classList.remove('hide');applySearch();
+  });
+}
+function applySearch(){
+  const rows=document.querySelectorAll('.g-row');
+  let vis=0;
+  rows.forEach(row=>{
+    if(!searchQuery){row.style.display='';vis++;return;}
+    const rid=row.dataset.rid||'';
+    const r=rid?DB.rentals.find(x=>x.id===rid):null;
+    if(!r){row.style.display='';return;}
+    const txt=(r.cust+' '+isum(r)+' '+(r.phone||'')+' '+(r.addr||'')+' '+(r.memo||'')).toLowerCase();
+    const match=txt.includes(searchQuery);
+    row.style.display=match?'':'none';
+    if(match)vis++;
+  });
+  document.getElementById('search-count').textContent=searchQuery?`${vis}건`:'';
 }
 
-// ── 시작 ──
-renderDash();
+/* ===== INIT ===== */
+render();
+initSearch();
 </script>
 </body>
 </html>
