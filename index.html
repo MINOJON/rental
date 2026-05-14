@@ -87,12 +87,15 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 .dh-col.is-sat .dow{color:#3B82F6}
 
 .g-row{display:flex;border-bottom:1px solid var(--border);align-items:stretch}
-.g-lbl{width:var(--lw);min-width:var(--lw);padding:5px 30px 5px 12px;display:flex;align-items:center;gap:7px;border-right:1px solid var(--border);background:var(--card);cursor:pointer;flex-shrink:0;position:relative}
+.g-lbl{width:var(--lw);min-width:var(--lw);padding:7px 30px 7px 12px;display:flex;align-items:flex-start;gap:7px;border-right:1px solid var(--border);background:var(--card);cursor:pointer;flex-shrink:0;position:relative}
 .g-lbl.dimmed{opacity:.4}
-.g-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.g-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.g-sub{font-size:10px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
-.done-badge{display:inline-block;padding:1px 5px;border-radius:4px;font-size:9px;font-weight:600;background:var(--teal-l);color:var(--teal);margin-left:3px}
+.g-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.g-info{min-width:0;flex:1;overflow:hidden}
+.g-name{font-size:12px;font-weight:700;line-height:1.3;word-break:break-word;color:var(--text)}
+.g-sub{font-size:10px;color:var(--text2);line-height:1.35;margin-top:2px;word-break:break-word}
+.g-addr{font-size:10px;color:var(--text3);line-height:1.35;margin-top:2px;word-break:break-all;display:flex;gap:3px}
+.g-addr-ico{flex-shrink:0;opacity:.7}
+.done-badge{display:inline-block;padding:1px 5px;border-radius:4px;font-size:9px;font-weight:600;background:var(--teal-l);color:var(--teal);margin-left:3px;vertical-align:middle}
 .g-cells{display:flex;position:relative;flex:1}
 .g-cell{width:var(--col);min-width:var(--col);border-right:1px solid var(--border);flex-shrink:0;cursor:pointer}
 .g-cell.is-today{background:rgba(37,99,235,.05)}
@@ -135,7 +138,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 .inv-cell.danger{color:var(--red);background:var(--red-l)}
 .inv-cell.full{color:var(--text3)}
 .inv-cell.is-today{outline:2px solid rgba(37,99,235,.35);outline-offset:-2px}
-.ord-btns{position:absolute;right:4px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:1px;z-index:5}
+.ord-btns{position:absolute;right:4px;top:8px;display:flex;flex-direction:column;gap:1px;z-index:5}
 .ord-btn{width:20px;height:15px;border:1px solid var(--border2);border-radius:3px;background:var(--card2);color:var(--text3);font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit}
 .empty-state{padding:32px;text-align:center;color:var(--text3);font-size:12px;line-height:1.8}
 
@@ -163,9 +166,11 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 
 /* ITEM ROWS */
 .item-list{display:flex;flex-direction:column;gap:7px;margin-bottom:8px}
-.item-row{display:flex;gap:8px;align-items:center;padding:9px 11px;background:var(--bg);border-radius:var(--r);border:1.5px solid var(--border)}
-.item-row select{flex:1;font-size:16px;padding:7px 28px 7px 9px;border:1.5px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-family:inherit;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpolygon points='0,0 10,0 5,6' fill='%239499B0'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;cursor:pointer;outline:none}
-.item-row input[type=number]{width:62px;font-size:16px;padding:7px;border:1.5px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-family:inherit;text-align:center;-webkit-appearance:textfield;appearance:textfield;outline:none}
+.item-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:9px 11px;background:var(--bg);border-radius:var(--r);border:1.5px solid var(--border)}
+.item-row select{flex:1 1 100%;min-width:0;font-size:15px;padding:8px 28px 8px 9px;border:1.5px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-family:inherit;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpolygon points='0,0 10,0 5,6' fill='%239499B0'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;cursor:pointer;outline:none;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}
+.item-row .qty-lbl{font-size:11px;color:var(--text3);font-weight:600;margin-left:2px}
+.item-row input[type=number]{width:70px;font-size:16px;padding:7px;border:1.5px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-family:inherit;text-align:center;-webkit-appearance:textfield;appearance:textfield;outline:none}
+.item-row .rm-btn{margin-left:auto}
 .rm-btn{width:30px;height:30px;border-radius:7px;border:1.5px solid rgba(220,38,38,.3);background:var(--red-l);color:var(--red);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:inherit}
 .add-item-btns{display:flex;gap:7px}
 .add-item-btn{flex:1;padding:10px;border-radius:var(--r);border:1.5px dashed var(--border2);background:transparent;color:var(--text3);cursor:pointer;font-size:13px;font-family:inherit;font-weight:600}
@@ -426,8 +431,8 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
   <h3 id="rental-title">대여 등록</h3>
   <div class="f-row"><label>고객명 <span class="req">* 필수</span></label><input id="f-cust" placeholder="홍길동" autocomplete="name"></div>
   <div class="f-half">
-    <div class="f-row"><label>전화번호</label><input id="f-phone" placeholder="010-0000-0000" type="tel" autocomplete="tel" inputmode="tel"></div>
-    <div class="f-row"><label>주소</label><input id="f-addr" placeholder="서울시 강남구..." autocomplete="street-address"></div>
+    <div class="f-row"><label>전화번호 <span class="req">* 필수</span></label><input id="f-phone" placeholder="010-0000-0000" type="tel" autocomplete="tel" inputmode="tel"></div>
+    <div class="f-row"><label>주소 <span class="req">* 필수</span></label><input id="f-addr" placeholder="서울시 강남구..." autocomplete="street-address"></div>
   </div>
   <div class="sec-sep">대여 품목 <span class="req">* 필수</span></div>
   <div class="item-list" id="item-list"></div>
@@ -757,7 +762,7 @@ function render(){
   sorted.forEach(r=>{
     const done=!!r.done;
     h+=`<div class="g-row" data-rid="${r.id}" style="min-height:${ROW_H}px">`;
-    h+=`<div class="g-lbl${done?' dimmed':''}" data-edit="${r.id}"><div class="g-dot" style="background:${scol(r.ship)}"></div><div style="min-width:0;overflow:hidden"><div class="g-name">${r.cust}${done?'<span class="done-badge">반납완료</span>':''}</div><div class="g-sub">${isum(r)}${r.phone?' · '+r.phone:''}</div></div></div>`;
+    h+=`<div class="g-lbl${done?' dimmed':''}" data-edit="${r.id}"><div class="g-dot" style="background:${scol(r.ship)}"></div><div class="g-info"><div class="g-name">${r.cust}${done?'<span class="done-badge">반납완료</span>':''}</div><div class="g-sub">📦 ${isum(r)}</div>${r.phone?`<div class="g-sub">📞 ${r.phone}</div>`:''}${r.addr?`<div class="g-addr"><span class="g-addr-ico">📍</span><span>${r.addr}</span></div>`:''}</div></div>`;
     h+='<div class="g-cells">';
     days.forEach(d=>{
       const dow=d.getDay(),tod=same(d,today),hol=isHol(d);
@@ -993,7 +998,7 @@ function itemsAdd(sid='',qty=1){
     :'<option value="">제품관리 탭에서 추가하세요</option>';
   const div=document.createElement('div');
   div.className='item-row';div.id=id;
-  div.innerHTML=`<select>${opts}</select><input type="number" min="1" value="${qty}"><button class="rm-btn" data-rm-item="${id}">✕</button>`;
+  div.innerHTML=`<select>${opts}</select><span class="qty-lbl">수량</span><input type="number" min="1" value="${qty}"><button class="rm-btn" data-rm-item="${id}">✕</button>`;
   document.getElementById('item-list').appendChild(div);
 }
 function itemsClear(){document.getElementById('item-list').innerHTML='';}
@@ -1090,9 +1095,13 @@ function checkStock(items,startStr,endStr,skipId){
 /* ===== SAVE RENTAL (대여 횟수 자동 카운트!) ===== */
 function doSaveRental(){
   const cust=document.getElementById('f-cust').value.trim();
+  const phone=document.getElementById('f-phone').value.trim();
+  const addr=document.getElementById('f-addr').value.trim();
   const ship=document.getElementById('f-ship').value;
   const rc=CSTATE.rent,sc=CSTATE.send,vc=CSTATE.recv;
   if(!cust){toast('⚠️ 고객명을 입력해주세요');const el=document.getElementById('f-cust');el.style.borderColor='var(--red)';el.focus();setTimeout(()=>el.style.borderColor='',2000);return;}
+  if(!phone){toast('⚠️ 전화번호를 입력해주세요');const el=document.getElementById('f-phone');el.style.borderColor='var(--red)';el.focus();setTimeout(()=>el.style.borderColor='',2000);return;}
+  if(!addr){toast('⚠️ 주소를 입력해주세요');const el=document.getElementById('f-addr');el.style.borderColor='var(--red)';el.focus();setTimeout(()=>el.style.borderColor='',2000);return;}
   if(!rc.s||!rc.e){toast('⚠️ 대여 기간을 선택해주세요');return;}
   const items=itemsGet();
   if(!items.length){toast('⚠️ 대여 품목을 추가해주세요');return;}
@@ -1100,8 +1109,8 @@ function doSaveRental(){
   if(stockErr){toast('⚠️ '+stockErr);return;}
   const rec={
     cust,
-    phone:document.getElementById('f-phone').value.trim(),
-    addr:document.getElementById('f-addr').value.trim(),
+    phone,
+    addr,
     items,start:ds(rc.s),end:ds(rc.e),ship,
     ss:sc.s?ds(sc.s):'',se:sc.e?ds(sc.e):'',
     vs:vc.s?ds(vc.s):'',ve:vc.e?ds(vc.e):'',
