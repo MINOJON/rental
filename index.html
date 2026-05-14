@@ -1007,19 +1007,16 @@ function itemsGet(){
 function addItemByQrId(qrId){
   const s=DB.stock.find(x=>x.qrId===qrId);
   if(!s){
-    toast('⚠️ 등록되지 않은 QR ID: '+qrId);
+    alert('⚠️ 등록되지 않은 QR 코드입니다.\n\nQR ID: '+qrId+'\n\n[제품관리] 탭에서 먼저 제품을 등록하세요.');
     return false;
   }
-  // 이미 리스트에 있는지 확인
+  // 이미 리스트에 있는지 확인 — 있으면 거부 (각 제품은 1개씩만 존재)
   const rows=Array.from(document.getElementById('item-list').children);
   for(const row of rows){
     const sel=row.querySelector('select');
     if(sel&&sel.value===s.id){
-      // 수량 +1
-      const inp=row.querySelector('input[type=number]');
-      inp.value=(parseInt(inp.value)||0)+1;
-      toast('✅ '+s.name+' 수량 +1');
-      return true;
+      alert('⚠️ 이미 등록된 제품입니다.\n\n제품: '+s.name+(s.qrId?' ['+s.qrId+']':'')+'\n\n같은 제품을 두 번 스캔하셨습니다.');
+      return false;
     }
   }
   // 빈 행이 있으면 거기 채우기
@@ -1027,13 +1024,13 @@ function addItemByQrId(qrId){
     const sel=row.querySelector('select');
     if(sel&&!sel.value){
       sel.value=s.id;
-      toast('✅ '+s.name+' 추가');
+      toast('✅ '+s.name+' 추가됨');
       return true;
     }
   }
   // 새 행 추가
   itemsAdd(s.id,1);
-  toast('✅ '+s.name+' 추가');
+  toast('✅ '+s.name+' 추가됨');
   return true;
 }
 
@@ -1293,7 +1290,14 @@ function saveProd(){
   if(!name){toast('⚠️ 제품명을 입력하세요');return;}
   if(qrId){
     const dup=DB.stock.find(s=>s.qrId===qrId&&s.id!==editProdId);
-    if(dup){toast('⚠️ 이미 사용중인 QR ID');return;}
+    if(dup){
+      alert('⚠️ 이미 등록된 제품입니다.\n\n동일한 QR 코드를 가진 제품:\n→ '+dup.name+(dup.cat?' ('+dup.cat+')':'')+'\n\nQR ID: '+qrId+'\n\n각 제품은 고유한 QR 코드를 가져야 합니다.');
+      // QR 입력란에 포커스
+      const el=document.getElementById('pf-qrid');
+      el.style.borderColor='var(--red)';el.focus();el.select();
+      setTimeout(()=>el.style.borderColor='',3000);
+      return;
+    }
   }
   if(editProdId){
     const s=DB.stock.find(x=>x.id===editProdId);
@@ -1445,38 +1449,44 @@ function qrManualSubmit(){
 }
 function handleQrResult(id){
   if(qrMode==='prodId'){
+    // 스캔된 QR이 이미 다른 제품에 등록되어 있는지 즉시 확인
+    const dup=DB.stock.find(s=>s.qrId===id&&s.id!==editProdId);
+    if(dup){
+      qrClose();
+      alert('⚠️ 이미 등록된 제품입니다.\n\n이 QR 코드는 이미 다음 제품에 등록되어 있습니다:\n→ '+dup.name+(dup.cat?' ('+dup.cat+')':'')+'\n\nQR ID: '+id+'\n\n각 제품은 고유한 QR 코드를 가져야 합니다.');
+      return;
+    }
     document.getElementById('pf-qrid').value=id;
     toast('✅ QR ID 입력: '+id);
     qrClose();
   } else if(qrMode==='item'){
     const ok=addItemByQrId(id);
-    if(ok){
-      // 계속 스캔 가능하도록 잠깐 후 재개
-      setTimeout(()=>{
-        if(qrStream){ // 아직 열려있으면 재개
-          const video=document.getElementById('qr-video');
-          const canvas=document.getElementById('qr-canvas');
-          const ctx=canvas.getContext('2d');
-          let f=false;
-          (function loop(){
-            if(f||!qrStream)return;
-            if(video.readyState<video.HAVE_ENOUGH_DATA){qrRaf=requestAnimationFrame(loop);return;}
-            const w=video.videoWidth,h=video.videoHeight;
-            if(!w||!h){qrRaf=requestAnimationFrame(loop);return;}
-            canvas.width=w;canvas.height=h;ctx.drawImage(video,0,0,w,h);
-            const code=jsQR(ctx.getImageData(0,0,w,h).data,w,h,{inversionAttempts:'attemptBoth'});
-            if(code&&code.data&&code.data.trim()){
-              f=true;
-              let nid=code.data.trim();
-              if(nid.startsWith('RENTAL:'))nid=nid.replace('RENTAL:','');
-              handleQrResult(nid);
-              return;
-            }
-            qrRaf=requestAnimationFrame(loop);
-          })();
-        }
-      },800);
-    }
+    // 성공/거부 모두 일정 시간 후 카메라 재개 (거부 시 더 길게 — 사용자가 알림 확인할 시간)
+    const cooldown=ok?800:1500;
+    setTimeout(()=>{
+      if(qrStream){ // 아직 열려있으면 재개
+        const video=document.getElementById('qr-video');
+        const canvas=document.getElementById('qr-canvas');
+        const ctx=canvas.getContext('2d');
+        let f=false;
+        (function loop(){
+          if(f||!qrStream)return;
+          if(video.readyState<video.HAVE_ENOUGH_DATA){qrRaf=requestAnimationFrame(loop);return;}
+          const w=video.videoWidth,h=video.videoHeight;
+          if(!w||!h){qrRaf=requestAnimationFrame(loop);return;}
+          canvas.width=w;canvas.height=h;ctx.drawImage(video,0,0,w,h);
+          const code=jsQR(ctx.getImageData(0,0,w,h).data,w,h,{inversionAttempts:'attemptBoth'});
+          if(code&&code.data&&code.data.trim()){
+            f=true;
+            let nid=code.data.trim();
+            if(nid.startsWith('RENTAL:'))nid=nid.replace('RENTAL:','');
+            handleQrResult(nid);
+            return;
+          }
+          qrRaf=requestAnimationFrame(loop);
+        })();
+      }
+    },cooldown);
   }
 }
 
