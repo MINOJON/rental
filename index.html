@@ -460,19 +460,26 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
   <div id="sec-airport" class="hide">
     <div class="sec-sep">공항 정보</div>
     <div class="f-half">
-      <div class="f-row"><label>수령 공항</label><input id="f-ap-airport-pick" placeholder="인천공항 T2" list="airport-dl" autocomplete="off"></div>
-      <div class="f-row"><label>반납 공항</label><input id="f-ap-airport-ret" placeholder="인천공항 T2" list="airport-dl" autocomplete="off"></div>
+      <div class="f-row"><label>수령 공항</label>
+        <select id="f-ap-airport-pick">
+          <option value="인천공항 T1">인천공항 T1</option>
+          <option value="인천공항 T2" selected>인천공항 T2</option>
+          <option value="김포공항 국제">김포공항 국제</option>
+        </select>
+      </div>
+      <div class="f-row"><label>반납 공항</label>
+        <select id="f-ap-airport-ret">
+          <option value="인천공항 T1">인천공항 T1</option>
+          <option value="인천공항 T2" selected>인천공항 T2</option>
+          <option value="김포공항 국제">김포공항 국제</option>
+        </select>
+      </div>
     </div>
     <div class="f-half">
       <div class="f-row"><label>수령 시간</label><input id="f-ap-pick" type="time" value="14:00"></div>
       <div class="f-row"><label>반납 시간</label><input id="f-ap-ret" type="time" value="22:00"></div>
     </div>
     <div class="f-row"><label>장소 메모 <span style="color:var(--text3);font-weight:500">(선택)</span></label><input id="f-ap-memo" placeholder="3층 B카운터, 만남 장소 등"></div>
-    <datalist id="airport-dl">
-      <option value="인천공항 T1">
-      <option value="인천공항 T2">
-      <option value="김포공항 국제">
-    </datalist>
   </div>
   <div id="sec-send" class="hide">
     <div class="sec-sep">택배 발송 기간</div>
@@ -1049,12 +1056,14 @@ function addItemByQrId(qrId){
     const sel=row.querySelector('select');
     if(sel&&!sel.value){
       sel.value=s.id;
+      playBeep();
       toast('✅ '+s.name+' 추가됨');
       return true;
     }
   }
   // 새 행 추가
   itemsAdd(s.id,1);
+  playBeep();
   toast('✅ '+s.name+' 추가됨');
   return true;
 }
@@ -1136,8 +1145,8 @@ function doSaveRental(){
     vs:vc.s?ds(vc.s):'',ve:vc.e?ds(vc.e):'',
     apPick:document.getElementById('f-ap-pick').value,
     apRet:document.getElementById('f-ap-ret').value,
-    apAirportPick:document.getElementById('f-ap-airport-pick').value.trim(),
-    apAirportRet:document.getElementById('f-ap-airport-ret').value.trim(),
+    apAirportPick:document.getElementById('f-ap-airport-pick').value,
+    apAirportRet:document.getElementById('f-ap-airport-ret').value,
     apMemo:document.getElementById('f-ap-memo').value.trim(),
     memo:document.getElementById('f-memo').value.trim(),
   };
@@ -1426,7 +1435,7 @@ function qrOpen(mode){
   qrMode=mode;
   lastScanId=null; lastScanTime=0; // 새 스캔 세션마다 리셋
   document.getElementById('qr-pop-title').textContent=mode==='prodId'?'제품 QR ID 입력':'대여 품목 QR 스캔';
-  document.getElementById('qr-pop-hint').innerHTML=mode==='prodId'?'제품에 부착된 QR을 스캔하면<br>ID가 자동 입력됩니다':'제품 QR을 스캔하면<br>품목 리스트에 자동 추가됩니다';
+  document.getElementById('qr-pop-hint').innerHTML=mode==='prodId'?'제품에 부착된 QR을 스캔하면<br>ID가 자동 입력됩니다':'제품 QR을 한 번 스캔하면<br>품목에 자동 추가되고 닫힙니다';
   document.getElementById('qr-manual-input').value='';
   document.getElementById('qr-bd').style.display='block';
   document.getElementById('qr-pop').classList.add('open');
@@ -1482,11 +1491,8 @@ function qrManualSubmit(){
 }
 function handleQrResult(id){
   const now=Date.now();
-  // ── 디바운싱: 같은 QR이 2.5초 안에 또 잡히면 알림 없이 무시하고 카메라 계속 ──
-  if(id===lastScanId && now-lastScanTime<2500){
-    if(qrStream&&qrMode==='item') resumeItemScan();
-    return;
-  }
+  // 디바운싱: 같은 QR이 1초 안에 또 잡혔으면 무시 (단일 인식 모드에서도 안전장치)
+  if(id===lastScanId && now-lastScanTime<1000) return;
   lastScanId=id;
   lastScanTime=now;
 
@@ -1499,38 +1505,14 @@ function handleQrResult(id){
       return;
     }
     document.getElementById('pf-qrid').value=id;
+    playBeep();
     toast('✅ QR ID 입력: '+id);
     qrClose();
   } else if(qrMode==='item'){
+    // 단일 인식: 한 번 처리 후 카메라 자동 종료 (제품 추가와 동일 방식)
     addItemByQrId(id);
-    // 성공이든 거부든 카메라 계속 작동 (디바운싱이 같은 QR 무시함)
-    resumeItemScan();
+    qrClose();
   }
-}
-// item 모드 카메라 스캔 재개
-function resumeItemScan(){
-  if(!qrStream)return;
-  const video=document.getElementById('qr-video');
-  const canvas=document.getElementById('qr-canvas');
-  if(!video||!canvas)return;
-  const ctx=canvas.getContext('2d');
-  let f=false;
-  (function loop(){
-    if(f||!qrStream||qrMode!=='item')return;
-    if(video.readyState<video.HAVE_ENOUGH_DATA){qrRaf=requestAnimationFrame(loop);return;}
-    const w=video.videoWidth,h=video.videoHeight;
-    if(!w||!h){qrRaf=requestAnimationFrame(loop);return;}
-    canvas.width=w;canvas.height=h;ctx.drawImage(video,0,0,w,h);
-    const code=jsQR(ctx.getImageData(0,0,w,h).data,w,h,{inversionAttempts:'attemptBoth'});
-    if(code&&code.data&&code.data.trim()){
-      f=true;
-      let nid=code.data.trim();
-      if(nid.startsWith('RENTAL:'))nid=nid.replace('RENTAL:','');
-      handleQrResult(nid);
-      return;
-    }
-    qrRaf=requestAnimationFrame(loop);
-  })();
 }
 
 /* ============================================
@@ -1651,12 +1633,34 @@ document.getElementById('btn-add-hol').addEventListener('click',function(){
   if(openCalKey)calBuild(openCalKey);
 });
 
-/* ===== TOAST ===== */
+/* ===== TOAST & BEEP ===== */
 function toast(msg){
   let t=document.getElementById('toast-el');
   if(!t){t=document.createElement('div');t.id='toast-el';t.className='toast';document.body.appendChild(t);}
   t.textContent=msg;t.classList.add('show');
   clearTimeout(t._tid);t._tid=setTimeout(()=>t.classList.remove('show'),2500);
+}
+// QR 인식 비프음 — 띠~링 (두 톤)
+let _audioCtx=null;
+function playBeep(){
+  try{
+    if(!_audioCtx) _audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    if(_audioCtx.state==='suspended') _audioCtx.resume();
+    const now=_audioCtx.currentTime;
+    [880,1318.51].forEach((freq,i)=>{
+      const osc=_audioCtx.createOscillator();
+      const gain=_audioCtx.createGain();
+      osc.type='sine';
+      osc.frequency.value=freq;
+      osc.connect(gain);gain.connect(_audioCtx.destination);
+      const start=now+i*0.07;
+      gain.gain.setValueAtTime(0.0001,start);
+      gain.gain.exponentialRampToValueAtTime(0.25,start+0.005);
+      gain.gain.exponentialRampToValueAtTime(0.0001,start+0.18);
+      osc.start(start);
+      osc.stop(start+0.2);
+    });
+  }catch(e){}
 }
 
 /* ===== SEARCH (간트 필터링) ===== */
