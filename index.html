@@ -460,8 +460,8 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
   <div id="sec-airport" class="hide">
     <div class="sec-sep">공항 정보</div>
     <div class="f-half">
-      <div class="f-row"><label>수령 공항</label><input id="f-ap-airport-pick" placeholder="인천공항 T1" list="airport-dl" autocomplete="off"></div>
-      <div class="f-row"><label>반납 공항</label><input id="f-ap-airport-ret" placeholder="인천공항 T1" list="airport-dl" autocomplete="off"></div>
+      <div class="f-row"><label>수령 공항</label><input id="f-ap-airport-pick" placeholder="인천공항 T2" list="airport-dl" autocomplete="off"></div>
+      <div class="f-row"><label>반납 공항</label><input id="f-ap-airport-ret" placeholder="인천공항 T2" list="airport-dl" autocomplete="off"></div>
     </div>
     <div class="f-half">
       <div class="f-row"><label>수령 시간</label><input id="f-ap-pick" type="time" value="14:00"></div>
@@ -471,13 +471,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
     <datalist id="airport-dl">
       <option value="인천공항 T1">
       <option value="인천공항 T2">
-      <option value="김포공항">
-      <option value="김해공항 (부산)">
-      <option value="제주공항">
-      <option value="대구공항">
-      <option value="청주공항">
-      <option value="무안공항">
-      <option value="양양공항">
+      <option value="김포공항 국제">
     </datalist>
   </div>
   <div id="sec-send" class="hide">
@@ -969,9 +963,11 @@ function rentalAdd(){
   document.getElementById('btn-del').classList.add('hide');
   document.getElementById('btn-done').classList.add('hide');
   document.getElementById('btn-undone').classList.add('hide');
-  ['f-cust','f-phone','f-addr','f-memo','f-ap-memo','f-ap-airport-pick','f-ap-airport-ret'].forEach(id=>document.getElementById(id).value='');
+  ['f-cust','f-phone','f-addr','f-memo','f-ap-memo'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-ap-pick').value='14:00';
   document.getElementById('f-ap-ret').value='22:00';
+  document.getElementById('f-ap-airport-pick').value='인천공항 T2';
+  document.getElementById('f-ap-airport-ret').value='인천공항 T2';
   document.getElementById('f-ship').value='both';
   const now=new Date();
   function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
@@ -1425,8 +1421,10 @@ function downloadQR(){
    QR SCANNER
    ============================================ */
 let qrStream=null,qrRaf=null,qrMode=null; // qrMode: 'item' (대여등록 품목추가) | 'prodId' (제품등록 ID 입력)
+let lastScanId=null, lastScanTime=0; // 같은 QR 중복 인식 방지용 디바운싱
 function qrOpen(mode){
   qrMode=mode;
+  lastScanId=null; lastScanTime=0; // 새 스캔 세션마다 리셋
   document.getElementById('qr-pop-title').textContent=mode==='prodId'?'제품 QR ID 입력':'대여 품목 QR 스캔';
   document.getElementById('qr-pop-hint').innerHTML=mode==='prodId'?'제품에 부착된 QR을 스캔하면<br>ID가 자동 입력됩니다':'제품 QR을 스캔하면<br>품목 리스트에 자동 추가됩니다';
   document.getElementById('qr-manual-input').value='';
@@ -1483,6 +1481,15 @@ function qrManualSubmit(){
   handleQrResult(v);
 }
 function handleQrResult(id){
+  const now=Date.now();
+  // ── 디바운싱: 같은 QR이 2.5초 안에 또 잡히면 알림 없이 무시하고 카메라 계속 ──
+  if(id===lastScanId && now-lastScanTime<2500){
+    if(qrStream&&qrMode==='item') resumeItemScan();
+    return;
+  }
+  lastScanId=id;
+  lastScanTime=now;
+
   if(qrMode==='prodId'){
     // 스캔된 QR이 이미 다른 제품에 등록되어 있는지 즉시 확인
     const dup=DB.stock.find(s=>s.qrId===id&&s.id!==editProdId);
@@ -1495,34 +1502,35 @@ function handleQrResult(id){
     toast('✅ QR ID 입력: '+id);
     qrClose();
   } else if(qrMode==='item'){
-    const ok=addItemByQrId(id);
-    // 성공/거부 모두 일정 시간 후 카메라 재개 (거부 시 더 길게 — 사용자가 알림 확인할 시간)
-    const cooldown=ok?800:1500;
-    setTimeout(()=>{
-      if(qrStream){ // 아직 열려있으면 재개
-        const video=document.getElementById('qr-video');
-        const canvas=document.getElementById('qr-canvas');
-        const ctx=canvas.getContext('2d');
-        let f=false;
-        (function loop(){
-          if(f||!qrStream)return;
-          if(video.readyState<video.HAVE_ENOUGH_DATA){qrRaf=requestAnimationFrame(loop);return;}
-          const w=video.videoWidth,h=video.videoHeight;
-          if(!w||!h){qrRaf=requestAnimationFrame(loop);return;}
-          canvas.width=w;canvas.height=h;ctx.drawImage(video,0,0,w,h);
-          const code=jsQR(ctx.getImageData(0,0,w,h).data,w,h,{inversionAttempts:'attemptBoth'});
-          if(code&&code.data&&code.data.trim()){
-            f=true;
-            let nid=code.data.trim();
-            if(nid.startsWith('RENTAL:'))nid=nid.replace('RENTAL:','');
-            handleQrResult(nid);
-            return;
-          }
-          qrRaf=requestAnimationFrame(loop);
-        })();
-      }
-    },cooldown);
+    addItemByQrId(id);
+    // 성공이든 거부든 카메라 계속 작동 (디바운싱이 같은 QR 무시함)
+    resumeItemScan();
   }
+}
+// item 모드 카메라 스캔 재개
+function resumeItemScan(){
+  if(!qrStream)return;
+  const video=document.getElementById('qr-video');
+  const canvas=document.getElementById('qr-canvas');
+  if(!video||!canvas)return;
+  const ctx=canvas.getContext('2d');
+  let f=false;
+  (function loop(){
+    if(f||!qrStream||qrMode!=='item')return;
+    if(video.readyState<video.HAVE_ENOUGH_DATA){qrRaf=requestAnimationFrame(loop);return;}
+    const w=video.videoWidth,h=video.videoHeight;
+    if(!w||!h){qrRaf=requestAnimationFrame(loop);return;}
+    canvas.width=w;canvas.height=h;ctx.drawImage(video,0,0,w,h);
+    const code=jsQR(ctx.getImageData(0,0,w,h).data,w,h,{inversionAttempts:'attemptBoth'});
+    if(code&&code.data&&code.data.trim()){
+      f=true;
+      let nid=code.data.trim();
+      if(nid.startsWith('RENTAL:'))nid=nid.replace('RENTAL:','');
+      handleQrResult(nid);
+      return;
+    }
+    qrRaf=requestAnimationFrame(loop);
+  })();
 }
 
 /* ============================================
