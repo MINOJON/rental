@@ -166,6 +166,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 
 /* ITEM ROWS */
 .item-list{display:flex;flex-direction:column;gap:7px;margin-bottom:8px}
+.item-list:empty::after{content:'⬇ 아래 버튼으로 품목을 추가하세요';display:block;padding:18px 12px;text-align:center;color:var(--text3);font-size:12px;background:var(--card2);border-radius:var(--r);border:1.5px dashed var(--border2);font-weight:500}
 .item-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:9px 11px;background:var(--bg);border-radius:var(--r);border:1.5px solid var(--border)}
 .item-row select{flex:1 1 100%;min-width:0;font-size:15px;padding:8px 28px 8px 9px;border:1.5px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-family:inherit;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpolygon points='0,0 10,0 5,6' fill='%239499B0'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;cursor:pointer;outline:none;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}
 .item-row .qty-lbl{font-size:11px;color:var(--text3);font-weight:600;margin-left:2px}
@@ -459,10 +460,25 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
   <div id="sec-airport" class="hide">
     <div class="sec-sep">공항 정보</div>
     <div class="f-half">
+      <div class="f-row"><label>수령 공항</label><input id="f-ap-airport-pick" placeholder="인천공항 T1" list="airport-dl" autocomplete="off"></div>
+      <div class="f-row"><label>반납 공항</label><input id="f-ap-airport-ret" placeholder="인천공항 T1" list="airport-dl" autocomplete="off"></div>
+    </div>
+    <div class="f-half">
       <div class="f-row"><label>수령 시간</label><input id="f-ap-pick" type="time" value="14:00"></div>
       <div class="f-row"><label>반납 시간</label><input id="f-ap-ret" type="time" value="22:00"></div>
     </div>
-    <div class="f-row"><label>장소 메모</label><input id="f-ap-memo" placeholder="인천공항 T1 3층 B카운터"></div>
+    <div class="f-row"><label>장소 메모 <span style="color:var(--text3);font-weight:500">(선택)</span></label><input id="f-ap-memo" placeholder="3층 B카운터, 만남 장소 등"></div>
+    <datalist id="airport-dl">
+      <option value="인천공항 T1">
+      <option value="인천공항 T2">
+      <option value="김포공항">
+      <option value="김해공항 (부산)">
+      <option value="제주공항">
+      <option value="대구공항">
+      <option value="청주공항">
+      <option value="무안공항">
+      <option value="양양공항">
+    </datalist>
   </div>
   <div id="sec-send" class="hide">
     <div class="sec-sep">택배 발송 기간</div>
@@ -712,7 +728,13 @@ function makeBars(r,days){
   const hasSend=!done&&ss&&se,hasRecv=!done&&vs&&ve;
   const col=scol(r.ship);
   const shipLbl={both:'[택배]',direct:'[직접]',airport:'[공항]',send_only:'[발송]',recv_only:'[수거]'}[r.ship]||'';
-  const apNote=r.ship==='airport'?((r.apPick?'수령'+r.apPick:'')+(r.apRet?' 반납'+r.apRet:'')+(r.apMemo?' '+r.apMemo:'')):'';
+  const apNote=r.ship==='airport'?(
+    (r.apAirportPick?'수령:'+r.apAirportPick:'')
+    +(r.apPick?' '+r.apPick:'')
+    +(r.apAirportRet?' / 반납:'+r.apAirportRet:'')
+    +(r.apRet?' '+r.apRet:'')
+    +(r.apMemo?' ('+r.apMemo+')':'')
+  ):'';
   const nameStr=r.cust+' '+fmtMon(r.start)+'~'+fmtMon(r.end)+' '+shipLbl+(apNote?' '+apNote:'');
   const itemStr=isum(r),dim=done?' dimmed':'';
   function span(from,to,extraCls,style,inner){
@@ -947,7 +969,7 @@ function rentalAdd(){
   document.getElementById('btn-del').classList.add('hide');
   document.getElementById('btn-done').classList.add('hide');
   document.getElementById('btn-undone').classList.add('hide');
-  ['f-cust','f-phone','f-addr','f-memo','f-ap-memo'].forEach(id=>document.getElementById(id).value='');
+  ['f-cust','f-phone','f-addr','f-memo','f-ap-memo','f-ap-airport-pick','f-ap-airport-ret'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-ap-pick').value='14:00';
   document.getElementById('f-ap-ret').value='22:00';
   document.getElementById('f-ship').value='both';
@@ -956,7 +978,7 @@ function rentalAdd(){
   calSetDate('rent',ds(now),ds(addDays(now,3)));
   calSetDate('send',ds(addDays(now,-2)),ds(addDays(now,-1)));
   calSetDate('recv',ds(addDays(now,4)),ds(addDays(now,5)));
-  itemsClear();itemsAdd();
+  itemsClear();
   shipToggle();
   document.getElementById('del-confirm-row').classList.add('hide');
   modalOpen('modal-rental');
@@ -974,13 +996,15 @@ function rentalEdit(id){
   document.getElementById('f-ship').value=r.ship;
   document.getElementById('f-ap-pick').value=r.apPick||'';
   document.getElementById('f-ap-ret').value=r.apRet||'';
+  document.getElementById('f-ap-airport-pick').value=r.apAirportPick||'';
+  document.getElementById('f-ap-airport-ret').value=r.apAirportRet||'';
   document.getElementById('f-ap-memo').value=r.apMemo||'';
   document.getElementById('f-memo').value=r.memo||'';
   calSetDate('rent',r.start,r.end);
   calSetDate('send',r.ss,r.se);
   calSetDate('recv',r.vs,r.ve);
   itemsClear();
-  if(r.items.length)r.items.forEach(it=>itemsAdd(it.sid,it.qty));else itemsAdd();
+  if(r.items.length)r.items.forEach(it=>itemsAdd(it.sid,it.qty));
   shipToggle();
   document.getElementById('del-confirm-row').classList.add('hide');
   modalOpen('modal-rental');
@@ -1116,6 +1140,8 @@ function doSaveRental(){
     vs:vc.s?ds(vc.s):'',ve:vc.e?ds(vc.e):'',
     apPick:document.getElementById('f-ap-pick').value,
     apRet:document.getElementById('f-ap-ret').value,
+    apAirportPick:document.getElementById('f-ap-airport-pick').value.trim(),
+    apAirportRet:document.getElementById('f-ap-airport-ret').value.trim(),
     apMemo:document.getElementById('f-ap-memo').value.trim(),
     memo:document.getElementById('f-memo').value.trim(),
   };
@@ -1201,8 +1227,8 @@ function doUndoDone(){
 function exportCSV(){
   if(!DB.rentals.length){alert('내보낼 대여 내역이 없습니다.');return;}
   const SHIP={both:'택배발송+수거',direct:'직접수령/반납',airport:'공항수령/반납',send_only:'택배발송+직접반납',recv_only:'직접수령+택배수거'};
-  const hdrs=['고객명','대여품목','수량','대여시작','반납예정','배송방식','발송시작','발송종료','수거시작','수거종료','공항수령시간','공항반납시간','공항장소','메모','상태'];
-  const rows=DB.rentals.map(r=>[r.cust,r.items.map(it=>iname(it.sid)).join('/'),r.items.map(it=>it.qty).join('/'),r.start,r.end,SHIP[r.ship]||r.ship,r.ss||'',r.se||'',r.vs||'',r.ve||'',r.apPick||'',r.apRet||'',r.apMemo||'',r.memo||'',r.done?'반납완료':'대여중']);
+  const hdrs=['고객명','대여품목','수량','대여시작','반납예정','배송방식','발송시작','발송종료','수거시작','수거종료','수령공항','수령시간','반납공항','반납시간','공항장소메모','메모','상태'];
+  const rows=DB.rentals.map(r=>[r.cust,r.items.map(it=>iname(it.sid)).join('/'),r.items.map(it=>it.qty).join('/'),r.start,r.end,SHIP[r.ship]||r.ship,r.ss||'',r.se||'',r.vs||'',r.ve||'',r.apAirportPick||'',r.apPick||'',r.apAirportRet||'',r.apRet||'',r.apMemo||'',r.memo||'',r.done?'반납완료':'대여중']);
   const sh=['품목명','QR_ID','카테고리','총보유','누적대여횟수','현재대여중','가용재고'];
   const inv=calcInv(ds(clr(new Date())));
   const sr=DB.stock.map(s=>[s.name,s.qrId||'',s.cat||'',s.total,s.count||0,s.total-(inv[s.id]??s.total),inv[s.id]??s.total]);
@@ -1563,7 +1589,7 @@ document.addEventListener('click',function(ev){
   if(dayBtn){dayOpen(dayBtn.dataset.day);return;}
   // 품목 삭제
   const rmItem=t.closest('[data-rm-item]');
-  if(rmItem){const el=document.getElementById(rmItem.dataset.rmItem);if(el)el.remove();if(!document.getElementById('item-list').children.length)itemsAdd();return;}
+  if(rmItem){const el=document.getElementById(rmItem.dataset.rmItem);if(el)el.remove();return;}
   // 휴무 삭제
   const delHol=t.closest('[data-del-hol]');
   if(delHol){DB.hol=DB.hol.filter(h=>h.date!==delHol.dataset.delHol);dbSave();holRender();render();if(openCalKey)calBuild(openCalKey);return;}
