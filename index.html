@@ -549,22 +549,39 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
   <button class="mx" data-close="modal-prod">✕</button>
   <h3 id="prod-title">제품 추가</h3>
   <div class="f-row">
-    <label>모델 / 캐릭터명 <span class="req">* 필수</span></label>
-    <input id="pf-model" placeholder="파워업밴드-마리오" list="model-dl" autocomplete="off">
-    <datalist id="model-dl"></datalist>
+    <label>제품 종류 <span class="req">* 필수</span></label>
+    <select id="pf-model" onchange="pfModelChange()">
+      <option value="">― 선택하세요 ―</option>
+      <optgroup label="🔖 파워업밴드 (QR 필수)">
+        <option value="파워업밴드 - 마리오">파워업밴드 - 마리오</option>
+        <option value="파워업밴드 - 루이지">파워업밴드 - 루이지</option>
+        <option value="파워업밴드 - 요시">파워업밴드 - 요시</option>
+        <option value="파워업밴드 - 키노피오">파워업밴드 - 키노피오</option>
+        <option value="파워업밴드 - 피치공주">파워업밴드 - 피치공주</option>
+        <option value="파워업밴드 - 데이지">파워업밴드 - 데이지</option>
+      </optgroup>
+      <optgroup label="📦 일반 제품">
+        <option value="해리포터 지팡이">해리포터 지팡이</option>
+        <option value="마리오 모자">마리오 모자</option>
+        <option value="루이지 모자">루이지 모자</option>
+      </optgroup>
+    </select>
   </div>
-  <div class="f-row">
-    <label>단위명 / 시리얼 <span style="color:var(--text3);font-weight:500">(예: #001, A밴드)</span></label>
-    <input id="pf-name" placeholder="#001" autocomplete="off">
-  </div>
-  <div class="f-row">
-    <label>제품 QR ID <span style="color:var(--text3);font-weight:500">(선택 - QR 스캔용, 각 단위마다 고유)</span></label>
-    <div style="display:flex;gap:8px">
-      <input id="pf-qrid" placeholder="BAND-M-001" style="flex:1;font-family:monospace" autocomplete="off">
-      <button class="qr-add-btn" id="btn-pf-scan" style="padding:10px 12px">📷</button>
+  <!-- QR 영역 (파워업밴드 선택 시만 표시) -->
+  <div id="pf-qr-sec" class="hide">
+    <div class="f-row">
+      <label>QR 코드 <span class="req">* 필수</span></label>
+      <div style="display:flex;gap:8px">
+        <input id="pf-qrid" placeholder="QR 스캔하세요" style="flex:1;font-family:monospace;font-size:14px" autocomplete="off" readonly>
+        <button class="qr-add-btn" id="btn-pf-scan" style="padding:10px 14px">📷 스캔</button>
+      </div>
+      <p style="font-size:11px;color:var(--text3);margin-top:4px">📷 스캔 버튼으로 QR을 인식하세요</p>
     </div>
   </div>
-  <div class="f-row"><label>카테고리</label><input id="pf-cat" placeholder="게임기/카메라 등" list="cat-dl"><datalist id="cat-dl"></datalist></div>
+  <!-- 수량 영역 (일반 제품 선택 시만 표시) -->
+  <div id="pf-total-sec" class="hide">
+    <div class="f-row"><label>보유 수량</label><input id="pf-total" type="number" min="1" value="1"></div>
+  </div>
   <div class="f-row"><label>메모</label><textarea id="pf-note" placeholder="선택사항"></textarea></div>
   <div class="modal-btns">
     <button class="mbtn mbtn-danger hide" id="pf-del" onclick="deleteProd()">삭제</button>
@@ -678,51 +695,53 @@ function dbSave(){
   }catch(e){}
 }
 let DB=dbLoad();
-// 기존 데이터 마이그레이션 (qrId, count, model 필드 없을 때)
+
+/* ===== 제품 종류 정의 ===== */
+const MODELS=[
+  {name:'파워업밴드 - 마리오',type:'qr'},
+  {name:'파워업밴드 - 루이지',type:'qr'},
+  {name:'파워업밴드 - 요시',type:'qr'},
+  {name:'파워업밴드 - 키노피오',type:'qr'},
+  {name:'파워업밴드 - 피치공주',type:'qr'},
+  {name:'파워업밴드 - 데이지',type:'qr'},
+  {name:'해리포터 지팡이',type:'normal'},
+  {name:'마리오 모자',type:'normal'},
+  {name:'루이지 모자',type:'normal'},
+];
+function isQrModel(name){return MODELS.some(m=>m.name===name&&m.type==='qr');}
+function modelType(name){const m=MODELS.find(x=>x.name===name);return m?m.type:(name&&name.startsWith('파워업밴드')?'qr':'normal');}
+
+// ── 데이터 마이그레이션 ──
 DB.stock.forEach(s=>{
   if(s.qrId===undefined) s.qrId='';
   if(s.count===undefined) s.count=0;
-  if(s.cat===undefined) s.cat='';
   if(s.note===undefined) s.note='';
-  if(!s.model) s.model=s.name; // 모델 없으면 이름으로 fallback (기존 데이터 호환)
+  if(!s.model) s.model=s.name||'기타';
+  if(!s.type) s.type=s.qrId?'qr':'normal';
 });
-
-// ── 단위 분할 마이그레이션 (한 번만): total>1 항목을 N개의 개별 단위로 분리 ──
-if(localStorage.getItem('rmi_mig_units')!=='1'){
-  const newStock=[];
+// normal 제품 합치기: 같은 model의 QR 없는 유닛들 → 1개 항목(total 합산)
+if(localStorage.getItem('rmi_mig_v3')!=='1'){
+  const qrItems=[],normalMap={};
   DB.stock.forEach(s=>{
-    const total=s.total||1;
-    const model=s.model||s.name||'기타';
-    // 첫 번째는 기존 id 유지 (대여 참조 보존)
-    newStock.push({
-      id:s.id,
-      model:model,
-      name:total>1?'#1':(s.name===s.model?'기본':(s.name||'기본')),
-      qrId:s.qrId||'',
-      cat:s.cat||'',
-      count:s.count||0,
-      note:s.note||'',
-      total:1
-    });
-    // 추가 단위는 새 id로
-    for(let i=1;i<total;i++){
-      newStock.push({
-        id:'s_'+Date.now()+'_'+Math.random().toString(36).slice(2,7)+'_'+i,
-        model:model,
-        name:'#'+(i+1),
-        qrId:'',
-        cat:s.cat||'',
-        count:0,
-        note:'',
-        total:1
-      });
+    if(s.qrId||s.type==='qr'){
+      s.type='qr';s.total=1;
+      qrItems.push(s);
+    } else {
+      const m=s.model||'기타';
+      if(!normalMap[m]){
+        normalMap[m]={id:s.id,model:m,type:'normal',qrId:'',total:s.total||1,count:s.count||0,note:s.note||''};
+      } else {
+        normalMap[m].total+=(s.total||1);
+        normalMap[m].count+=(s.count||0);
+        // 기존 대여/로그의 sid를 대표 id로 교체
+        const oldId=s.id,newId=normalMap[m].id;
+        DB.rentals.forEach(r=>{r.items.forEach(it=>{if(it.sid===oldId)it.sid=newId;});});
+        DB.logs.forEach(l=>{if(l.sid===oldId)l.sid=newId;});
+      }
     }
   });
-  DB.stock=newStock;
-  try{
-    localStorage.setItem('rmi_mig_units','1');
-    localStorage.setItem(KS,JSON.stringify(DB.stock));
-  }catch(e){}
+  DB.stock=[...qrItems,...Object.values(normalMap)];
+  try{localStorage.setItem('rmi_mig_v3','1');dbSave();}catch(e){}
 }
 
 // 모델 카드 펼침 상태 (메모리에만)
@@ -796,7 +815,8 @@ function getScheds(dstr){
 function iname(id){
   const s=DB.stock.find(x=>x.id===id);
   if(!s) return '?';
-  return (s.model||'')+(s.name&&s.name!=='기본'?' '+s.name:'');
+  if(s.type==='qr'&&s.qrId) return s.model+' [..'+s.qrId.slice(-6)+']';
+  return s.model;
 }
 function isum(r){return r.items.map(it=>iname(it.sid)+(it.qty>1?' x'+it.qty:'')).join(', ');}
 function scol(ship){return SCOL[ship]||SCOL.both;}
@@ -1118,7 +1138,11 @@ function rentalEdit(id){
   calSetDate('send',r.ss,r.se);
   calSetDate('recv',r.vs,r.ve);
   itemsClear();
-  if(r.items.length)r.items.forEach(it=>itemsAdd(it.sid,it.qty));
+  if(r.items.length) r.items.forEach(it=>{
+    const st=DB.stock.find(x=>x.id===it.sid);
+    if(st&&st.type==='qr') itemsAddQr(it.sid);
+    else itemsAdd(it.sid,it.qty);
+  });
   shipToggle();
   document.getElementById('del-confirm-row').classList.add('hide');
   modalOpen('modal-rental');
@@ -1131,71 +1155,63 @@ function shipToggle(){
 }
 function itemsAdd(sid='',qty=1){
   const id='ir_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
-  let opts='';
-  if(!DB.stock.length){
-    opts='<option value="">제품관리 탭에서 추가하세요</option>';
-  } else {
-    // 모델별 optgroup
-    const groups=getModelGroups();
-    const modelNames=Object.keys(groups).sort();
-    opts='<option value="">― 단위 선택 ―</option>';
-    modelNames.forEach(m=>{
-      opts+=`<optgroup label="${m}">`;
-      groups[m].forEach(s=>{
-        const label=(s.name||'기본')+(s.qrId?' ['+s.qrId+']':'');
-        opts+=`<option value="${s.id}"${s.id===sid?' selected':''}>${label}</option>`;
-      });
-      opts+='</optgroup>';
-    });
-  }
+  // 일반 제품만 드롭다운에 표시
+  const normals=DB.stock.filter(s=>s.type==='normal');
+  let opts='<option value="">― 품목 선택 ―</option>';
+  normals.forEach(s=>{
+    opts+=`<option value="${s.id}"${s.id===sid?' selected':''}>${s.model} (재고 ${s.total})</option>`;
+  });
   const div=document.createElement('div');
   div.className='item-row';div.id=id;
   div.innerHTML=`<select>${opts}</select><span class="qty-lbl">수량</span><input type="number" min="1" value="${qty}"><button class="rm-btn" data-rm-item="${id}">✕</button>`;
   document.getElementById('item-list').appendChild(div);
 }
+// QR 제품 전용 추가 (수량 1 고정, 수량 편집 불가)
+function itemsAddQr(sid){
+  const s=DB.stock.find(x=>x.id===sid);if(!s)return;
+  const id='ir_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+  const div=document.createElement('div');
+  div.className='item-row';div.id=id;
+  div.dataset.qrSid=sid; // QR 제품 표식
+  const shortQr=s.qrId?s.qrId.slice(-8):'';
+  div.innerHTML=`<div style="flex:1;font-size:13px;font-weight:600;color:var(--text);padding:4px 0;line-height:1.4">🔖 ${s.model}<br><span style="font-size:11px;font-weight:400;color:var(--text3);font-family:monospace">${shortQr?'[..'+shortQr+']':''}</span></div><span style="font-size:12px;color:var(--text3);font-weight:600;white-space:nowrap">x1</span><button class="rm-btn" data-rm-item="${id}">✕</button>`;
+  document.getElementById('item-list').appendChild(div);
+}
 function itemsClear(){document.getElementById('item-list').innerHTML='';}
 function itemsGet(){
   return Array.from(document.getElementById('item-list').children).map(row=>{
+    // QR 제품인 경우 data-qr-sid
+    if(row.dataset.qrSid) return{sid:row.dataset.qrSid,qty:1};
+    // 일반 제품인 경우 select + input
     const s=row.querySelector('select'),n=row.querySelector('input[type=number]');
     return{sid:s?s.value:'',qty:parseInt(n?n.value:1)||1};
   }).filter(x=>x.sid);
 }
-// QR로 품목 추가
+// QR로 품목 추가 (QR 제품 전용)
 function addItemByQrId(qrId){
   const s=DB.stock.find(x=>x.qrId===qrId);
   if(!s){
     rejectAlert('⚠️ 등록되지 않은 QR 코드입니다.\n\nQR ID: '+qrId+'\n\n[제품관리] 탭에서 먼저 제품을 등록하세요.');
     return false;
   }
-  const fullName=(s.model||'')+(s.name&&s.name!=='기본'?' '+s.name:'');
-  // 이미 현재 모달의 품목 리스트에 있는지
+  // 이미 현재 모달의 품목 리스트에 있는지 (data-qrSid로 검사)
   const rows=Array.from(document.getElementById('item-list').children);
   for(const row of rows){
-    const sel=row.querySelector('select');
-    if(sel&&sel.value===s.id){
-      rejectAlert('⚠️ 이미 등록된 제품입니다.\n\n제품: '+fullName+(s.qrId?' ['+s.qrId+']':'')+'\n\n같은 단위를 두 번 스캔하셨습니다.');
+    if(row.dataset.qrSid===s.id){
+      rejectAlert('⚠️ 이미 등록된 제품입니다.\n\n제품: '+s.model+'\nQR: [..'+s.qrId.slice(-8)+']\n\n같은 제품을 두 번 스캔하셨습니다.');
       return false;
     }
   }
   // 다른 활성 대여에 묶여있는지
   const activeRental=DB.rentals.find(r=>!r.done&&r.id!==editId&&r.items.some(it=>it.sid===s.id));
   if(activeRental){
-    rejectAlert('⚠️ 해당 제품은 현재 대여 중인 단위입니다.\n\n제품: '+fullName+(s.qrId?' ['+s.qrId+']':'')+'\n\n대여자: '+activeRental.cust+'\n대여기간: '+activeRental.start+' ~ '+activeRental.end+'\n\n반납 완료 후 다시 대여 등록해주세요.');
+    rejectAlert('⚠️ 해당 제품은 현재 대여 중인 제품입니다.\n\n제품: '+s.model+'\nQR: [..'+s.qrId.slice(-8)+']\n\n대여자: '+activeRental.cust+'\n대여기간: '+activeRental.start+' ~ '+activeRental.end+'\n\n반납 완료 후 다시 대여 등록해주세요.');
     return false;
   }
-  // 빈 행이 있으면 거기 채우기
-  for(const row of rows){
-    const sel=row.querySelector('select');
-    if(sel&&!sel.value){
-      sel.value=s.id;
-      playBeep();
-      toast('✅ '+fullName+' 추가됨');
-      return true;
-    }
-  }
-  itemsAdd(s.id,1);
+  // QR 전용 행으로 추가
+  itemsAddQr(s.id);
   playBeep();
-  toast('✅ '+fullName+' 추가됨');
+  toast('✅ '+s.model+' 추가됨');
   return true;
 }
 
@@ -1462,18 +1478,23 @@ function renderProducts(){
   }).join('');
 }
 
+// 제품 모달: 종류 선택에 따라 QR/수량 영역 토글
+function pfModelChange(){
+  const v=document.getElementById('pf-model').value;
+  const isQr=isQrModel(v);
+  document.getElementById('pf-qr-sec').classList.toggle('hide',!isQr);
+  document.getElementById('pf-total-sec').classList.toggle('hide',isQr||!v);
+}
 function openProdAdd(preFillModel){
   editProdId=null;
-  document.getElementById('prod-title').textContent=preFillModel?'+ "'+preFillModel+'" 단위 추가':'제품 추가';
+  document.getElementById('prod-title').textContent='제품 추가';
   document.getElementById('pf-del').classList.add('hide');
   document.getElementById('pf-model').value=preFillModel||'';
-  document.getElementById('pf-name').value='';
   document.getElementById('pf-qrid').value='';
-  document.getElementById('pf-cat').value='';
+  document.getElementById('pf-total').value='1';
   document.getElementById('pf-note').value='';
+  pfModelChange();
   modalOpen('modal-prod');
-  // 모델 미리 채워졌으면 단위명 입력란에 포커스, 아니면 모델명에 포커스
-  setTimeout(()=>document.getElementById(preFillModel?'pf-name':'pf-model').focus(),100);
 }
 function openProdEdit(id){
   const s=DB.stock.find(x=>x.id===id);if(!s)return;
@@ -1481,49 +1502,47 @@ function openProdEdit(id){
   document.getElementById('prod-title').textContent='제품 수정';
   document.getElementById('pf-del').classList.remove('hide');
   document.getElementById('pf-model').value=s.model||'';
-  document.getElementById('pf-name').value=s.name||'';
   document.getElementById('pf-qrid').value=s.qrId||'';
-  document.getElementById('pf-cat').value=s.cat||'';
+  document.getElementById('pf-total').value=s.total||1;
   document.getElementById('pf-note').value=s.note||'';
+  pfModelChange();
   modalOpen('modal-prod');
 }
 function saveProd(){
-  const model=document.getElementById('pf-model').value.trim();
-  const name=document.getElementById('pf-name').value.trim()||'기본';
+  const model=document.getElementById('pf-model').value;
+  if(!model){toast('⚠️ 제품 종류를 선택하세요');return;}
+  const isQr=isQrModel(model);
   const qrId=document.getElementById('pf-qrid').value.trim();
-  const cat=document.getElementById('pf-cat').value.trim();
+  const total=isQr?1:Math.max(1,parseInt(document.getElementById('pf-total').value)||1);
   const note=document.getElementById('pf-note').value.trim();
-  if(!model){toast('⚠️ 모델/캐릭터명을 입력하세요');return;}
+  if(isQr&&!qrId){toast('⚠️ 파워업밴드는 QR 스캔이 필수입니다');return;}
   if(qrId){
     const dup=DB.stock.find(s=>s.qrId===qrId&&s.id!==editProdId);
-    if(dup){
-      rejectAlert('⚠️ 이미 등록된 제품입니다.\n\n동일한 QR 코드를 가진 제품:\n→ '+(dup.model||'')+(dup.name&&dup.name!=='기본'?' '+dup.name:'')+(dup.cat?' ('+dup.cat+')':'')+'\n\nQR ID: '+qrId+'\n\n각 단위는 고유한 QR 코드를 가져야 합니다.');
-      const el=document.getElementById('pf-qrid');
-      el.style.borderColor='var(--red)';el.focus();el.select();
-      setTimeout(()=>el.style.borderColor='',3000);
-      return;
-    }
+    if(dup){rejectAlert('⚠️ 이미 등록된 QR입니다.\n\n→ '+dup.model+'\nQR: '+qrId);return;}
   }
   if(editProdId){
     const s=DB.stock.find(x=>x.id===editProdId);
-    if(s){s.model=model;s.name=name;s.qrId=qrId;s.cat=cat;s.note=note;}
+    if(s){s.model=model;s.qrId=qrId;s.total=total;s.note=note;s.type=isQr?'qr':'normal';}
   } else {
-    DB.stock.push({id:'s'+Date.now(),model,name,qrId,cat,note,total:1,count:0});
+    if(!isQr){
+      const existing=DB.stock.find(s=>s.model===model&&s.type==='normal');
+      if(existing){
+        existing.total+=total;existing.note=note||existing.note;
+        dbSave();modalClose('modal-prod');renderProducts();render();
+        toast('✅ '+model+' 수량 +'+total+' (총 '+existing.total+'개)');return;
+      }
+    }
+    DB.stock.push({id:'s'+Date.now(),model,type:isQr?'qr':'normal',qrId,total,count:0,note});
   }
   dbSave();modalClose('modal-prod');renderProducts();render();
   toast('✅ 저장됨');
 }
 function deleteProd(){
   if(!editProdId)return;
-  const s=DB.stock.find(x=>x.id===editProdId);
-  if(!s)return;
-  const fullName=(s.model||'')+(s.name&&s.name!=='기본'?' '+s.name:'');
+  const s=DB.stock.find(x=>x.id===editProdId);if(!s)return;
   const used=DB.rentals.some(r=>!r.done&&r.items.some(it=>it.sid===editProdId));
-  if(used){
-    if(!confirm('현재 대여중인 단위입니다. 그래도 삭제하시면 관련 대여 내역도 함께 삭제됩니다. 계속하시겠습니까?'))return;
-  } else {
-    if(!confirm('"'+fullName+'" 단위를 삭제하시겠습니까?\n(과거 대여기록은 유지됩니다)'))return;
-  }
+  if(used){if(!confirm('현재 대여중입니다. 삭제하면 관련 대여도 삭제됩니다. 계속?'))return;}
+  else{if(!confirm(s.model+' 삭제하시겠습니까?'))return;}
   DB.stock=DB.stock.filter(x=>x.id!==editProdId);
   DB.rentals=DB.rentals.filter(r=>!r.items.some(it=>it.sid===editProdId));
   dbSave();modalClose('modal-prod');renderProducts();render();
