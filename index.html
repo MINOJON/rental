@@ -288,6 +288,34 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 .prod-actions .btn{font-size:11px;padding:6px 11px;flex:1;min-width:60px}
 .cnt-badge{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;background:var(--blue-l);color:var(--blue)}
 
+/* MODEL CARD (제품관리 탭) */
+.model-card{background:var(--card);border-radius:12px;border:1px solid var(--border);margin-bottom:10px;overflow:hidden}
+.model-header{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;background:var(--card2);border-bottom:1px solid transparent;transition:background .12s}
+.model-header.expanded{border-bottom-color:var(--border)}
+.model-header:hover{background:var(--bg)}
+.model-toggle{font-size:10px;color:var(--text3);width:14px;text-align:center;flex-shrink:0}
+.model-info{flex:1;min-width:0}
+.model-name{font-size:14px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.model-cat{font-size:10px;color:var(--text3);margin-top:2px}
+.model-stats{display:flex;gap:9px;flex-wrap:wrap;font-size:10px;color:var(--text3);flex-shrink:0;align-items:center}
+.model-stat strong{color:var(--text);font-size:12px;margin-right:2px}
+@media(max-width:520px){.model-header{flex-wrap:wrap}.model-stats{flex-basis:100%;margin-top:4px;justify-content:flex-end}}
+.model-units{padding:4px 14px 10px;background:var(--card)}
+.unit-row{display:flex;align-items:center;gap:8px;padding:8px 4px;border-bottom:1px solid var(--border)}
+.unit-row:last-of-type{border-bottom:none}
+.unit-info{flex:1;min-width:0;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.unit-name{font-size:13px;font-weight:600;color:var(--text);flex-shrink:0}
+.unit-qr{font-size:11px;color:var(--text2);font-family:monospace;background:var(--bg);padding:2px 7px;border-radius:4px;border:1px solid var(--border)}
+.unit-qr-empty{font-size:11px;color:var(--text3);font-style:italic}
+.unit-count{font-size:11px;color:var(--text3)}
+.unit-status{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px}
+.unit-status.ok{background:#D1FAE5;color:#059669}
+.unit-status.out{background:#FEF3C7;color:#D97706}
+.unit-actions{display:flex;gap:5px;flex-shrink:0}
+.unit-actions .btn{font-size:11px;padding:5px 8px}
+.unit-add-btn{width:100%;margin-top:8px;border:1.5px dashed var(--border2);background:transparent;color:var(--text3);font-size:12px;padding:9px;text-align:center;border-radius:var(--r);cursor:pointer;font-family:inherit;font-weight:600}
+.unit-add-btn:hover{background:var(--card2);color:var(--blue);border-color:var(--blue)}
+
 /* LOG PAGE */
 .log-card{background:var(--card);border-radius:10px;padding:10px 14px;margin-bottom:7px;border:1px solid var(--border);display:flex;align-items:center;gap:10px}
 .log-type{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0}
@@ -520,18 +548,23 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 <div class="modal">
   <button class="mx" data-close="modal-prod">✕</button>
   <h3 id="prod-title">제품 추가</h3>
-  <div class="f-row"><label>제품명 <span class="req">* 필수</span></label><input id="pf-name" placeholder="소니 A7C (카메라)"></div>
   <div class="f-row">
-    <label>제품 QR ID <span style="color:var(--text3);font-weight:500">(선택 - QR 스캔용)</span></label>
+    <label>모델 / 캐릭터명 <span class="req">* 필수</span></label>
+    <input id="pf-model" placeholder="파워업밴드-마리오" list="model-dl" autocomplete="off">
+    <datalist id="model-dl"></datalist>
+  </div>
+  <div class="f-row">
+    <label>단위명 / 시리얼 <span style="color:var(--text3);font-weight:500">(예: #001, A밴드)</span></label>
+    <input id="pf-name" placeholder="#001" autocomplete="off">
+  </div>
+  <div class="f-row">
+    <label>제품 QR ID <span style="color:var(--text3);font-weight:500">(선택 - QR 스캔용, 각 단위마다 고유)</span></label>
     <div style="display:flex;gap:8px">
-      <input id="pf-qrid" placeholder="CAM-001" style="flex:1;font-family:monospace" autocomplete="off">
+      <input id="pf-qrid" placeholder="BAND-M-001" style="flex:1;font-family:monospace" autocomplete="off">
       <button class="qr-add-btn" id="btn-pf-scan" style="padding:10px 12px">📷</button>
     </div>
   </div>
-  <div class="f-half">
-    <div class="f-row"><label>카테고리</label><input id="pf-cat" placeholder="카메라/게임기 등" list="cat-dl"><datalist id="cat-dl"></datalist></div>
-    <div class="f-row"><label>총 보유수량 <span class="req">* 필수</span></label><input id="pf-total" type="number" min="1" value="1"></div>
-  </div>
+  <div class="f-row"><label>카테고리</label><input id="pf-cat" placeholder="게임기/카메라 등" list="cat-dl"><datalist id="cat-dl"></datalist></div>
   <div class="f-row"><label>메모</label><textarea id="pf-note" placeholder="선택사항"></textarea></div>
   <div class="modal-btns">
     <button class="mbtn mbtn-danger hide" id="pf-del" onclick="deleteProd()">삭제</button>
@@ -615,16 +648,18 @@ function dbLoad(){
     const lg=JSON.parse(localStorage.getItem(KLG)||'null');
     return{
       stock: s||[
-        {id:'s1',name:'파워업밴드-마리오',total:4,cat:'게임기',qrId:'BAND-001',count:0,note:''},
-        {id:'s2',name:'파워업밴드-루이지',total:2,cat:'게임기',qrId:'BAND-002',count:0,note:''},
-        {id:'s3',name:'파워업밴드-피치공주',total:2,cat:'게임기',qrId:'BAND-003',count:0,note:''},
-        {id:'s4',name:'소니 A7C',total:2,cat:'카메라',qrId:'CAM-001',count:0,note:''},
-        {id:'s5',name:'맥북 에어 M3',total:1,cat:'노트북',qrId:'MAC-001',count:0,note:''},
+        {id:'s1',name:'마리오 #1',model:'파워업밴드-마리오',total:1,cat:'게임기',qrId:'BAND-M-001',count:0,note:''},
+        {id:'s2',name:'마리오 #2',model:'파워업밴드-마리오',total:1,cat:'게임기',qrId:'BAND-M-002',count:0,note:''},
+        {id:'s3',name:'루이지 #1',model:'파워업밴드-루이지',total:1,cat:'게임기',qrId:'BAND-L-001',count:0,note:''},
+        {id:'s4',name:'요시 #1',model:'파워업밴드-요시',total:1,cat:'게임기',qrId:'BAND-Y-001',count:0,note:''},
+        {id:'s5',name:'요시 #2',model:'파워업밴드-요시',total:1,cat:'게임기',qrId:'BAND-Y-002',count:0,note:''},
+        {id:'s6',name:'A7C #1',model:'소니 A7C',total:1,cat:'카메라',qrId:'CAM-001',count:0,note:''},
+        {id:'s7',name:'맥북에어 M3 #1',model:'맥북 에어 M3',total:1,cat:'노트북',qrId:'MAC-001',count:0,note:''},
       ],
       rentals: r||[
-        {id:'r1',cust:'김민준',items:[{sid:'s4',qty:1}],start:'2026-05-05',end:'2026-05-12',ship:'both',ss:'2026-05-03',se:'2026-05-04',vs:'2026-05-13',ve:'2026-05-14',apPick:'',apRet:'',apMemo:'',memo:'',done:false},
-        {id:'r2',cust:'이서연',items:[{sid:'s5',qty:1}],start:'2026-05-06',end:'2026-05-15',ship:'airport',ss:'',se:'',vs:'',ve:'',apPick:'09:30',apRet:'22:00',apMemo:'인천공항 T1',memo:'',done:false},
-        {id:'r3',cust:'박준혁',items:[{sid:'s1',qty:1},{sid:'s2',qty:1},{sid:'s3',qty:1}],start:'2026-05-08',end:'2026-05-14',ship:'both',ss:'2026-05-06',se:'2026-05-07',vs:'2026-05-15',ve:'2026-05-16',apPick:'',apRet:'',apMemo:'',memo:'',done:false},
+        {id:'r1',cust:'김민준',items:[{sid:'s6',qty:1}],start:'2026-05-05',end:'2026-05-12',ship:'both',ss:'2026-05-03',se:'2026-05-04',vs:'2026-05-13',ve:'2026-05-14',apPick:'',apRet:'',apMemo:'',memo:'',done:false},
+        {id:'r2',cust:'이서연',items:[{sid:'s7',qty:1}],start:'2026-05-06',end:'2026-05-15',ship:'airport',ss:'',se:'',vs:'',ve:'',apPick:'09:30',apRet:'22:00',apAirportPick:'인천공항 T1',apAirportRet:'인천공항 T1',apMemo:'',memo:'',done:false},
+        {id:'r3',cust:'박준혁',items:[{sid:'s1',qty:1},{sid:'s3',qty:1},{sid:'s4',qty:1}],start:'2026-05-08',end:'2026-05-14',ship:'both',ss:'2026-05-06',se:'2026-05-07',vs:'2026-05-15',ve:'2026-05-16',apPick:'',apRet:'',apMemo:'',memo:'',done:false},
       ],
       hol: h||[],
       logs: lg||[],
@@ -643,13 +678,55 @@ function dbSave(){
   }catch(e){}
 }
 let DB=dbLoad();
-// 기존 데이터 마이그레이션 (qrId, count 필드 없을 때)
+// 기존 데이터 마이그레이션 (qrId, count, model 필드 없을 때)
 DB.stock.forEach(s=>{
   if(s.qrId===undefined) s.qrId='';
   if(s.count===undefined) s.count=0;
   if(s.cat===undefined) s.cat='';
   if(s.note===undefined) s.note='';
+  if(!s.model) s.model=s.name; // 모델 없으면 이름으로 fallback (기존 데이터 호환)
 });
+
+// ── 단위 분할 마이그레이션 (한 번만): total>1 항목을 N개의 개별 단위로 분리 ──
+if(localStorage.getItem('rmi_mig_units')!=='1'){
+  const newStock=[];
+  DB.stock.forEach(s=>{
+    const total=s.total||1;
+    const model=s.model||s.name||'기타';
+    // 첫 번째는 기존 id 유지 (대여 참조 보존)
+    newStock.push({
+      id:s.id,
+      model:model,
+      name:total>1?'#1':(s.name===s.model?'기본':(s.name||'기본')),
+      qrId:s.qrId||'',
+      cat:s.cat||'',
+      count:s.count||0,
+      note:s.note||'',
+      total:1
+    });
+    // 추가 단위는 새 id로
+    for(let i=1;i<total;i++){
+      newStock.push({
+        id:'s_'+Date.now()+'_'+Math.random().toString(36).slice(2,7)+'_'+i,
+        model:model,
+        name:'#'+(i+1),
+        qrId:'',
+        cat:s.cat||'',
+        count:0,
+        note:'',
+        total:1
+      });
+    }
+  });
+  DB.stock=newStock;
+  try{
+    localStorage.setItem('rmi_mig_units','1');
+    localStorage.setItem(KS,JSON.stringify(DB.stock));
+  }catch(e){}
+}
+
+// 모델 카드 펼침 상태 (메모리에만)
+let expandedModels={};
 
 /* ===== LAYOUT ===== */
 let COL_W=88, ROW_H=52;
@@ -716,9 +793,37 @@ function getScheds(dstr){
   return out;
 }
 
-function iname(id){return(DB.stock.find(x=>x.id===id)||{name:'?'}).name;}
-function isum(r){return r.items.map(it=>iname(it.sid)+' x'+it.qty).join(', ');}
+function iname(id){
+  const s=DB.stock.find(x=>x.id===id);
+  if(!s) return '?';
+  return (s.model||'')+(s.name&&s.name!=='기본'?' '+s.name:'');
+}
+function isum(r){return r.items.map(it=>iname(it.sid)+(it.qty>1?' x'+it.qty:'')).join(', ');}
 function scol(ship){return SCOL[ship]||SCOL.both;}
+// 같은 모델로 그룹화
+function getModelGroups(){
+  const groups={};
+  DB.stock.forEach(s=>{
+    const m=s.model||'기타';
+    if(!groups[m]) groups[m]=[];
+    groups[m].push(s);
+  });
+  return groups;
+}
+// 모델 통계 (총 수량, 가용, 대여중, 누적 카운트)
+function getModelStats(modelName){
+  const units=DB.stock.filter(s=>s.model===modelName);
+  const total=units.length;
+  const count=units.reduce((s,u)=>s+(u.count||0),0);
+  const today=ds(clr(new Date()));
+  const inv=calcInv(today);
+  let available=0;
+  units.forEach(u=>{
+    const left=inv[u.id]??1;
+    if(left>0) available++;
+  });
+  return {total, count, available, using: total-available};
+}
 
 /* ===== BARS ===== */
 function makeBars(r,days){
@@ -820,11 +925,17 @@ function render(){
   h+='<div class="sec-hdr"><div class="sec-hdr-lbl">재고 현황</div>';
   days.forEach(d=>h+=`<div class="sec-hdr-cell${same(d,today)?' is-today':''}"></div>`);
   h+='</div><div class="inv-section">';
-  DB.stock.forEach(s=>{
-    h+=`<div class="inv-row"><div class="inv-name">${s.name} <span style="color:var(--text3);font-weight:400">(총 ${s.total})</span></div>`;
+  const stockGroups=getModelGroups();
+  Object.keys(stockGroups).sort().forEach(model=>{
+    const units=stockGroups[model];
+    const total=units.length;
+    h+=`<div class="inv-row"><div class="inv-name">${model} <span style="color:var(--text3);font-weight:400">(총 ${total})</span></div>`;
     days.forEach(d=>{
-      const left=(calcInv(ds(d))[s.id]??s.total),ratio=s.total>0?left/s.total:1,tod=same(d,today);
-      const cls=left<=0?'danger':ratio<=.5?'warn':left===s.total?'full':'ok';
+      const invDay=calcInv(ds(d));
+      let left=0;
+      units.forEach(u=>{const l=invDay[u.id]??1;if(l>0)left++;});
+      const ratio=total>0?left/total:1,tod=same(d,today);
+      const cls=left<=0?'danger':ratio<=.5?'warn':left===total?'full':'ok';
       h+=`<div class="inv-cell ${cls}${tod?' is-today':''}">${left<=0?'✕':left}</div>`;
     });
     h+='</div>';
@@ -1020,9 +1131,23 @@ function shipToggle(){
 }
 function itemsAdd(sid='',qty=1){
   const id='ir_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
-  const opts=DB.stock.length
-    ?DB.stock.map(s=>`<option value="${s.id}"${s.id===sid?' selected':''}>${s.name}${s.qrId?' ['+s.qrId+']':''}</option>`).join('')
-    :'<option value="">제품관리 탭에서 추가하세요</option>';
+  let opts='';
+  if(!DB.stock.length){
+    opts='<option value="">제품관리 탭에서 추가하세요</option>';
+  } else {
+    // 모델별 optgroup
+    const groups=getModelGroups();
+    const modelNames=Object.keys(groups).sort();
+    opts='<option value="">― 단위 선택 ―</option>';
+    modelNames.forEach(m=>{
+      opts+=`<optgroup label="${m}">`;
+      groups[m].forEach(s=>{
+        const label=(s.name||'기본')+(s.qrId?' ['+s.qrId+']':'');
+        opts+=`<option value="${s.id}"${s.id===sid?' selected':''}>${label}</option>`;
+      });
+      opts+='</optgroup>';
+    });
+  }
   const div=document.createElement('div');
   div.className='item-row';div.id=id;
   div.innerHTML=`<select>${opts}</select><span class="qty-lbl">수량</span><input type="number" min="1" value="${qty}"><button class="rm-btn" data-rm-item="${id}">✕</button>`;
@@ -1042,19 +1167,20 @@ function addItemByQrId(qrId){
     rejectAlert('⚠️ 등록되지 않은 QR 코드입니다.\n\nQR ID: '+qrId+'\n\n[제품관리] 탭에서 먼저 제품을 등록하세요.');
     return false;
   }
+  const fullName=(s.model||'')+(s.name&&s.name!=='기본'?' '+s.name:'');
   // 이미 현재 모달의 품목 리스트에 있는지
   const rows=Array.from(document.getElementById('item-list').children);
   for(const row of rows){
     const sel=row.querySelector('select');
     if(sel&&sel.value===s.id){
-      rejectAlert('⚠️ 이미 등록된 제품입니다.\n\n제품: '+s.name+(s.qrId?' ['+s.qrId+']':'')+'\n\n같은 제품을 두 번 스캔하셨습니다.');
+      rejectAlert('⚠️ 이미 등록된 제품입니다.\n\n제품: '+fullName+(s.qrId?' ['+s.qrId+']':'')+'\n\n같은 단위를 두 번 스캔하셨습니다.');
       return false;
     }
   }
-  // ── 다른 활성 대여(반납완료 X)에 묶여있는지 검사 — 자기 자신(editId)은 제외 ──
+  // 다른 활성 대여에 묶여있는지
   const activeRental=DB.rentals.find(r=>!r.done&&r.id!==editId&&r.items.some(it=>it.sid===s.id));
   if(activeRental){
-    rejectAlert('⚠️ 해당 제품은 현재 대여 중인 제품입니다.\n\n제품: '+s.name+(s.qrId?' ['+s.qrId+']':'')+'\n\n대여자: '+activeRental.cust+'\n대여기간: '+activeRental.start+' ~ '+activeRental.end+'\n\n반납 완료 후 다시 대여 등록해주세요.');
+    rejectAlert('⚠️ 해당 제품은 현재 대여 중인 단위입니다.\n\n제품: '+fullName+(s.qrId?' ['+s.qrId+']':'')+'\n\n대여자: '+activeRental.cust+'\n대여기간: '+activeRental.start+' ~ '+activeRental.end+'\n\n반납 완료 후 다시 대여 등록해주세요.');
     return false;
   }
   // 빈 행이 있으면 거기 채우기
@@ -1063,14 +1189,13 @@ function addItemByQrId(qrId){
     if(sel&&!sel.value){
       sel.value=s.id;
       playBeep();
-      toast('✅ '+s.name+' 추가됨');
+      toast('✅ '+fullName+' 추가됨');
       return true;
     }
   }
-  // 새 행 추가
   itemsAdd(s.id,1);
   playBeep();
-  toast('✅ '+s.name+' 추가됨');
+  toast('✅ '+fullName+' 추가됨');
   return true;
 }
 
@@ -1090,10 +1215,15 @@ function dayOpen(dstr){
   if(!recvS.length)h+='<p style="font-size:12px;color:var(--text3);padding:4px 0">해당 없음</p>';
   recvS.forEach(s=>h+=`<div class="day-item"><span class="chip2" style="background:#ffe0b2;color:#7a3e00">${s.lbl}</span><span style="color:var(--text2);font-size:12px">${isum(s.r)}</span></div>`);
   h+='<div class="d-sec">재고 현황</div>';
-  DB.stock.forEach(s=>{
-    const left=inv[s.id]??s.total,ratio=s.total>0?left/s.total:1;
+  const dayStockGroups=getModelGroups();
+  Object.keys(dayStockGroups).sort().forEach(model=>{
+    const units=dayStockGroups[model];
+    const total=units.length;
+    let left=0;
+    units.forEach(u=>{const l=inv[u.id]??1;if(l>0)left++;});
+    const ratio=total>0?left/total:1;
     const c=left<=0?'#DC2626':ratio<=.5?'#D97706':'#059669';
-    h+=`<div class="day-item"><span style="flex:1;font-size:12px">${s.name}</span><span style="color:${c};font-weight:700;font-size:13px;margin-right:10px">${left}<span style="font-size:10px;color:var(--text3)">/${s.total}</span></span><div class="inv-bar-w"><div class="inv-bar-f" style="width:${Math.max(0,Math.round(ratio*100))}%;background:${c}"></div></div></div>`;
+    h+=`<div class="day-item"><span style="flex:1;font-size:12px">${model}</span><span style="color:${c};font-weight:700;font-size:13px;margin-right:10px">${left}<span style="font-size:10px;color:var(--text3)">/${total}</span></span><div class="inv-bar-w"><div class="inv-bar-f" style="width:${Math.max(0,Math.round(ratio*100))}%;background:${c}"></div></div></div>`;
   });
   const active=DB.rentals.filter(r=>{if(r.done)return false;return dd>=clr(dp(r.ss||r.start))&&dd<=clr(dp(r.ve||r.end));});
   if(active.length){
@@ -1262,83 +1392,112 @@ function saveHTML(){
    ============================================ */
 let editProdId=null;
 function getCats(){return[...new Set(DB.stock.map(s=>s.cat).filter(Boolean))].sort();}
+function getModels(){return[...new Set(DB.stock.map(s=>s.model).filter(Boolean))].sort();}
 
 function renderProducts(){
-  const cats=getCats();
+  const cats=getCats(),models=getModels();
   const sel=document.getElementById('prod-cat-filter'),cv=sel.value;
   sel.innerHTML='<option value="">전체 카테고리</option>'+cats.map(c=>`<option value="${c}"${c===cv?' selected':''}>${c}</option>`).join('');
-  const dl=document.getElementById('cat-dl');
-  if(dl)dl.innerHTML=cats.map(c=>`<option value="${c}">`).join('');
+  const cdl=document.getElementById('cat-dl');
+  if(cdl)cdl.innerHTML=cats.map(c=>`<option value="${c}">`).join('');
+  const mdl=document.getElementById('model-dl');
+  if(mdl)mdl.innerHTML=models.map(m=>`<option value="${m}">`).join('');
+
   const q=(document.getElementById('prod-q').value||'').toLowerCase();
-  const cat=document.getElementById('prod-cat-filter').value;
+  const catFilter=document.getElementById('prod-cat-filter').value;
   const inv=calcInv(ds(clr(new Date())));
-  const list=DB.stock.filter(s=>{
-    if(q&&s.name.toLowerCase().indexOf(q)<0&&(s.qrId||'').toLowerCase().indexOf(q)<0)return false;
-    if(cat&&s.cat!==cat)return false;
+  const groups=getModelGroups();
+  const modelNames=Object.keys(groups).sort();
+  const filtered=modelNames.filter(m=>{
+    const units=groups[m];
+    if(catFilter && !units.some(u=>u.cat===catFilter)) return false;
+    if(q){
+      const matchModel=m.toLowerCase().indexOf(q)>=0;
+      const matchUnit=units.some(u=>(u.name||'').toLowerCase().indexOf(q)>=0||(u.qrId||'').toLowerCase().indexOf(q)>=0);
+      if(!matchModel&&!matchUnit) return false;
+    }
     return true;
   });
+
   const el=document.getElementById('prod-list');
-  if(!list.length){el.innerHTML='<div class="empty-state">등록된 제품이 없습니다.<br>+ 제품 추가 버튼을 눌러 등록하세요.</div>';return;}
-  el.innerHTML=list.map(s=>{
-    const left=inv[s.id]??s.total,using=s.total-left;
-    return `<div class="prod-card">
-      <div class="prod-card-top">
-        <div style="flex:1;min-width:0">
-          <div class="prod-name">${s.name}</div>
-          <div class="prod-id-line">${s.qrId?'🔖 '+s.qrId:'<span style="color:var(--text3)">QR ID 미설정</span>'}${s.cat?' · '+s.cat:''}</div>
+  if(!filtered.length){el.innerHTML='<div class="empty-state">등록된 제품이 없습니다.<br>+ 제품 추가 버튼을 눌러 등록하세요.</div>';return;}
+  el.innerHTML=filtered.map(m=>{
+    const units=groups[m];
+    const stats=getModelStats(m);
+    const cat=units[0].cat||'';
+    const expanded=expandedModels[m]!==false; // 기본 펼침
+    const unitsHtml=units.map(u=>{
+      const left=inv[u.id]??1;
+      const isUsing=left<=0;
+      return `<div class="unit-row">
+        <div class="unit-info">
+          <span class="unit-name">${u.name||'기본'}</span>
+          ${u.qrId?`<span class="unit-qr">${u.qrId}</span>`:'<span class="unit-qr-empty">QR 미설정</span>'}
+          <span class="unit-status ${isUsing?'out':'ok'}">${isUsing?'대여중':'보관중'}</span>
+          <span class="unit-count">📊 ${u.count||0}회</span>
         </div>
-        <span class="cnt-badge">📊 ${s.count||0}회</span>
+        <div class="unit-actions">
+          <button class="btn" data-prod-detail="${u.id}">상세</button>
+          <button class="btn" data-prod-edit="${u.id}">수정</button>
+          ${u.qrId?`<button class="btn btn-blue" data-prod-qr="${u.id}">📷</button>`:''}
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="model-card">
+      <div class="model-header${expanded?' expanded':''}" data-toggle-model="${m}">
+        <div class="model-toggle">${expanded?'▼':'▶'}</div>
+        <div class="model-info">
+          <div class="model-name">${m}</div>
+          ${cat?`<div class="model-cat">${cat}</div>`:''}
+        </div>
+        <div class="model-stats">
+          <span>총 <strong>${stats.total}</strong></span>
+          <span style="color:${stats.using>0?'var(--amber)':'var(--text3)'}">대여 <strong>${stats.using}</strong></span>
+          <span style="color:${stats.available<=0?'var(--red)':'var(--teal)'}">가용 <strong>${stats.available}</strong></span>
+          <span class="cnt-badge">📊 ${stats.count}회</span>
+        </div>
       </div>
-      <div class="prod-stats">
-        <span class="prod-stat"><strong>${s.total}</strong>개 총보유</span>
-        <span class="prod-stat" style="color:${using>0?'var(--amber)':'var(--text3)'}"><strong>${using}</strong>개 대여중</span>
-        <span class="prod-stat" style="color:${left<=0?'var(--red)':'var(--teal)'}"><strong>${left}</strong>개 가용</span>
-      </div>
-      ${s.note?`<div style="font-size:11px;color:var(--text3);margin-bottom:8px">${s.note}</div>`:''}
-      <div class="prod-actions">
-        <button class="btn" data-prod-detail="${s.id}">상세</button>
-        <button class="btn" data-prod-edit="${s.id}">수정</button>
-        ${s.qrId?`<button class="btn btn-blue" data-prod-qr="${s.id}">📷 QR 생성</button>`:''}
-      </div>
+      ${expanded?`<div class="model-units">${unitsHtml}<button class="unit-add-btn" data-add-unit="${m}">+ "${m}" 단위 추가</button></div>`:''}
     </div>`;
   }).join('');
 }
 
-function openProdAdd(){
+function openProdAdd(preFillModel){
   editProdId=null;
-  document.getElementById('prod-title').textContent='제품 추가';
+  document.getElementById('prod-title').textContent=preFillModel?'+ "'+preFillModel+'" 단위 추가':'제품 추가';
   document.getElementById('pf-del').classList.add('hide');
+  document.getElementById('pf-model').value=preFillModel||'';
   document.getElementById('pf-name').value='';
   document.getElementById('pf-qrid').value='';
   document.getElementById('pf-cat').value='';
-  document.getElementById('pf-total').value='1';
   document.getElementById('pf-note').value='';
   modalOpen('modal-prod');
+  // 모델 미리 채워졌으면 단위명 입력란에 포커스, 아니면 모델명에 포커스
+  setTimeout(()=>document.getElementById(preFillModel?'pf-name':'pf-model').focus(),100);
 }
 function openProdEdit(id){
   const s=DB.stock.find(x=>x.id===id);if(!s)return;
   editProdId=id;
   document.getElementById('prod-title').textContent='제품 수정';
   document.getElementById('pf-del').classList.remove('hide');
-  document.getElementById('pf-name').value=s.name;
+  document.getElementById('pf-model').value=s.model||'';
+  document.getElementById('pf-name').value=s.name||'';
   document.getElementById('pf-qrid').value=s.qrId||'';
   document.getElementById('pf-cat').value=s.cat||'';
-  document.getElementById('pf-total').value=s.total;
   document.getElementById('pf-note').value=s.note||'';
   modalOpen('modal-prod');
 }
 function saveProd(){
-  const name=document.getElementById('pf-name').value.trim();
+  const model=document.getElementById('pf-model').value.trim();
+  const name=document.getElementById('pf-name').value.trim()||'기본';
   const qrId=document.getElementById('pf-qrid').value.trim();
   const cat=document.getElementById('pf-cat').value.trim();
-  const total=Math.max(1,parseInt(document.getElementById('pf-total').value)||1);
   const note=document.getElementById('pf-note').value.trim();
-  if(!name){toast('⚠️ 제품명을 입력하세요');return;}
+  if(!model){toast('⚠️ 모델/캐릭터명을 입력하세요');return;}
   if(qrId){
     const dup=DB.stock.find(s=>s.qrId===qrId&&s.id!==editProdId);
     if(dup){
-      rejectAlert('⚠️ 이미 등록된 제품입니다.\n\n동일한 QR 코드를 가진 제품:\n→ '+dup.name+(dup.cat?' ('+dup.cat+')':'')+'\n\nQR ID: '+qrId+'\n\n각 제품은 고유한 QR 코드를 가져야 합니다.');
-      // QR 입력란에 포커스
+      rejectAlert('⚠️ 이미 등록된 제품입니다.\n\n동일한 QR 코드를 가진 제품:\n→ '+(dup.model||'')+(dup.name&&dup.name!=='기본'?' '+dup.name:'')+(dup.cat?' ('+dup.cat+')':'')+'\n\nQR ID: '+qrId+'\n\n각 단위는 고유한 QR 코드를 가져야 합니다.');
       const el=document.getElementById('pf-qrid');
       el.style.borderColor='var(--red)';el.focus();el.select();
       setTimeout(()=>el.style.borderColor='',3000);
@@ -1347,9 +1506,9 @@ function saveProd(){
   }
   if(editProdId){
     const s=DB.stock.find(x=>x.id===editProdId);
-    if(s){s.name=name;s.qrId=qrId;s.cat=cat;s.total=total;s.note=note;}
+    if(s){s.model=model;s.name=name;s.qrId=qrId;s.cat=cat;s.note=note;}
   } else {
-    DB.stock.push({id:'s'+Date.now(),name,qrId,cat,total,note,count:0});
+    DB.stock.push({id:'s'+Date.now(),model,name,qrId,cat,note,total:1,count:0});
   }
   dbSave();modalClose('modal-prod');renderProducts();render();
   toast('✅ 저장됨');
@@ -1358,12 +1517,12 @@ function deleteProd(){
   if(!editProdId)return;
   const s=DB.stock.find(x=>x.id===editProdId);
   if(!s)return;
-  // 사용중인 대여 확인
+  const fullName=(s.model||'')+(s.name&&s.name!=='기본'?' '+s.name:'');
   const used=DB.rentals.some(r=>!r.done&&r.items.some(it=>it.sid===editProdId));
   if(used){
-    if(!confirm('현재 대여중인 제품입니다. 그래도 삭제하시면 관련 대여 내역도 함께 삭제됩니다. 계속하시겠습니까?'))return;
+    if(!confirm('현재 대여중인 단위입니다. 그래도 삭제하시면 관련 대여 내역도 함께 삭제됩니다. 계속하시겠습니까?'))return;
   } else {
-    if(!confirm(s.name+' 제품을 삭제하시겠습니까?\n(과거 대여기록은 유지됩니다)'))return;
+    if(!confirm('"'+fullName+'" 단위를 삭제하시겠습니까?\n(과거 대여기록은 유지됩니다)'))return;
   }
   DB.stock=DB.stock.filter(x=>x.id!==editProdId);
   DB.rentals=DB.rentals.filter(r=>!r.items.some(it=>it.sid===editProdId));
@@ -1372,14 +1531,17 @@ function deleteProd(){
 
 function openProdDetail(id){
   const s=DB.stock.find(x=>x.id===id);if(!s)return;
-  document.getElementById('pdet-title').textContent=s.name;
+  const fullName=(s.model||'')+(s.name&&s.name!=='기본'?' '+s.name:'');
+  document.getElementById('pdet-title').textContent=fullName;
   const pLogs=DB.logs.filter(l=>l.sid===id).slice().reverse().slice(0,20);
   const inv=calcInv(ds(clr(new Date())));
-  const left=inv[s.id]??s.total,using=s.total-left;
+  const left=inv[s.id]??1,isUsing=left<=0;
   let h=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
     <div style="background:var(--card2);border-radius:10px;padding:14px;text-align:center"><div style="font-size:28px;font-weight:700;color:var(--blue)">${s.count||0}</div><div style="font-size:11px;color:var(--text3)">누적 대여 횟수</div></div>
-    <div style="background:var(--card2);border-radius:10px;padding:14px;text-align:center"><div style="font-size:28px;font-weight:700;color:${left<=0?'var(--red)':'var(--teal)'}">${left}<span style="font-size:14px;color:var(--text3)">/${s.total}</span></div><div style="font-size:11px;color:var(--text3)">현재 가용 / 총보유</div></div>
+    <div style="background:var(--card2);border-radius:10px;padding:14px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center"><span class="unit-status ${isUsing?'out':'ok'}" style="font-size:13px;padding:5px 14px">${isUsing?'대여중':'보관중'}</span></div>
   </div>`;
+  h+=`<p style="font-size:12px;color:var(--text3);margin-bottom:4px">모델: <strong style="color:var(--text2)">${s.model||'-'}</strong></p>`;
+  h+=`<p style="font-size:12px;color:var(--text3);margin-bottom:4px">단위: <strong style="color:var(--text2)">${s.name||'기본'}</strong></p>`;
   h+=`<p style="font-size:12px;color:var(--text3);margin-bottom:4px">QR ID: <span style="font-family:monospace;color:var(--text2)">${s.qrId||'미설정'}</span>${s.cat?' · '+s.cat:''}</p>`;
   if(s.note)h+=`<p style="font-size:12px;color:var(--text3);margin-bottom:12px">메모: ${s.note}</p>`;
   h+='<div class="d-sec" style="margin-top:14px">대여/반납 기록 (최근 20건)</div>';
@@ -1388,7 +1550,7 @@ function openProdDetail(id){
     h+=`<div class="day-item">
       <span class="log-type ${l.type==='rent'?'rent':'ret'}">${l.type==='rent'?'대여':'반납'}</span>
       <div style="flex:1;font-size:12px">
-        <div>${l.cust||'-'} <span style="color:var(--text3)">x${l.qty||1}</span></div>
+        <div>${l.cust||'-'}</div>
         <div style="font-size:10px;color:var(--text3)">${fmtDt(l.date)}</div>
       </div>
     </div>`;
@@ -1507,7 +1669,8 @@ function handleQrResult(id){
     const dup=DB.stock.find(s=>s.qrId===id&&s.id!==editProdId);
     if(dup){
       qrClose();
-      rejectAlert('⚠️ 이미 등록된 제품입니다.\n\n이 QR 코드는 이미 다음 제품에 등록되어 있습니다:\n→ '+dup.name+(dup.cat?' ('+dup.cat+')':'')+'\n\nQR ID: '+id+'\n\n각 제품은 고유한 QR 코드를 가져야 합니다.');
+      const fullName=(dup.model||'')+(dup.name&&dup.name!=='기본'?' '+dup.name:'');
+      rejectAlert('⚠️ 이미 등록된 제품입니다.\n\n이 QR 코드는 이미 다음 단위에 등록되어 있습니다:\n→ '+fullName+(dup.cat?' ('+dup.cat+')':'')+'\n\nQR ID: '+id+'\n\n각 단위는 고유한 QR 코드를 가져야 합니다.');
       return;
     }
     document.getElementById('pf-qrid').value=id;
@@ -1596,6 +1759,17 @@ document.addEventListener('click',function(ev){
   if(pedt){openProdEdit(pedt.dataset.prodEdit);return;}
   const pqr=t.closest('[data-prod-qr]');
   if(pqr){openQrGen(pqr.dataset.prodQr);return;}
+  // + 단위 추가 (모델 미리 입력)
+  const addUnit=t.closest('[data-add-unit]');
+  if(addUnit){openProdAdd(addUnit.dataset.addUnit);return;}
+  // 모델 카드 펼침/접힘 토글
+  const togModel=t.closest('[data-toggle-model]');
+  if(togModel){
+    const m=togModel.dataset.toggleModel;
+    expandedModels[m]=expandedModels[m]===false; // 토글
+    renderProducts();
+    return;
+  }
   // overlay 배경 클릭
   if(t.classList.contains('overlay')){modalClose(t.id);return;}
 });
