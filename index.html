@@ -463,12 +463,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
     <div class="f-row"><label>전화번호 <span class="req">* 필수</span></label><input id="f-phone" placeholder="010-0000-0000" type="tel" autocomplete="tel" inputmode="tel"></div>
     <div class="f-row"><label>주소 <span class="req">* 필수</span></label><input id="f-addr" placeholder="서울시 강남구..." autocomplete="street-address"></div>
   </div>
-  <div class="sec-sep">대여 품목 <span class="req">* 필수</span></div>
-  <div class="item-list" id="item-list"></div>
-  <div class="add-item-btns">
-    <button class="add-item-btn" id="btn-add-item">+ 품목 추가</button>
-    <button class="qr-add-btn" id="btn-qr-add-item">📷 QR 스캔</button>
-  </div>
+
   <div class="sec-sep">대여 기간</div>
   <div class="f-row">
     <label>대여 시작 ~ 종료 <span class="req">* 필수</span></label>
@@ -476,7 +471,15 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
       <span class="rb-ico">📅</span><span class="rb-txt" id="lbl-rent">날짜를 선택하세요</span><span class="rb-arr">▼</span>
     </button>
   </div>
-  <div class="f-row"><label>배송 방식 <span class="req">* 필수</span></label>
+
+  <div class="sec-sep">대여 품목 <span class="req">* 필수</span> <span id="period-hint" style="font-size:10px;color:var(--text3);font-weight:400;margin-left:4px"></span></div>
+  <div class="item-list" id="item-list"></div>
+  <div class="add-item-btns">
+    <button class="add-item-btn" id="btn-add-item">+ 품목 추가 (일반)</button>
+    <button class="qr-add-btn" id="btn-qr-add-item">📷 파워업밴드 QR</button>
+  </div>
+
+  <div class="f-row" style="margin-top:12px"><label>배송 방식 <span class="req">* 필수</span></label>
     <select id="f-ship">
       <option value="direct">직접 수령 / 반납</option>
       <option value="airport">공항 수령 / 반납</option>
@@ -833,16 +836,17 @@ function getModelGroups(){
 // 모델 통계 (총 수량, 가용, 대여중, 누적 카운트)
 function getModelStats(modelName){
   const units=DB.stock.filter(s=>s.model===modelName);
-  const total=units.length;
+  // QR 제품: 유닛 수 = total, 일반 제품: s.total 합계
+  const total=units.reduce((sum,u)=>sum+(u.total||1),0);
   const count=units.reduce((s,u)=>s+(u.count||0),0);
   const today=ds(clr(new Date()));
   const inv=calcInv(today);
   let available=0;
   units.forEach(u=>{
-    const left=inv[u.id]??1;
-    if(left>0) available++;
+    const left=inv[u.id]??u.total??1;
+    available+=Math.max(0,left);
   });
-  return {total, count, available, using: total-available};
+  return{total,count,available,using:Math.max(0,total-available)};
 }
 
 /* ===== BARS ===== */
@@ -948,12 +952,12 @@ function render(){
   const stockGroups=getModelGroups();
   Object.keys(stockGroups).sort().forEach(model=>{
     const units=stockGroups[model];
-    const total=units.length;
+    const total=units.reduce((s,u)=>s+(u.total||1),0); // QR:유닛수, 일반:total합
     h+=`<div class="inv-row"><div class="inv-name">${model} <span style="color:var(--text3);font-weight:400">(총 ${total})</span></div>`;
     days.forEach(d=>{
       const invDay=calcInv(ds(d));
       let left=0;
-      units.forEach(u=>{const l=invDay[u.id]??1;if(l>0)left++;});
+      units.forEach(u=>{const l=invDay[u.id]??u.total??1;left+=Math.max(0,l);});
       const ratio=total>0?left/total:1,tod=same(d,today);
       const cls=left<=0?'danger':ratio<=.5?'warn':left===total?'full':'ok';
       h+=`<div class="inv-cell ${cls}${tod?' is-today':''}">${left<=0?'✕':left}</div>`;
@@ -1153,18 +1157,65 @@ function shipToggle(){
   document.getElementById('sec-send').classList.toggle('hide',!(v==='send_only'||v==='both'));
   document.getElementById('sec-recv').classList.toggle('hide',!(v==='recv_only'||v==='both'));
 }
+// ── 특정 기간의 일반 제품 가용 수량 계산 ──
+function getAvailQty(stockId,startStr,endStr,skipRentalId){
+  const s=DB.stock.find(x=>x.id===stockId);
+  if(!s) return 0;
+  const total=s.total||1;
+  if(!startStr||!endStr) return total; // 기간 미선택 → 전체 재고
+  const from=clr(dp(startStr)),to=clr(dp(endStr));
+  let used=0;
+  DB.rentals.forEach(r=>{
+    if(r.done||r.id===skipRentalId) return;
+    const rFrom=clr(dp(r.start)),rTo=clr(dp(r.end));
+    if(rTo<from||rFrom>to) return; // 기간 안 겹침
+    r.items.forEach(it=>{if(it.sid===stockId) used+=it.qty;});
+  });
+  return Math.max(0,total-used);
+}
 function itemsAdd(sid='',qty=1){
   const id='ir_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
-  // 일반 제품만 드롭다운에 표시
+  const rc=CSTATE.rent;
+  const startStr=rc.s?ds(rc.s):null,endStr=rc.e?ds(rc.e):null;
   const normals=DB.stock.filter(s=>s.type==='normal');
   let opts='<option value="">― 품목 선택 ―</option>';
   normals.forEach(s=>{
-    opts+=`<option value="${s.id}"${s.id===sid?' selected':''}>${s.model} (재고 ${s.total})</option>`;
+    const avail=getAvailQty(s.id,startStr,endStr,editId);
+    const label=startStr&&endStr
+      ?`${s.model} (기간 가용 ${avail}개)`
+      :`${s.model} (재고 ${s.total}개)`;
+    const dis=avail<=0&&s.id!==sid?'disabled':'';
+    opts+=`<option value="${s.id}"${s.id===sid?' selected':''}${dis}>${label}</option>`;
   });
+  if(!normals.length) opts='<option value="">제품관리에서 먼저 추가하세요</option>';
   const div=document.createElement('div');
   div.className='item-row';div.id=id;
   div.innerHTML=`<select>${opts}</select><span class="qty-lbl">수량</span><input type="number" min="1" value="${qty}"><button class="rm-btn" data-rm-item="${id}">✕</button>`;
   document.getElementById('item-list').appendChild(div);
+}
+// 대여기간 변경 시 드롭다운 가용 재고 새로고침
+function refreshItemDropdowns(){
+  const rc=CSTATE.rent;
+  const startStr=rc.s?ds(rc.s):null,endStr=rc.e?ds(rc.e):null;
+  const hint=document.getElementById('period-hint');
+  if(hint) hint.textContent=startStr&&endStr?'(기간 기준 가용 재고 표시중)':'(기간 먼저 선택하세요)';
+  const list=document.getElementById('item-list');if(!list)return;
+  Array.from(list.children).forEach(row=>{
+    if(row.dataset.qrSid)return;
+    const sel=row.querySelector('select');if(!sel)return;
+    const cur=sel.value;
+    const normals=DB.stock.filter(s=>s.type==='normal');
+    let opts='<option value="">― 품목 선택 ―</option>';
+    normals.forEach(s=>{
+      const avail=getAvailQty(s.id,startStr,endStr,editId);
+      const label=startStr&&endStr
+        ?`${s.model} (기간 가용 ${avail}개)`
+        :`${s.model} (재고 ${s.total}개)`;
+      const dis=avail<=0&&s.id!==cur?'disabled':'';
+      opts+=`<option value="${s.id}"${s.id===cur?' selected':''}${dis}>${label}</option>`;
+    });
+    sel.innerHTML=opts;
+  });
 }
 // QR 제품 전용 추가 (수량 1 고정, 수량 편집 불가)
 function itemsAddQr(sid){
@@ -1484,6 +1535,18 @@ function pfModelChange(){
   const isQr=isQrModel(v);
   document.getElementById('pf-qr-sec').classList.toggle('hide',!isQr);
   document.getElementById('pf-total-sec').classList.toggle('hide',isQr||!v);
+  // 일반 제품: 현재 보유 수량 미리 표시 (기억)
+  if(!isQr&&v){
+    const existing=DB.stock.find(s=>s.model===v&&s.type==='normal'&&s.id!==editProdId);
+    if(existing){
+      document.getElementById('pf-total').value=existing.total;
+      document.getElementById('pf-total').style.borderColor='var(--blue)'; // 기존값임을 강조
+      setTimeout(()=>document.getElementById('pf-total').style.borderColor='',2000);
+    } else {
+      document.getElementById('pf-total').value=1;
+      document.getElementById('pf-total').style.borderColor='';
+    }
+  }
 }
 function openProdAdd(preFillModel){
   editProdId=null;
@@ -1525,11 +1588,12 @@ function saveProd(){
     if(s){s.model=model;s.qrId=qrId;s.total=total;s.note=note;s.type=isQr?'qr':'normal';}
   } else {
     if(!isQr){
-      const existing=DB.stock.find(s=>s.model===model&&s.type==='normal');
+      const existing=DB.stock.find(s=>s.model===model&&s.type==='normal'&&s.id!==editProdId);
       if(existing){
-        existing.total+=total;existing.note=note||existing.note;
+        existing.total=total; // 입력한 값을 현재 보유로 설정
+        existing.note=note||existing.note;
         dbSave();modalClose('modal-prod');renderProducts();render();
-        toast('✅ '+model+' 수량 +'+total+' (총 '+existing.total+'개)');return;
+        toast('✅ '+model+' 보유 수량을 '+total+'개로 수정했습니다');return;
       }
     }
     DB.stock.push({id:'s'+Date.now(),model,type:isQr?'qr':'normal',qrId,total,count:0,note});
@@ -1754,7 +1818,12 @@ document.addEventListener('click',function(ev){
   const calClr=t.closest('[data-cal-clear]');
   if(calClr){const key=calClr.dataset.calClear;const c=CSTATE[key];c.s=null;c.e=null;c.step='s';calBuild(key);calUpdateBtn(key);return;}
   const calCfm=t.closest('[data-cal-confirm]');
-  if(calCfm){calUpdateBtn(calCfm.dataset.calConfirm);calClose();return;}
+  if(calCfm){
+    const key=calCfm.dataset.calConfirm;
+    calUpdateBtn(key);calClose();
+    if(key==='rent') refreshItemDropdowns(); // 대여기간 확정 시 재고 새로고침
+    return;
+  }
   const openCal=t.closest('[data-open-cal]');
   if(openCal){calOpen(openCal.dataset.openCal);return;}
   // 모달
