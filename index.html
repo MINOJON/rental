@@ -301,14 +301,15 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 .model-stat strong{color:var(--text);font-size:12px;margin-right:2px}
 @media(max-width:520px){.model-header{flex-wrap:wrap}.model-stats{flex-basis:100%;margin-top:4px;justify-content:flex-end}}
 .model-units{padding:4px 14px 10px;background:var(--card)}
-.unit-row{display:flex;align-items:center;gap:8px;padding:8px 4px;border-bottom:1px solid var(--border)}
+.unit-row{display:flex;flex-direction:column;gap:5px;padding:10px 4px;border-bottom:1px solid var(--border)}
 .unit-row:last-of-type{border-bottom:none}
+.unit-row-top{display:flex;align-items:center;gap:7px;flex-wrap:nowrap}
 .unit-info{flex:1;min-width:0;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
 .unit-name{font-size:13px;font-weight:600;color:var(--text);flex-shrink:0}
-.unit-qr{font-size:11px;color:var(--text2);font-family:monospace;background:var(--bg);padding:2px 7px;border-radius:4px;border:1px solid var(--border)}
+.unit-qr{font-size:11px;color:var(--text3);font-family:monospace;word-break:break-all;line-height:1.4;padding:3px 0}
 .unit-qr-empty{font-size:11px;color:var(--text3);font-style:italic}
 .unit-count{font-size:11px;color:var(--text3)}
-.unit-status{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px}
+.unit-status{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap}
 .unit-status.ok{background:#D1FAE5;color:#059669}
 .unit-status.out{background:#FEF3C7;color:#D97706}
 .unit-actions{display:flex;gap:5px;flex-shrink:0}
@@ -1372,7 +1373,7 @@ function doSaveRental(){
           const s=DB.stock.find(x=>x.id===sid);
           if(s)s.count=(s.count||0)+diff;
           // 추가된 만큼 rent 로그
-          DB.logs.push({id:'lg'+Date.now()+'_'+Math.random().toString(36).slice(2,5),type:'rent',sid,name:(s?s.name:'?'),qty:diff,rentalId:editId,cust,date:new Date().toISOString()});
+          DB.logs.push({id:'lg'+Date.now()+'_'+Math.random().toString(36).slice(2,5),type:'rent',sid,name:(s?s.model||s.name||'?':'?'),qty:diff,rentalId:editId,cust,date:new Date().toISOString()});
         } else if(diff<0){
           // 감소 시 카운트 차감
           const s=DB.stock.find(x=>x.id===sid);
@@ -1388,7 +1389,7 @@ function doSaveRental(){
     items.forEach(it=>{
       const s=DB.stock.find(x=>x.id===it.sid);
       if(s)s.count=(s.count||0)+it.qty;
-      DB.logs.push({id:'lg'+Date.now()+'_'+Math.random().toString(36).slice(2,5),type:'rent',sid:it.sid,name:(s?s.name:'?'),qty:it.qty,rentalId:newId,cust,date:new Date().toISOString()});
+      DB.logs.push({id:'lg'+Date.now()+'_'+Math.random().toString(36).slice(2,5),type:'rent',sid:it.sid,name:(s?s.model||s.name||'?':'?'),qty:it.qty,rentalId:newId,cust,date:new Date().toISOString()});
     });
     toast('✅ 대여 등록 완료 - 대여횟수 자동 카운트됨');
   }
@@ -1418,7 +1419,7 @@ function doMarkDone(){
   // 반납완료 로그
   r.items.forEach(it=>{
     const s=DB.stock.find(x=>x.id===it.sid);
-    DB.logs.push({id:'lg'+Date.now()+'_'+Math.random().toString(36).slice(2,5),type:'return',sid:it.sid,name:(s?s.name:'?'),qty:it.qty,rentalId:editId,cust:r.cust,date:new Date().toISOString()});
+    DB.logs.push({id:'lg'+Date.now()+'_'+Math.random().toString(36).slice(2,5),type:'return',sid:it.sid,name:(s?s.model||s.name||'?':'?'),qty:it.qty,rentalId:editId,cust:r.cust,date:new Date().toISOString()});
   });
   toast('✅ 반납완료 처리');
   dbSave();modalClose('modal-rental');render();
@@ -1502,17 +1503,19 @@ function renderProducts(){
       const left=inv[u.id]??1;
       const isUsing=left<=0;
       return `<div class="unit-row">
-        <div class="unit-info">
-          <span class="unit-name">${u.name||'기본'}</span>
-          ${u.qrId?`<span class="unit-qr">${u.qrId}</span>`:'<span class="unit-qr-empty">QR 미설정</span>'}
+        <div class="unit-row-top">
+          <span class="unit-name">${u.model||'기본'}</span>
           <span class="unit-status ${isUsing?'out':'ok'}">${isUsing?'대여중':'보관중'}</span>
           <span class="unit-count">📊 ${u.count||0}회</span>
+          <div class="unit-actions" style="margin-left:auto">
+            <button class="btn" data-prod-detail="${u.id}">상세</button>
+            <button class="btn" data-prod-edit="${u.id}">수정</button>
+            ${u.qrId?`<button class="btn btn-blue" data-prod-qr="${u.id}">📷</button>`:''}
+          </div>
         </div>
-        <div class="unit-actions">
-          <button class="btn" data-prod-detail="${u.id}">상세</button>
-          <button class="btn" data-prod-edit="${u.id}">수정</button>
-          ${u.qrId?`<button class="btn btn-blue" data-prod-qr="${u.id}">📷</button>`:''}
-        </div>
+        ${u.qrId
+          ?`<div class="unit-qr">🔖 ${u.qrId}</div>`
+          :'<div class="unit-qr-empty">QR 미설정</div>'}
       </div>`;
     }).join('');
     return `<div class="model-card">
@@ -1796,7 +1799,8 @@ function renderLogs(){
   const q=(document.getElementById('log-q').value||'').toLowerCase();
   const f=document.getElementById('log-filter').value;
   const list=DB.logs.slice().reverse().filter(l=>{
-    if(q&&(l.name||'').toLowerCase().indexOf(q)<0&&(l.cust||'').toLowerCase().indexOf(q)<0)return false;
+    const logName=(!l.name||l.name==='?')?iname(l.sid):l.name;
+    if(q&&logName.toLowerCase().indexOf(q)<0&&(l.cust||'').toLowerCase().indexOf(q)<0)return false;
     if(f&&l.type!==f)return false;
     return true;
   });
@@ -1805,7 +1809,7 @@ function renderLogs(){
   el.innerHTML=list.map(l=>`<div class="log-card">
     <span class="log-type ${l.type==='rent'?'rent':'ret'}">${l.type==='rent'?'대여':'반납'}</span>
     <div class="log-body">
-      <div class="log-name">${l.name||'?'} ${l.qty>1?`<span style="color:var(--text3);font-weight:500">x${l.qty}</span>`:''}</div>
+      <div class="log-name">${(!l.name||l.name==='?')?iname(l.sid):l.name} ${l.qty>1?`<span style="color:var(--text3);font-weight:500">x${l.qty}</span>`:''}</div>
       <div class="log-meta">${l.cust||'-'}</div>
     </div>
     <div class="log-date">${fmtDt(l.date)}</div>
