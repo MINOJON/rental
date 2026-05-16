@@ -464,22 +464,8 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
     <div class="f-row"><label>주소 <span class="req">* 필수</span></label><input id="f-addr" placeholder="서울시 강남구..." autocomplete="street-address"></div>
   </div>
 
-  <div class="sec-sep">대여 기간</div>
+  <div class="sec-sep">배송 방식 <span class="req">* 필수</span></div>
   <div class="f-row">
-    <label>대여 시작 ~ 종료 <span class="req">* 필수</span></label>
-    <button class="range-btn" data-open-cal="rent">
-      <span class="rb-ico">📅</span><span class="rb-txt" id="lbl-rent">날짜를 선택하세요</span><span class="rb-arr">▼</span>
-    </button>
-  </div>
-
-  <div class="sec-sep">대여 품목 <span class="req">* 필수</span> <span id="period-hint" style="font-size:10px;color:var(--text3);font-weight:400;margin-left:4px"></span></div>
-  <div class="item-list" id="item-list"></div>
-  <div class="add-item-btns">
-    <button class="add-item-btn" id="btn-add-item">+ 품목 추가 (일반)</button>
-    <button class="qr-add-btn" id="btn-qr-add-item">📷 파워업밴드 QR</button>
-  </div>
-
-  <div class="f-row" style="margin-top:12px"><label>배송 방식 <span class="req">* 필수</span></label>
     <select id="f-ship">
       <option value="direct">직접 수령 / 반납</option>
       <option value="airport">공항 수령 / 반납</option>
@@ -489,7 +475,6 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
     </select>
   </div>
   <div id="sec-airport" class="hide">
-    <div class="sec-sep">공항 정보</div>
     <div class="f-half">
       <div class="f-row"><label>수령 공항</label>
         <select id="f-ap-airport-pick">
@@ -530,6 +515,22 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
       </button>
     </div>
   </div>
+
+  <div class="sec-sep">대여 기간</div>
+  <div class="f-row">
+    <label>대여 시작 ~ 종료 <span class="req">* 필수</span></label>
+    <button class="range-btn" data-open-cal="rent">
+      <span class="rb-ico">📅</span><span class="rb-txt" id="lbl-rent">날짜를 선택하세요</span><span class="rb-arr">▼</span>
+    </button>
+  </div>
+
+  <div class="sec-sep">대여 품목 <span class="req">* 필수</span> <span id="period-hint" style="font-size:10px;color:var(--text3);font-weight:400;margin-left:4px"></span></div>
+  <div class="item-list" id="item-list"></div>
+  <div class="add-item-btns">
+    <button class="add-item-btn" id="btn-add-item">+ 품목 추가 (일반)</button>
+    <button class="qr-add-btn" id="btn-qr-add-item">📷 파워업밴드 QR</button>
+  </div>
+
   <div class="f-row" style="margin-top:12px"><label>메모</label><textarea id="f-memo" placeholder="특이사항..."></textarea></div>
   <div id="del-confirm-row" class="hide" style="margin-top:12px;padding:12px;background:var(--red-l);border:1.5px solid rgba(220,38,38,.25);border-radius:var(--r);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
     <span style="flex:1;font-size:12px;font-weight:600;color:var(--red)">⚠️ 정말 삭제하시겠습니까?</span>
@@ -1158,47 +1159,54 @@ function shipToggle(){
   document.getElementById('sec-recv').classList.toggle('hide',!(v==='recv_only'||v==='both'));
 }
 // ── 특정 기간의 일반 제품 가용 수량 계산 ──
-function getAvailQty(stockId,startStr,endStr,skipRentalId){
-  const s=DB.stock.find(x=>x.id===stockId);
-  if(!s) return 0;
+// ── 전체 기간(발송~수거) 기준 가용 수량 계산 ──
+function getAvailQty(stockId,skipRentalId){
+  const s=DB.stock.find(x=>x.id===stockId);if(!s)return 0;
   const total=s.total||1;
-  if(!startStr||!endStr) return total; // 기간 미선택 → 전체 재고
-  const from=clr(dp(startStr)),to=clr(dp(endStr));
+  // 현재 모달에서 선택된 전체 기간: 발송시작(또는 대여시작) ~ 수거종료(또는 대여종료)
+  const rc=CSTATE.rent,sc=CSTATE.send,vc=CSTATE.recv;
+  const fromStr=sc.s?ds(sc.s):(rc.s?ds(rc.s):null);
+  const toStr=vc.e?ds(vc.e):(rc.e?ds(rc.e):null);
+  if(!fromStr||!toStr)return total; // 기간 미선택 → 전체 재고
+  const from=clr(dp(fromStr)),to=clr(dp(toStr));
   let used=0;
   DB.rentals.forEach(r=>{
-    if(r.done||r.id===skipRentalId) return;
-    const rFrom=clr(dp(r.start)),rTo=clr(dp(r.end));
-    if(rTo<from||rFrom>to) return; // 기간 안 겹침
-    r.items.forEach(it=>{if(it.sid===stockId) used+=it.qty;});
+    if(r.done||r.id===skipRentalId)return;
+    const rFrom=clr(dp(r.ss||r.start)),rTo=clr(dp(r.ve||r.end));
+    if(rTo<from||rFrom>to)return; // 겹치지 않음
+    r.items.forEach(it=>{if(it.sid===stockId)used+=it.qty;});
   });
   return Math.max(0,total-used);
 }
 function itemsAdd(sid='',qty=1){
   const id='ir_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
-  const rc=CSTATE.rent;
-  const startStr=rc.s?ds(rc.s):null,endStr=rc.e?ds(rc.e):null;
+  const rc=CSTATE.rent,sc=CSTATE.send,vc=CSTATE.recv;
+  const hasPeriod=(sc.s||rc.s)&&(vc.e||rc.e);
+  const fromStr=sc.s?ds(sc.s):(rc.s?ds(rc.s):null);
+  const toStr=vc.e?ds(vc.e):(rc.e?ds(rc.e):null);
   const normals=DB.stock.filter(s=>s.type==='normal');
   let opts='<option value="">― 품목 선택 ―</option>';
   normals.forEach(s=>{
-    const avail=getAvailQty(s.id,startStr,endStr,editId);
-    const label=startStr&&endStr
+    const avail=getAvailQty(s.id,editId);
+    const label=hasPeriod
       ?`${s.model} (기간 가용 ${avail}개)`
       :`${s.model} (재고 ${s.total}개)`;
-    const dis=avail<=0&&s.id!==sid?'disabled':'';
+    const dis=hasPeriod&&avail<=0&&s.id!==sid?'disabled':'';
     opts+=`<option value="${s.id}"${s.id===sid?' selected':''}${dis}>${label}</option>`;
   });
-  if(!normals.length) opts='<option value="">제품관리에서 먼저 추가하세요</option>';
-  const div=document.createElement('div');
-  div.className='item-row';div.id=id;
+  if(!normals.length)opts='<option value="">제품관리에서 먼저 추가하세요</option>';
+  const div=document.createElement('div');div.className='item-row';div.id=id;
   div.innerHTML=`<select>${opts}</select><span class="qty-lbl">수량</span><input type="number" min="1" value="${qty}"><button class="rm-btn" data-rm-item="${id}">✕</button>`;
   document.getElementById('item-list').appendChild(div);
 }
-// 대여기간 변경 시 드롭다운 가용 재고 새로고침
+// 기간(대여/발송/수거) 변경 시 드롭다운 가용 재고 새로고침
 function refreshItemDropdowns(){
-  const rc=CSTATE.rent;
-  const startStr=rc.s?ds(rc.s):null,endStr=rc.e?ds(rc.e):null;
+  const rc=CSTATE.rent,sc=CSTATE.send,vc=CSTATE.recv;
+  const hasPeriod=(sc.s||rc.s)&&(vc.e||rc.e);
+  const fromStr=sc.s?ds(sc.s):(rc.s?ds(rc.s):null);
+  const toStr=vc.e?ds(vc.e):(rc.e?ds(rc.e):null);
   const hint=document.getElementById('period-hint');
-  if(hint) hint.textContent=startStr&&endStr?'(기간 기준 가용 재고 표시중)':'(기간 먼저 선택하세요)';
+  if(hint)hint.textContent=hasPeriod?`(${fmtMon(fromStr)}~${fmtMon(toStr)} 전체기간 기준)`:'(기간 선택 시 가용 재고 표시)';
   const list=document.getElementById('item-list');if(!list)return;
   Array.from(list.children).forEach(row=>{
     if(row.dataset.qrSid)return;
@@ -1207,11 +1215,9 @@ function refreshItemDropdowns(){
     const normals=DB.stock.filter(s=>s.type==='normal');
     let opts='<option value="">― 품목 선택 ―</option>';
     normals.forEach(s=>{
-      const avail=getAvailQty(s.id,startStr,endStr,editId);
-      const label=startStr&&endStr
-        ?`${s.model} (기간 가용 ${avail}개)`
-        :`${s.model} (재고 ${s.total}개)`;
-      const dis=avail<=0&&s.id!==cur?'disabled':'';
+      const avail=getAvailQty(s.id,editId);
+      const label=hasPeriod?`${s.model} (기간 가용 ${avail}개)`:`${s.model} (재고 ${s.total}개)`;
+      const dis=hasPeriod&&avail<=0&&s.id!==cur?'disabled':'';
       opts+=`<option value="${s.id}"${s.id===cur?' selected':''}${dis}>${label}</option>`;
     });
     sel.innerHTML=opts;
@@ -1535,16 +1541,22 @@ function pfModelChange(){
   const isQr=isQrModel(v);
   document.getElementById('pf-qr-sec').classList.toggle('hide',!isQr);
   document.getElementById('pf-total-sec').classList.toggle('hide',isQr||!v);
-  // 일반 제품: 현재 보유 수량 미리 표시 (기억)
   if(!isQr&&v){
-    const existing=DB.stock.find(s=>s.model===v&&s.type==='normal'&&s.id!==editProdId);
+    // 수정 모드: 자기 자신의 total 표시
+    if(editProdId){
+      const self=DB.stock.find(s=>s.id===editProdId);
+      if(self){document.getElementById('pf-total').value=self.total||1;}
+      return;
+    }
+    // 추가 모드: 이미 등록된 같은 모델 total 미리 표시
+    const existing=DB.stock.find(s=>s.model===v&&s.type==='normal');
     if(existing){
       document.getElementById('pf-total').value=existing.total;
-      document.getElementById('pf-total').style.borderColor='var(--blue)'; // 기존값임을 강조
-      setTimeout(()=>document.getElementById('pf-total').style.borderColor='',2000);
+      const el=document.getElementById('pf-total');
+      el.style.borderColor='var(--blue)';
+      setTimeout(()=>el.style.borderColor='',2000);
     } else {
       document.getElementById('pf-total').value=1;
-      document.getElementById('pf-total').style.borderColor='';
     }
   }
 }
@@ -1614,28 +1626,39 @@ function deleteProd(){
 
 function openProdDetail(id){
   const s=DB.stock.find(x=>x.id===id);if(!s)return;
-  const fullName=(s.model||'')+(s.name&&s.name!=='기본'?' '+s.name:'');
-  document.getElementById('pdet-title').textContent=fullName;
+  document.getElementById('pdet-title').textContent=s.model||'?';
   const pLogs=DB.logs.filter(l=>l.sid===id).slice().reverse().slice(0,20);
   const inv=calcInv(ds(clr(new Date())));
-  const left=inv[s.id]??1,isUsing=left<=0;
-  let h=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
-    <div style="background:var(--card2);border-radius:10px;padding:14px;text-align:center"><div style="font-size:28px;font-weight:700;color:var(--blue)">${s.count||0}</div><div style="font-size:11px;color:var(--text3)">누적 대여 횟수</div></div>
-    <div style="background:var(--card2);border-radius:10px;padding:14px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center"><span class="unit-status ${isUsing?'out':'ok'}" style="font-size:13px;padding:5px 14px">${isUsing?'대여중':'보관중'}</span></div>
+  const left=inv[s.id]??(s.total||1);
+  const isUsing=left<(s.total||1); // 일부라도 나가 있으면
+  const using=Math.max(0,(s.total||1)-left);
+  const total=s.total||1; // 실제 보유 재고 (대여 여부 무관)
+  let h=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+    <div style="background:var(--card2);border-radius:10px;padding:12px 8px;text-align:center">
+      <div style="font-size:24px;font-weight:700;color:var(--teal)">${total}</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:2px">현재 보유 재고</div>
+    </div>
+    <div style="background:var(--card2);border-radius:10px;padding:12px 8px;text-align:center">
+      <div style="font-size:24px;font-weight:700;color:var(--blue)">${s.count||0}</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:2px">누적 대여 횟수</div>
+    </div>
+    <div style="background:var(--card2);border-radius:10px;padding:12px 8px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center">
+      ${using>0
+        ?`<div style="font-size:20px;font-weight:700;color:var(--amber)">${using}</div><div style="font-size:10px;color:var(--amber)">대여중</div>`
+        :`<div style="font-size:13px;font-weight:700;color:var(--teal)">보관중</div>`}
+    </div>
   </div>`;
-  h+=`<p style="font-size:12px;color:var(--text3);margin-bottom:4px">모델: <strong style="color:var(--text2)">${s.model||'-'}</strong></p>`;
-  h+=`<p style="font-size:12px;color:var(--text3);margin-bottom:4px">단위: <strong style="color:var(--text2)">${s.name||'기본'}</strong></p>`;
-  h+=`<p style="font-size:12px;color:var(--text3);margin-bottom:4px">QR ID: <span style="font-family:monospace;color:var(--text2)">${s.qrId||'미설정'}</span>${s.cat?' · '+s.cat:''}</p>`;
-  if(s.note)h+=`<p style="font-size:12px;color:var(--text3);margin-bottom:12px">메모: ${s.note}</p>`;
-  h+='<div class="d-sec" style="margin-top:14px">대여/반납 기록 (최근 20건)</div>';
+  // QR 제품이면 QR 정보 표시
+  if(s.type==='qr'){
+    h+=`<p style="font-size:12px;color:var(--text3);margin-bottom:4px">QR ID: <span style="font-family:monospace;color:var(--text2);font-size:11px">${s.qrId||'미설정'}</span></p>`;
+  }
+  if(s.note)h+=`<p style="font-size:12px;color:var(--text3);margin-bottom:8px">메모: ${s.note}</p>`;
+  h+='<div class="d-sec" style="margin-top:12px">대여/반납 기록 (최근 20건)</div>';
   if(!pLogs.length)h+='<p style="font-size:12px;color:var(--text3);padding:6px 0">기록 없음</p>';
   pLogs.forEach(l=>{
     h+=`<div class="day-item">
       <span class="log-type ${l.type==='rent'?'rent':'ret'}">${l.type==='rent'?'대여':'반납'}</span>
-      <div style="flex:1;font-size:12px">
-        <div>${l.cust||'-'}</div>
-        <div style="font-size:10px;color:var(--text3)">${fmtDt(l.date)}</div>
-      </div>
+      <div style="flex:1;font-size:12px"><div>${l.cust||'-'}</div><div style="font-size:10px;color:var(--text3)">${fmtDt(l.date)}</div></div>
     </div>`;
   });
   document.getElementById('pdet-body').innerHTML=h;
@@ -1821,7 +1844,8 @@ document.addEventListener('click',function(ev){
   if(calCfm){
     const key=calCfm.dataset.calConfirm;
     calUpdateBtn(key);calClose();
-    if(key==='rent') refreshItemDropdowns(); // 대여기간 확정 시 재고 새로고침
+    // 대여/발송/수거 기간 모두 품목 재고에 영향
+    if(key==='rent'||key==='send'||key==='recv') refreshItemDropdowns();
     return;
   }
   const openCal=t.closest('[data-open-cal]');
