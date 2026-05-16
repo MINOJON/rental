@@ -497,6 +497,13 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
     </div>
     <div class="f-row"><label>장소 메모 <span style="color:var(--text3);font-weight:500">(선택)</span></label><input id="f-ap-memo" placeholder="3층 B카운터, 만남 장소 등"></div>
   </div>
+  <div class="sec-sep">대여 기간</div>
+  <div class="f-row">
+    <label>대여 시작 ~ 종료 <span class="req">* 필수</span></label>
+    <button class="range-btn" data-open-cal="rent">
+      <span class="rb-ico">📅</span><span class="rb-txt" id="lbl-rent">날짜를 선택하세요</span><span class="rb-arr">▼</span>
+    </button>
+  </div>
   <div id="sec-send" class="hide">
     <div class="sec-sep">택배 발송 기간</div>
     <div class="f-row">
@@ -514,14 +521,6 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
         <span class="rb-ico">📬</span><span class="rb-txt" id="lbl-recv">날짜를 선택하세요</span><span class="rb-arr">▼</span>
       </button>
     </div>
-  </div>
-
-  <div class="sec-sep">대여 기간</div>
-  <div class="f-row">
-    <label>대여 시작 ~ 종료 <span class="req">* 필수</span></label>
-    <button class="range-btn" data-open-cal="rent">
-      <span class="rb-ico">📅</span><span class="rb-txt" id="lbl-rent">날짜를 선택하세요</span><span class="rb-arr">▼</span>
-    </button>
   </div>
 
   <div class="sec-sep">대여 품목 <span class="req">* 필수</span> <span id="period-hint" style="font-size:10px;color:var(--text3);font-weight:400;margin-left:4px"></span></div>
