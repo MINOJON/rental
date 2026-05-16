@@ -25,15 +25,15 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
 
 /* TOPBAR */
-.topbar{flex-shrink:0;height:52px;background:var(--blue);display:flex;align-items:center;gap:10px;padding:0 16px}
-.logo-icon{width:30px;height:30px;background:rgba(255,255,255,.18);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px}
-.logo-title{font-size:14px;font-weight:700;color:#fff}
-.logo-sub{font-size:10px;color:rgba(255,255,255,.65)}
-.topbar-space{flex:1}
-.save-lbl{font-size:10px;color:rgba(255,255,255,.6);white-space:nowrap}
-.month-nav{display:flex;align-items:center;gap:5px}
-.mon-txt{font-size:13px;font-weight:700;color:#fff;min-width:80px;text-align:center}
-.nav-btn{width:32px;height:32px;border-radius:7px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px}
+.topbar{flex-shrink:0;height:48px;background:var(--blue);display:flex;align-items:center;gap:8px;padding:0 12px}
+.logo-icon{width:26px;height:26px;background:rgba(255,255,255,.18);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.logo-title{font-size:13px;font-weight:700;color:#fff;white-space:nowrap}
+.logo-sub{font-size:9px;color:rgba(255,255,255,.65);white-space:nowrap}
+.topbar-space{flex:1;min-width:4px}
+.save-lbl{font-size:9px;color:rgba(255,255,255,.6);white-space:nowrap}
+.month-nav{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.mon-txt{font-size:12px;font-weight:700;color:#fff;min-width:68px;text-align:center}
+.nav-btn{width:28px;height:28px;border-radius:6px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px}
 
 /* TABS */
 .tab-bar{flex-shrink:0;background:var(--card);border-bottom:2px solid var(--border);display:flex}
@@ -54,12 +54,12 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 .leg{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)}
 .leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
 
-/* SIZE BAR */
-.sizebar{flex-shrink:0;background:var(--card2);border-bottom:1.5px solid var(--border);padding:6px 16px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.sizebar label{font-size:11px;font-weight:700;color:var(--text3);white-space:nowrap}
-.sz-btn{min-width:32px;height:28px;padding:0 9px;border:1.5px solid var(--border2);border-radius:6px;background:var(--card);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;justify-content:center}
-.sz-val{font-size:12px;font-weight:700;min-width:38px;text-align:center}
-.sz-div{width:1px;height:18px;background:var(--border2);margin:0 3px}
+/* SIZE BAR — 모바일 한 줄 */
+.sizebar{flex-shrink:0;background:var(--card2);border-bottom:1.5px solid var(--border);padding:5px 12px;display:flex;gap:4px;align-items:center;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.sizebar label{font-size:10px;font-weight:700;color:var(--text3);white-space:nowrap;flex-shrink:0}
+.sz-btn{min-width:26px;height:26px;padding:0 6px;border:1.5px solid var(--border2);border-radius:5px;background:var(--card);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.sz-val{font-size:11px;font-weight:700;min-width:30px;text-align:center;white-space:nowrap;flex-shrink:0}
+.sz-div{width:1px;height:16px;background:var(--border2);margin:0 2px;flex-shrink:0}
 
 /* SEARCH BAR */
 .search-bar{flex-shrink:0;background:var(--card);border-bottom:1.5px solid var(--border);padding:7px 16px;display:flex;align-items:center;gap:8px}
@@ -812,6 +812,20 @@ function getScheds(dstr){
     if(ss&&same(d,ss))out.push({t:'send',lbl:r.cust+' 택배 발송',r});
     if(vs&&same(d,vs))out.push({t:'recv',lbl:r.cust+' 수거 예약',r});
     if(r.ship==='recv_only'&&same(d,clr(dp(r.end)))&&!vs)out.push({t:'recv',lbl:r.cust+' 수거 예약',r});
+    // 공항/직접 - 수령일(대여 시작일)
+    if((r.ship==='airport'||r.ship==='direct')&&r.start&&same(d,clr(dp(r.start)))){
+      const lbl=r.ship==='airport'
+        ?r.cust+' 공항수령 '+(r.apAirportPick||'')+(r.apPick?' '+r.apPick:'')
+        :r.cust+' 직접수령';
+      out.push({t:'pickup',lbl,r});
+    }
+    // 공항/직접 - 반납일(대여 종료일)
+    if((r.ship==='airport'||r.ship==='direct')&&r.end&&same(d,clr(dp(r.end)))){
+      const lbl=r.ship==='airport'
+        ?r.cust+' 공항반납 '+(r.apAirportRet||'')+(r.apRet?' '+r.apRet:'')
+        :r.cust+' 직접반납';
+      out.push({t:'return',lbl,r});
+    }
   });
   return out;
 }
@@ -897,7 +911,7 @@ function render(){
   const todayIdx=days.findIndex(d=>same(d,today));
   const sorted=sortRentals();
   document.getElementById('mon-lbl').textContent=VY+'년 '+(VM+1)+'월';
-  document.getElementById('today-lbl').textContent=today.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
+  document.getElementById('today-lbl').textContent=`${today.getFullYear()}년 ${today.getMonth()+1}월 ${today.getDate()}일 ${DAYS[today.getDay()]}`;
   const savedAt=localStorage.getItem('rmi_saved_at');
   if(savedAt)document.getElementById('save-lbl').textContent='저장됨 '+savedAt;
 
@@ -928,7 +942,7 @@ function render(){
     h+=makeBars(r,days);
     h+='</div></div>';
   });
-  h+='<div class="sec-hdr"><div class="sec-hdr-lbl">스케줄</div>';
+  h+='<div class="sec-hdr"><div class="sec-hdr-lbl">📦 택배 대여 스케줄</div>';
   days.forEach(d=>h+=`<div class="sec-hdr-cell${same(d,today)?' is-today':''}"></div>`);
   h+='</div>';
   h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#ff0000"></div>📦 택배 발송</div>';
@@ -943,6 +957,25 @@ function render(){
   days.forEach(d=>{
     const dow=d.getDay(),tod=same(d,today),hol=isHol(d);
     const ch=getScheds(ds(d)).filter(s=>s.t==='recv').map(s=>`<span class="chip chip-recv">${s.lbl}</span>`).join('');
+    let cls='sched-cell';if(tod)cls+=' is-today';if(hol)cls+=' is-hol';else if(dow===0||dow===6)cls+=' is-wknd';
+    h+=`<div class="${cls}" data-day="${ds(d)}">${ch}</div>`;
+  });
+  h+='</div>';
+  h+='<div class="sec-hdr"><div class="sec-hdr-lbl">🏢 공항·직접 대여 스케줄</div>';
+  days.forEach(d=>h+=`<div class="sec-hdr-cell${same(d,today)?' is-today':''}"></div>`);
+  h+='</div>';
+  h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#0891B2"></div>🛬 수령</div>';
+  days.forEach(d=>{
+    const dow=d.getDay(),tod=same(d,today),hol=isHol(d);
+    const ch=getScheds(ds(d)).filter(s=>s.t==='pickup').map(s=>`<span class="chip" style="background:#e0f7fa;color:#006064;border:1px solid #0891B2">${s.lbl}</span>`).join('');
+    let cls='sched-cell';if(tod)cls+=' is-today';if(hol)cls+=' is-hol';else if(dow===0||dow===6)cls+=' is-wknd';
+    h+=`<div class="${cls}" data-day="${ds(d)}">${ch}</div>`;
+  });
+  h+='</div>';
+  h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#7C3AED"></div>🛫 반납</div>';
+  days.forEach(d=>{
+    const dow=d.getDay(),tod=same(d,today),hol=isHol(d);
+    const ch=getScheds(ds(d)).filter(s=>s.t==='return').map(s=>`<span class="chip" style="background:#ede9fe;color:#4c1d95;border:1px solid #7C3AED">${s.lbl}</span>`).join('');
     let cls='sched-cell';if(tod)cls+=' is-today';if(hol)cls+=' is-hol';else if(dow===0||dow===6)cls+=' is-wknd';
     h+=`<div class="${cls}" data-day="${ds(d)}">${ch}</div>`;
   });
@@ -1083,7 +1116,14 @@ function calBuild(key){
 
 /* ===== MODAL ===== */
 function modalOpen(id){document.getElementById(id).classList.add('open');}
-function modalClose(id){document.getElementById(id).classList.remove('open');}
+function modalClose(id){
+  document.getElementById(id).classList.remove('open');
+  // 제품상세 모달 닫힐 때 수정버튼 원복
+  if(id==='modal-prod-detail'){
+    const b=document.getElementById('pdet-edit-btn');
+    if(b)b.classList.remove('hide');
+  }
+}
 
 /* ===== HOLIDAY ===== */
 function holOpen(){
@@ -1531,10 +1571,39 @@ function renderProducts(){
           <span style="color:${stats.available<=0?'var(--red)':'var(--teal)'}">가용 <strong>${stats.available}</strong></span>
           <span class="cnt-badge">📊 ${stats.count}회</span>
         </div>
+        <button class="btn" data-model-detail="${m}" style="font-size:11px;padding:5px 9px;flex-shrink:0" onclick="event.stopPropagation()">상세</button>
       </div>
       ${expanded?`<div class="model-units">${unitsHtml}<button class="unit-add-btn" data-add-unit="${m}">+ "${m}" 단위 추가</button></div>`:''}
     </div>`;
   }).join('');
+}
+
+// 모델 전체 상세 (재고/대여중/가용 통계만, QR·기록 없음)
+function openModelDetail(modelName){
+  const stats=getModelStats(modelName);
+  const units=DB.stock.filter(s=>s.model===modelName);
+  document.getElementById('pdet-title').textContent=modelName+' — 전체 현황';
+  document.getElementById('pdet-edit-btn').classList.add('hide');
+  let h=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
+    <div style="background:var(--card2);border-radius:12px;padding:16px 8px;text-align:center">
+      <div style="font-size:28px;font-weight:700;color:var(--blue)">${stats.total}</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:3px">총 보유</div>
+    </div>
+    <div style="background:var(--card2);border-radius:12px;padding:16px 8px;text-align:center">
+      <div style="font-size:28px;font-weight:700;color:${stats.using>0?'var(--amber)':'var(--text3)'}">${stats.using}</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:3px">대여 중</div>
+    </div>
+    <div style="background:var(--card2);border-radius:12px;padding:16px 8px;text-align:center">
+      <div style="font-size:28px;font-weight:700;color:${stats.available<=0?'var(--red)':'var(--teal)'}">${stats.available}</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:3px">현재 가용</div>
+    </div>
+  </div>
+  <div style="padding:10px 12px;background:var(--card2);border-radius:8px;font-size:12px;color:var(--text3)">
+    📊 누적 대여 <strong style="color:var(--blue)">${stats.count}회</strong>
+    &nbsp;·&nbsp; 유닛 ${units.length}개 등록
+  </div>`;
+  document.getElementById('pdet-body').innerHTML=h;
+  modalOpen('modal-prod-detail');
 }
 
 // 제품 모달: 종류 선택에 따라 QR/수량 영역 토글
@@ -1868,6 +1937,8 @@ document.addEventListener('click',function(ev){
   const delHol=t.closest('[data-del-hol]');
   if(delHol){DB.hol=DB.hol.filter(h=>h.date!==delHol.dataset.delHol);dbSave();holRender();render();if(openCalKey)calBuild(openCalKey);return;}
   // 제품 액션
+  const modelDet=t.closest('[data-model-detail]');
+  if(modelDet){openModelDetail(modelDet.dataset.modelDetail);return;}
   const pdet=t.closest('[data-prod-detail]');
   if(pdet){openProdDetail(pdet.dataset.prodDetail);return;}
   const pedt=t.closest('[data-prod-edit]');
