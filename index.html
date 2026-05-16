@@ -290,9 +290,12 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 
 /* MODEL CARD (제품관리 탭) */
 .model-card{background:var(--card);border-radius:12px;border:1px solid var(--border);margin-bottom:10px;overflow:hidden}
-.model-header{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;background:var(--card2);border-bottom:1px solid transparent;transition:background .12s}
+.model-header{padding:11px 14px;cursor:pointer;background:var(--card2);border-bottom:1px solid transparent;transition:background .12s}
 .model-header.expanded{border-bottom-color:var(--border)}
 .model-header:hover{background:var(--bg)}
+.model-header-row1{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.model-header-row2{display:flex;align-items:center;gap:10px;padding-left:22px;font-size:12px;color:var(--text2);flex-wrap:wrap}
+.model-header-row2 strong{color:var(--text)}
 .model-toggle{font-size:10px;color:var(--text3);width:14px;text-align:center;flex-shrink:0}
 .model-info{flex:1;min-width:0}
 .model-name{font-size:14px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -1560,18 +1563,17 @@ function renderProducts(){
     }).join('');
     return `<div class="model-card">
       <div class="model-header${expanded?' expanded':''}" data-toggle-model="${m}">
-        <div class="model-toggle">${expanded?'▼':'▶'}</div>
-        <div class="model-info">
+        <div class="model-header-row1">
+          <div class="model-toggle">${expanded?'▼':'▶'}</div>
           <div class="model-name">${m}</div>
-          ${cat?`<div class="model-cat">${cat}</div>`:''}
+          <button class="btn" data-model-detail="${m}" style="font-size:11px;padding:4px 10px;margin-left:auto;flex-shrink:0">상세</button>
         </div>
-        <div class="model-stats">
+        <div class="model-header-row2">
           <span>총 <strong>${stats.total}</strong></span>
           <span style="color:${stats.using>0?'var(--amber)':'var(--text3)'}">대여 <strong>${stats.using}</strong></span>
           <span style="color:${stats.available<=0?'var(--red)':'var(--teal)'}">가용 <strong>${stats.available}</strong></span>
           <span class="cnt-badge">📊 ${stats.count}회</span>
         </div>
-        <button class="btn" data-model-detail="${m}" style="font-size:11px;padding:5px 9px;flex-shrink:0" onclick="event.stopPropagation()">상세</button>
       </div>
       ${expanded?`<div class="model-units">${unitsHtml}<button class="unit-add-btn" data-add-unit="${m}">+ "${m}" 단위 추가</button></div>`:''}
     </div>`;
