@@ -932,7 +932,7 @@ function render(){
   sorted.forEach(r=>{
     const done=!!r.done;
     h+=`<div class="g-row" data-rid="${r.id}" style="min-height:${ROW_H}px">`;
-    h+=`<div class="g-lbl${done?' dimmed':''}" data-edit="${r.id}"><div class="g-dot" style="background:${scol(r.ship)}"></div><div class="g-info"><div class="g-name">${r.cust}${done?'<span class="done-badge">반납완료</span>':''}</div><div class="g-sub">📦 ${isum(r)}</div>${r.phone?`<div class="g-sub">📞 ${r.phone}</div>`:''}${r.addr?`<div class="g-addr"><span class="g-addr-ico">📍</span><span>${r.addr}</span></div>`:''}</div></div>`;
+    h+=`<div class="g-lbl${done?' dimmed':''}" data-edit="${r.id}"><div class="g-dot" style="background:${scol(r.ship)}"></div><div class="g-info"><div class="g-name">${r.cust}${done?'<span class="done-badge">반납완료</span>':''}</div>${r.phone?`<div class="g-sub">📞 ${r.phone}</div>`:''}<div class="g-sub">📅 ${fmtMon(r.start)} ~ ${fmtMon(r.end)}</div></div></div>`;
     h+='<div class="g-cells">';
     days.forEach(d=>{
       const dow=d.getDay(),tod=same(d,today),hol=isHol(d);
@@ -967,7 +967,7 @@ function render(){
   h+='<div class="sec-hdr"><div class="sec-hdr-lbl">🏢 공항·직접 대여 스케줄</div>';
   days.forEach(d=>h+=`<div class="sec-hdr-cell${same(d,today)?' is-today':''}"></div>`);
   h+='</div>';
-  h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#0891B2"></div>🛬 수령</div>';
+  h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#0891B2"></div>🛫 수령</div>';
   days.forEach(d=>{
     const dow=d.getDay(),tod=same(d,today),hol=isHol(d);
     const ch=getScheds(ds(d)).filter(s=>s.t==='pickup').map(s=>`<span class="chip" style="background:#e0f7fa;color:#006064;border:1px solid #0891B2">${s.lbl}</span>`).join('');
@@ -975,7 +975,7 @@ function render(){
     h+=`<div class="${cls}" data-day="${ds(d)}">${ch}</div>`;
   });
   h+='</div>';
-  h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#7C3AED"></div>🛫 반납</div>';
+  h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#7C3AED"></div>🛬 반납</div>';
   days.forEach(d=>{
     const dow=d.getDay(),tod=same(d,today),hol=isHol(d);
     const ch=getScheds(ds(d)).filter(s=>s.t==='return').map(s=>`<span class="chip" style="background:#ede9fe;color:#4c1d95;border:1px solid #7C3AED">${s.lbl}</span>`).join('');
@@ -1324,12 +1324,19 @@ function dayOpen(dstr){
   let h='';
   if(hol)h+=`<div style="background:var(--red-l);color:var(--red);padding:9px 12px;border-radius:7px;font-size:13px;font-weight:600;margin-bottom:10px">🔴 ${hn||'휴무일'}</div>`;
   const sendS=scheds.filter(s=>s.t==='send'),recvS=scheds.filter(s=>s.t==='recv');
+  const pickupS=scheds.filter(s=>s.t==='pickup'),returnS=scheds.filter(s=>s.t==='return');
   h+='<div class="d-sec" style="color:#cc0000">📦 택배 발송</div>';
   if(!sendS.length)h+='<p style="font-size:12px;color:var(--text3);padding:4px 0">해당 없음</p>';
   sendS.forEach(s=>h+=`<div class="day-item"><span class="chip2" style="background:#fff9c0;color:#7a5700;border:1.5px solid #ff0000">${s.lbl}</span><span style="color:var(--text2);font-size:12px">${isum(s.r)}</span></div>`);
   h+='<div class="d-sec" style="color:#cc6600;margin-top:10px">📬 택배 수거</div>';
   if(!recvS.length)h+='<p style="font-size:12px;color:var(--text3);padding:4px 0">해당 없음</p>';
   recvS.forEach(s=>h+=`<div class="day-item"><span class="chip2" style="background:#ffe0b2;color:#7a3e00">${s.lbl}</span><span style="color:var(--text2);font-size:12px">${isum(s.r)}</span></div>`);
+  h+='<div class="d-sec" style="color:#0891B2;margin-top:10px">🛫 공항·직접 수령</div>';
+  if(!pickupS.length)h+='<p style="font-size:12px;color:var(--text3);padding:4px 0">해당 없음</p>';
+  pickupS.forEach(s=>h+=`<div class="day-item"><span class="chip2" style="background:#e0f7fa;color:#006064;border:1.5px solid #0891B2">${s.lbl}</span><span style="color:var(--text2);font-size:12px">${isum(s.r)}</span></div>`);
+  h+='<div class="d-sec" style="color:#7C3AED;margin-top:10px">🛬 공항·직접 반납</div>';
+  if(!returnS.length)h+='<p style="font-size:12px;color:var(--text3);padding:4px 0">해당 없음</p>';
+  returnS.forEach(s=>h+=`<div class="day-item"><span class="chip2" style="background:#ede9fe;color:#4c1d95;border:1.5px solid #7C3AED">${s.lbl}</span><span style="color:var(--text2);font-size:12px">${isum(s.r)}</span></div>`);
   h+='<div class="d-sec">재고 현황</div>';
   const dayStockGroups=getModelGroups();
   Object.keys(dayStockGroups).sort().forEach(model=>{
