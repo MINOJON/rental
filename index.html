@@ -2019,15 +2019,14 @@ let qrStream=null,qrRaf=null,qrMode=null; // qrMode: 'item' (대여등록 품목
 let lastScanId=null, lastScanTime=0; // 같은 QR 중복 인식 방지용 디바운싱
 function qrOpen(mode){
   qrMode=mode;
-  lastScanId=null; lastScanTime=0; // 새 스캔 세션마다 리셋
+  lastScanId=null; lastScanTime=0;
   document.getElementById('qr-pop-title').textContent=mode==='prodId'?'제품 QR ID 입력':'대여 품목 QR 스캔';
   document.getElementById('qr-pop-hint').innerHTML=mode==='prodId'?'제품에 부착된 QR을 스캔하면<br>ID가 자동 입력됩니다':'제품 QR을 한 번 스캔하면<br>품목에 자동 추가되고 닫힙니다';
   document.getElementById('qr-manual-input').value='';
   document.getElementById('qr-bd').style.display='block';
   document.getElementById('qr-pop').classList.add('open');
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
-    document.getElementById('qr-pop-hint').innerHTML='<span style="color:#ff6b6b">⚠️ 카메라 미지원</span><br>아래 입력란으로 직접 입력하세요';
-    return;
+    qrOpenFileFallback();return;
   }
   navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:640},height:{ideal:480}}})
     .then(stream=>{
@@ -2058,8 +2057,49 @@ function qrOpen(mode){
       if(video.readyState>=video.HAVE_ENOUGH_DATA)qrRaf=requestAnimationFrame(tick);
     })
     .catch(()=>{
-      document.getElementById('qr-pop-hint').innerHTML='<span style="color:#ff6b6b">⚠️ 카메라 권한 거부</span><br>아래 입력란으로 직접 입력하세요';
+      // 카메라 권한 거부 or PWA 제한 → 파일 입력 폴백
+      qrOpenFileFallback();
     });
+}
+// PWA/권한 문제 시 카메라 촬영으로 QR 인식
+function qrOpenFileFallback(){
+  document.getElementById('qr-pop-hint').innerHTML='📷 아래 버튼으로 카메라를 열어<br>QR 코드를 촬영해주세요';
+  // 기존 file input 있으면 제거
+  const old=document.getElementById('qr-file-input');if(old)old.remove();
+  const input=document.createElement('input');
+  input.type='file';input.accept='image/*';input.capture='environment';
+  input.id='qr-file-input';input.style.display='none';
+  document.body.appendChild(input);
+  // 촬영 버튼 표시
+  const hint=document.getElementById('qr-pop-hint');
+  const btn=document.createElement('button');
+  btn.textContent='📷 카메라로 QR 촬영';
+  btn.style.cssText='margin-top:12px;padding:12px 24px;background:#2563EB;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;display:block;width:100%';
+  btn.onclick=()=>input.click();
+  hint.after(btn);
+  input.onchange=e=>{
+    const file=e.target.files[0];if(!file)return;
+    const img=new Image();
+    img.src=URL.createObjectURL(file);
+    img.onload=()=>{
+      const canvas=document.createElement('canvas');
+      canvas.width=img.width;canvas.height=img.height;
+      const ctx=canvas.getContext('2d');
+      ctx.drawImage(img,0,0);
+      const imgData=ctx.getImageData(0,0,canvas.width,canvas.height);
+      const code=jsQR(imgData.data,imgData.width,imgData.height,{inversionAttempts:'attemptBoth'});
+      if(code&&code.data){
+        let id=code.data.trim();
+        if(id.startsWith('RENTAL:'))id=id.replace('RENTAL:','');
+        handleQrResult(id);
+      } else {
+        toast('⚠️ QR 코드를 인식하지 못했습니다. 다시 촬영해주세요.');
+      }
+      URL.revokeObjectURL(img.src);
+    };
+  };
+  // 자동으로 카메라 열기
+  setTimeout(()=>input.click(),300);
 }
 function qrClose(){
   if(qrStream){qrStream.getTracks().forEach(t=>t.stop());qrStream=null;}
