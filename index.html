@@ -2,8 +2,16 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
 <title>렌탈 통합 관리 시스템</title>
+<!-- PWA -->
+<link rel="manifest" id="pwa-manifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="렌탈관리">
+<meta name="theme-color" content="#2563EB">
+<link rel="apple-touch-icon" id="apple-touch-icon">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -718,7 +726,70 @@ const SCOL={both:'#00ffff',airport:'#00ff00',send_airport:'#00ffff',airport_recv
 const DAYS=['일','월','화','수','목','금','토'];
 const MNAMES=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
 
-/* ===== DB ===== */
+// ── PWA 초기화 ──
+(function initPWA(){
+  // Canvas로 앱 아이콘 생성
+  function makeIcon(size){
+    const c=document.createElement('canvas');
+    c.width=c.height=size;
+    const ctx=c.getContext('2d');
+    // 파란 배경 (둥근 모서리)
+    const r=size*0.22;
+    ctx.beginPath();
+    ctx.moveTo(r,0);ctx.lineTo(size-r,0);
+    ctx.quadraticCurveTo(size,0,size,r);
+    ctx.lineTo(size,size-r);
+    ctx.quadraticCurveTo(size,size,size-r,size);
+    ctx.lineTo(r,size);
+    ctx.quadraticCurveTo(0,size,0,size-r);
+    ctx.lineTo(0,r);
+    ctx.quadraticCurveTo(0,0,r,0);
+    ctx.closePath();
+    ctx.fillStyle='#2563EB';ctx.fill();
+    // 📦 이모지
+    ctx.font=`${size*0.52}px serif`;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('📦',size/2,size*0.54);
+    return c.toDataURL('image/png');
+  }
+  const icon192=makeIcon(192),icon512=makeIcon(512);
+  // apple-touch-icon
+  const ati=document.getElementById('apple-touch-icon');
+  if(ati)ati.href=icon192;
+  // manifest (blob URL)
+  const mf=JSON.stringify({
+    name:'렌탈 통합 관리',short_name:'렌탈관리',
+    start_url:location.href,display:'standalone',
+    background_color:'#f0f2f8',theme_color:'#2563EB',
+    orientation:'portrait-primary',
+    icons:[
+      {src:icon192,sizes:'192x192',type:'image/png',purpose:'any maskable'},
+      {src:icon512,sizes:'512x512',type:'image/png',purpose:'any maskable'}
+    ]
+  });
+  const mfEl=document.getElementById('pwa-manifest');
+  if(mfEl)mfEl.href=URL.createObjectURL(new Blob([mf],{type:'application/manifest+json'}));
+  // Service Worker (오프라인 캐시)
+  if('serviceWorker' in navigator){
+    const sw=`const C='rental-v2';
+self.addEventListener('install',()=>self.skipWaiting());
+self.addEventListener('activate',()=>clients.claim());
+self.addEventListener('fetch',e=>{
+  if(e.request.method!=='GET')return;
+  e.respondWith(caches.open(C).then(c=>
+    c.match(e.request).then(r=>r||fetch(e.request).then(res=>{
+      if(res.status===200)c.put(e.request,res.clone());
+      return res;
+    }).catch(()=>r))
+  ));
+});`;
+    try{
+      navigator.serviceWorker.register(
+        URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))
+      ).catch(()=>{});
+    }catch(e){}
+  }
+})();
 const KS='rmi_stock',KR='rmi_rentals',KHL='rmi_hol',KLG='rmi_logs',KLY='rmi_layout';
 function dbLoad(){
   try{
