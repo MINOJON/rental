@@ -733,42 +733,50 @@ const firebaseConfig={
 };
 
 const fbApp=initializeApp(firebaseConfig);
-const db=getDatabase(fbApp);
-const DATA_REF=ref(db,'rental_data');
-let fbReady=false,fbSyncing=false;
+const fbDb=getDatabase(fbApp);
+const DATA_REF=ref(fbDb,'rental_data');
 
-// Firebase → 로컬: 다른 기기에서 변경 시 자동 수신
+// 기기 고유 ID (이 기기에서 저장한 건지 구분용)
+const DEV_ID=localStorage.getItem('rmi_dev_id')||(()=>{
+  const id=Math.random().toString(36).slice(2)+Date.now().toString(36);
+  localStorage.setItem('rmi_dev_id',id);
+  return id;
+})();
+
+let fbReady=false;
+
+// Firebase → 로컬: 다른 기기 변경 시 자동 수신
 onValue(DATA_REF,snap=>{
   const data=snap.val();
   fbReady=true;
-  if(!data||fbSyncing)return;
-  const localTs=parseInt(localStorage.getItem('rmi_fb_ts')||'0');
-  if(!data.ts||data.ts<=localTs)return;
-  // localStorage 업데이트
+  if(!data)return;
+  // 내가 저장한 데이터면 무시
+  if(data.devId===DEV_ID)return;
+  // 다른 기기 데이터 → localStorage 업데이트 후 화면 갱신
   try{
-    if(data.stock)localStorage.setItem('rmi_stock',JSON.stringify(data.stock));
-    if(data.rentals)localStorage.setItem('rmi_rentals',JSON.stringify(data.rentals));
-    if(data.logs)localStorage.setItem('rmi_logs',JSON.stringify(data.logs));
-    if(data.hol)localStorage.setItem('rmi_hol',JSON.stringify(data.hol));
-    localStorage.setItem('rmi_fb_ts',data.ts);
-    // 일반 script에 CustomEvent로 알림
+    if(data.stock!==undefined)localStorage.setItem('rmi_stock',JSON.stringify(data.stock||[]));
+    if(data.rentals!==undefined)localStorage.setItem('rmi_rentals',JSON.stringify(data.rentals||[]));
+    if(data.logs!==undefined)localStorage.setItem('rmi_logs',JSON.stringify(data.logs||[]));
+    if(data.hol!==undefined)localStorage.setItem('rmi_hol',JSON.stringify(data.hol||[]));
     window.dispatchEvent(new CustomEvent('firebase-updated'));
   }catch(e){}
 });
 
-// 로컬 → Firebase: 저장 시 업로드
+// 로컬 → Firebase: 저장 시 업로드 (devId 포함)
 window.fbSave=function(dbData){
-  if(!fbReady)return;
-  fbSyncing=true;
-  const ts=Date.now();
-  localStorage.setItem('rmi_fb_ts',ts);
+  if(!fbReady){
+    // fbReady 아직 안 됐으면 잠시 후 재시도
+    setTimeout(()=>{if(window.fbSave&&fbReady)window.fbSave(dbData);},1000);
+    return;
+  }
   set(DATA_REF,{
     stock:dbData.stock||[],
     rentals:dbData.rentals||[],
     logs:dbData.logs||[],
     hol:dbData.hol||[],
-    ts
-  }).catch(()=>{}).finally(()=>{setTimeout(()=>{fbSyncing=false;},500);});
+    ts:Date.now(),
+    devId:DEV_ID  // 내 기기 ID 포함 → 수신 시 무시용
+  }).catch(()=>{});
 };
 </script>
 
