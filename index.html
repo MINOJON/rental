@@ -106,13 +106,13 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 .sbar{position:absolute;top:7px;bottom:7px;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2px 8px;font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;cursor:pointer;z-index:5;text-align:center}
 .sbar.dimmed{opacity:.25;filter:grayscale(.6)}
 .sbar-send{background:#ffff00;border:2.5px solid #ff0000;color:#555;border-radius:20px 0 0 20px}
-.sbar-main{color:#fff;border-radius:20px}
+.sbar-main{color:#000;border-radius:20px}
 .sbar-main.no-l{border-radius:0 20px 20px 0}
 .sbar-main.no-r{border-radius:20px 0 0 20px}
 .sbar-main.no-lr{border-radius:0}
-.sbar-recv{background:#ff9900;color:#fff;border-radius:0 20px 20px 0}
-.sbar .sn{font-size:11px;font-weight:700;line-height:1.2}
-.sbar .si{font-size:9px;opacity:.85;line-height:1.2}
+.sbar-recv{background:#ff9900;color:#000;border-radius:0 20px 20px 0}
+.sbar .sn{font-size:11px;font-weight:700;line-height:1.2;color:#000000}
+.sbar .si{font-size:9px;font-weight:900;line-height:1.2;color:#ff0000}
 
 .sec-hdr{display:flex;border-bottom:1px solid var(--border);border-top:2px solid var(--border2);background:var(--bg)}
 .sec-hdr-lbl{width:var(--lw);min-width:var(--lw);padding:6px 12px;font-size:10px;font-weight:700;color:var(--text3);border-right:1px solid var(--border);display:flex;align-items:center;flex-shrink:0;text-transform:uppercase;letter-spacing:.08em}
@@ -126,8 +126,8 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 .sched-cell.is-today{background:rgba(37,99,235,.05)}
 .sched-cell.is-wknd,.sched-cell.is-hol{background:rgba(239,68,68,.03)}
 .chip{display:block;padding:1px 4px;border-radius:3px;font-size:10px;margin:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.55;font-weight:600}
-.chip-send{background:#fff9c0;color:#7a5700;border:1px solid #ff0000}
-.chip-recv{background:#ffe0b2;color:#7a3e00}
+.chip-send{background:#00ffff;color:#000000;border:1px solid #00ffff}
+.chip-recv{background:#00ffff;color:#000000}
 
 .inv-section{border-top:2px solid var(--border2)}
 .inv-row{display:flex;border-bottom:1px solid var(--border)}
@@ -333,6 +333,15 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 /* QR GEN */
 .qrgen-wrap{display:flex;justify-content:center;padding:16px 0}
 
+/* 고정 가로 스크롤바 */
+#fixed-hscroll{position:fixed;bottom:0;left:0;right:0;height:20px;background:var(--card2);border-top:2px solid var(--border2);overflow-x:auto;overflow-y:hidden;z-index:400;display:none}
+#fixed-hscroll::-webkit-scrollbar{height:20px}
+#fixed-hscroll::-webkit-scrollbar-thumb{background:#9499B0;border-radius:4px;border:4px solid var(--card2)}
+#fixed-hscroll::-webkit-scrollbar-track{background:var(--card2)}
+#fixed-hscroll-inner{height:1px}
+/* gantt-wrap 기존 스크롤바 숨김 (고정바로 대체) */
+.gantt-wrap::-webkit-scrollbar{height:0}
+.gantt-wrap{scrollbar-width:none;-ms-overflow-style:none}
 /* TOAST */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1C2035;color:#fff;font-size:13px;font-weight:500;padding:11px 20px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.3);z-index:9999;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;max-width:calc(100vw - 32px);text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -348,6 +357,8 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 
 <!-- QR SCANNER -->
 <div id="qr-bd"></div>
+<!-- 고정 가로 스크롤바 -->
+<div id="fixed-hscroll"><div id="fixed-hscroll-inner"></div></div>
 <div class="qr-pop" id="qr-pop">
   <div class="qr-pop-hdr">
     <span id="qr-pop-title">QR 스캔</span>
@@ -400,10 +411,10 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
       <div class="leg"><div class="leg-dot" style="background:#ffff00;border:1.5px solid #ff0000"></div>발송중</div>
       <div class="leg"><div class="leg-dot" style="background:#ff9900"></div>수거중</div>
       <div class="leg"><div class="leg-dot" style="background:#00ffff"></div>택배발송+수거</div>
-      <div class="leg"><div class="leg-dot" style="background:#7C3AED"></div>직접</div>
-      <div class="leg"><div class="leg-dot" style="background:#0891B2"></div>공항</div>
-      <div class="leg"><div class="leg-dot" style="background:#059669"></div>발송+직접반납</div>
-      <div class="leg"><div class="leg-dot" style="background:#DB2777"></div>직접+수거</div>
+      <div class="leg"><div class="leg-dot" style="background:#00ff00"></div>직접</div>
+      <div class="leg"><div class="leg-dot" style="background:#00ff00"></div>공항</div>
+      <div class="leg"><div class="leg-dot" style="background:#00ffff"></div>발송+직접반납</div>
+      <div class="leg"><div class="leg-dot" style="background:#00ffff"></div>직접+수거</div>
     </div>
   </div>
   <div class="search-bar">
@@ -452,7 +463,12 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
       <option value="return">반납만</option>
     </select>
     <button class="btn btn-green" id="btn-log-csv">📊 CSV</button>
-    <button class="btn btn-outline-red" id="btn-clear-logs">🗑 전체삭제</button>
+    <button class="btn btn-outline-red" id="btn-clear-logs" onclick="clearAllLogs()">🗑 전체삭제</button>
+  </div>
+  <div id="log-del-confirm" class="hide" style="margin:8px 16px;padding:10px 12px;background:var(--red-l);border:1.5px solid rgba(220,38,38,.25);border-radius:var(--r);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <span style="flex:1;font-size:12px;font-weight:600;color:var(--red)">⚠️ 모든 대여기록을 삭제하시겠습니까?</span>
+    <button class="mbtn" style="padding:6px 12px;font-size:12px" onclick="document.getElementById('log-del-confirm').classList.add('hide')">취소</button>
+    <button class="mbtn mbtn-danger" style="padding:6px 12px;font-size:12px;margin-right:0" onclick="doDeleteAllLogs()">삭제 확인</button>
   </div>
   <div class="prod-scroll"><div id="log-list"></div></div>
 </div>
@@ -471,11 +487,11 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
   <div class="sec-sep">배송 방식 <span class="req">* 필수</span></div>
   <div class="f-row">
     <select id="f-ship">
+      <option value="both">[수령] 택배 ▶ [반납] 택배</option>
+      <option value="airport">[수령] 공항 ▶ [반납] 공항</option>
       <option value="direct">직접 수령 / 반납</option>
-      <option value="airport">공항 수령 / 반납</option>
       <option value="send_only">택배 발송 + 직접 반납</option>
       <option value="recv_only">직접 수령 + 택배 수거</option>
-      <option value="both">택배 발송 + 수거</option>
     </select>
   </div>
   <div id="sec-airport" class="hide">
@@ -590,6 +606,11 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
     <div class="f-row"><label>보유 수량</label><input id="pf-total" type="number" min="1" value="1"></div>
   </div>
   <div class="f-row"><label>메모</label><textarea id="pf-note" placeholder="선택사항"></textarea></div>
+  <div id="pf-del-confirm" class="hide" style="margin-top:10px;padding:10px 12px;background:var(--red-l);border:1.5px solid rgba(220,38,38,.25);border-radius:var(--r);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <span style="flex:1;font-size:12px;font-weight:600;color:var(--red)">⚠️ 정말 삭제하시겠습니까?</span>
+    <button class="mbtn" style="padding:6px 12px;font-size:12px" onclick="document.getElementById('pf-del-confirm').classList.add('hide')">취소</button>
+    <button class="mbtn mbtn-danger" style="padding:6px 12px;font-size:12px;margin-right:0" onclick="doDeleteProd()">삭제 확인</button>
+  </div>
   <div class="modal-btns">
     <button class="mbtn mbtn-danger hide" id="pf-del" onclick="deleteProd()">삭제</button>
     <button class="mbtn" data-close="modal-prod">취소</button>
@@ -658,7 +679,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 'use strict';
 /* ===== 한국 공휴일 ===== */
 const KH={'2025-01-01':'신정','2025-01-28':'설날연휴','2025-01-29':'설날','2025-01-30':'설날연휴','2025-03-01':'삼일절','2025-05-05':'어린이날','2025-05-06':'대체공휴일','2025-05-12':'부처님오신날','2025-06-06':'현충일','2025-08-15':'광복절','2025-10-03':'개천절','2025-10-05':'추석연휴','2025-10-06':'추석','2025-10-07':'추석연휴','2025-10-08':'대체공휴일','2025-10-09':'한글날','2025-12-25':'크리스마스','2026-01-01':'신정','2026-01-28':'설날연휴','2026-01-29':'설날','2026-01-30':'설날연휴','2026-03-01':'삼일절','2026-05-05':'어린이날','2026-05-24':'부처님오신날','2026-06-06':'현충일','2026-08-15':'광복절','2026-09-24':'추석연휴','2026-09-25':'추석','2026-09-26':'추석연휴','2026-09-27':'대체공휴일','2026-10-03':'개천절','2026-10-09':'한글날','2026-12-25':'크리스마스','2027-01-01':'신정','2027-02-16':'설날연휴','2027-02-17':'설날','2027-02-18':'설날연휴','2027-03-01':'삼일절','2027-05-02':'부처님오신날','2027-05-05':'어린이날','2027-06-06':'현충일','2027-08-15':'광복절','2027-10-03':'개천절','2027-10-04':'추석연휴','2027-10-05':'추석','2027-10-06':'추석연휴','2027-10-09':'한글날','2027-12-25':'크리스마스'};
-const SCOL={both:'#00ffff',direct:'#7C3AED',airport:'#0891B2',send_only:'#059669',recv_only:'#DB2777'};
+const SCOL={both:'#00ffff',direct:'#00ff00',airport:'#00ff00',send_only:'#00ffff',recv_only:'#00ffff'};
 const DAYS=['일','월','화','수','목','금','토'];
 const MNAMES=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
 
@@ -775,6 +796,7 @@ function switchTab(tab){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
   document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id==='page-'+tab));
   document.getElementById('month-nav').style.display=(tab==='schedule')?'flex':'none';
+  showFixedHScroll(tab==='schedule');
   if(tab==='products')renderProducts();
   if(tab==='logs')renderLogs();
 }
@@ -948,7 +970,7 @@ function render(){
   h+='<div class="sec-hdr"><div class="sec-hdr-lbl">📦 택배 대여 스케줄</div>';
   days.forEach(d=>h+=`<div class="sec-hdr-cell${same(d,today)?' is-today':''}"></div>`);
   h+='</div>';
-  h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#ff0000"></div>📦 택배 발송</div>';
+  h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#00ffff"></div>📦 택배 발송</div>';
   days.forEach(d=>{
     const dow=d.getDay(),tod=same(d,today),hol=isHol(d);
     const ch=getScheds(ds(d)).filter(s=>s.t==='send').map(s=>`<span class="chip chip-send">${s.lbl}</span>`).join('');
@@ -956,7 +978,7 @@ function render(){
     h+=`<div class="${cls}" data-day="${ds(d)}">${ch}</div>`;
   });
   h+='</div>';
-  h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#ff9900"></div>📬 택배 수거</div>';
+  h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#00ffff"></div>📬 택배 수거</div>';
   days.forEach(d=>{
     const dow=d.getDay(),tod=same(d,today),hol=isHol(d);
     const ch=getScheds(ds(d)).filter(s=>s.t==='recv').map(s=>`<span class="chip chip-recv">${s.lbl}</span>`).join('');
@@ -967,18 +989,18 @@ function render(){
   h+='<div class="sec-hdr"><div class="sec-hdr-lbl">🏢 공항·직접 대여 스케줄</div>';
   days.forEach(d=>h+=`<div class="sec-hdr-cell${same(d,today)?' is-today':''}"></div>`);
   h+='</div>';
-  h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#0891B2"></div>🛫 수령</div>';
+  h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#00ff00"></div>🛫 수령</div>';
   days.forEach(d=>{
     const dow=d.getDay(),tod=same(d,today),hol=isHol(d);
-    const ch=getScheds(ds(d)).filter(s=>s.t==='pickup').map(s=>`<span class="chip" style="background:#e0f7fa;color:#006064;border:1px solid #0891B2">${s.lbl}</span>`).join('');
+    const ch=getScheds(ds(d)).filter(s=>s.t==='pickup').map(s=>`<span class="chip" style="background:#00ff00;color:#000000;border:1px solid #00ff00">${s.lbl}</span>`).join('');
     let cls='sched-cell';if(tod)cls+=' is-today';if(hol)cls+=' is-hol';else if(dow===0||dow===6)cls+=' is-wknd';
     h+=`<div class="${cls}" data-day="${ds(d)}">${ch}</div>`;
   });
   h+='</div>';
-  h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#7C3AED"></div>🛬 반납</div>';
+  h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#00ff00"></div>🛬 반납</div>';
   days.forEach(d=>{
     const dow=d.getDay(),tod=same(d,today),hol=isHol(d);
-    const ch=getScheds(ds(d)).filter(s=>s.t==='return').map(s=>`<span class="chip" style="background:#ede9fe;color:#4c1d95;border:1px solid #7C3AED">${s.lbl}</span>`).join('');
+    const ch=getScheds(ds(d)).filter(s=>s.t==='return').map(s=>`<span class="chip" style="background:#00ff00;color:#000000;border:1px solid #00ff00">${s.lbl}</span>`).join('');
     let cls='sched-cell';if(tod)cls+=' is-today';if(hol)cls+=' is-hol';else if(dow===0||dow===6)cls+=' is-wknd';
     h+=`<div class="${cls}" data-day="${ds(d)}">${ch}</div>`;
   });
@@ -1023,6 +1045,7 @@ function render(){
     lbl.appendChild(wrap);
   });
   applyCss();
+  updateHScrollWidth();
 }
 
 /* ===== CALENDAR ===== */
@@ -1327,16 +1350,16 @@ function dayOpen(dstr){
   const pickupS=scheds.filter(s=>s.t==='pickup'),returnS=scheds.filter(s=>s.t==='return');
   h+='<div class="d-sec" style="color:#cc0000">📦 택배 발송</div>';
   if(!sendS.length)h+='<p style="font-size:12px;color:var(--text3);padding:4px 0">해당 없음</p>';
-  sendS.forEach(s=>h+=`<div class="day-item"><span class="chip2" style="background:#fff9c0;color:#7a5700;border:1.5px solid #ff0000">${s.lbl}</span><span style="color:var(--text2);font-size:12px">${isum(s.r)}</span></div>`);
+  sendS.forEach(s=>h+=`<div class="day-item"><span class="chip2" style="background:#00ffff;color:#000000;border:1.5px solid #00ffff">${s.lbl}</span><span style="color:var(--text2);font-size:12px">${isum(s.r)}</span></div>`);
   h+='<div class="d-sec" style="color:#cc6600;margin-top:10px">📬 택배 수거</div>';
   if(!recvS.length)h+='<p style="font-size:12px;color:var(--text3);padding:4px 0">해당 없음</p>';
-  recvS.forEach(s=>h+=`<div class="day-item"><span class="chip2" style="background:#ffe0b2;color:#7a3e00">${s.lbl}</span><span style="color:var(--text2);font-size:12px">${isum(s.r)}</span></div>`);
+  recvS.forEach(s=>h+=`<div class="day-item"><span class="chip2" style="background:#00ffff;color:#000000">${s.lbl}</span><span style="color:var(--text2);font-size:12px">${isum(s.r)}</span></div>`);
   h+='<div class="d-sec" style="color:#0891B2;margin-top:10px">🛫 공항·직접 수령</div>';
   if(!pickupS.length)h+='<p style="font-size:12px;color:var(--text3);padding:4px 0">해당 없음</p>';
-  pickupS.forEach(s=>h+=`<div class="day-item"><span class="chip2" style="background:#e0f7fa;color:#006064;border:1.5px solid #0891B2">${s.lbl}</span><span style="color:var(--text2);font-size:12px">${isum(s.r)}</span></div>`);
+  pickupS.forEach(s=>h+=`<div class="day-item"><span class="chip2" style="background:#00ff00;color:#000000;border:1.5px solid #00ff00">${s.lbl}</span><span style="color:var(--text2);font-size:12px">${isum(s.r)}</span></div>`);
   h+='<div class="d-sec" style="color:#7C3AED;margin-top:10px">🛬 공항·직접 반납</div>';
   if(!returnS.length)h+='<p style="font-size:12px;color:var(--text3);padding:4px 0">해당 없음</p>';
-  returnS.forEach(s=>h+=`<div class="day-item"><span class="chip2" style="background:#ede9fe;color:#4c1d95;border:1.5px solid #7C3AED">${s.lbl}</span><span style="color:var(--text2);font-size:12px">${isum(s.r)}</span></div>`);
+  returnS.forEach(s=>h+=`<div class="day-item"><span class="chip2" style="background:#00ff00;color:#000000;border:1.5px solid #00ff00">${s.lbl}</span><span style="color:var(--text2);font-size:12px">${isum(s.r)}</span></div>`);
   h+='<div class="d-sec">재고 현황</div>';
   const dayStockGroups=getModelGroups();
   Object.keys(dayStockGroups).sort().forEach(model=>{
@@ -1644,6 +1667,7 @@ function openProdAdd(preFillModel){
   editProdId=null;
   document.getElementById('prod-title').textContent='제품 추가';
   document.getElementById('pf-del').classList.add('hide');
+  document.getElementById('pf-del-confirm').classList.add('hide');
   document.getElementById('pf-model').value=preFillModel||'';
   document.getElementById('pf-qrid').value='';
   document.getElementById('pf-total').value='1';
@@ -1656,6 +1680,7 @@ function openProdEdit(id){
   editProdId=id;
   document.getElementById('prod-title').textContent='제품 수정';
   document.getElementById('pf-del').classList.remove('hide');
+  document.getElementById('pf-del-confirm').classList.add('hide');
   document.getElementById('pf-model').value=s.model||'';
   document.getElementById('pf-qrid').value=s.qrId||'';
   document.getElementById('pf-total').value=s.total||1;
@@ -1696,12 +1721,17 @@ function saveProd(){
 function deleteProd(){
   if(!editProdId)return;
   const s=DB.stock.find(x=>x.id===editProdId);if(!s)return;
-  const used=DB.rentals.some(r=>!r.done&&r.items.some(it=>it.sid===editProdId));
-  if(used){if(!confirm('현재 대여중입니다. 삭제하면 관련 대여도 삭제됩니다. 계속?'))return;}
-  else{if(!confirm(s.model+' 삭제하시겠습니까?'))return;}
+  // 인라인 확인 행 표시
+  const row=document.getElementById('pf-del-confirm');
+  if(row)row.classList.toggle('hide');
+}
+function doDeleteProd(){
+  if(!editProdId)return;
+  const s=DB.stock.find(x=>x.id===editProdId);if(!s)return;
   DB.stock=DB.stock.filter(x=>x.id!==editProdId);
   DB.rentals=DB.rentals.filter(r=>!r.items.some(it=>it.sid===editProdId));
   dbSave();modalClose('modal-prod');renderProducts();render();
+  toast('🗑 '+s.model+' 삭제됨');
 }
 
 function openProdDetail(id){
@@ -1997,10 +2027,14 @@ document.getElementById('btn-qr-add-item').addEventListener('click',()=>qrOpen('
 document.getElementById('btn-pf-scan').addEventListener('click',()=>qrOpen('prodId'));
 document.getElementById('btn-add-prod').addEventListener('click',openProdAdd);
 document.getElementById('btn-log-csv').addEventListener('click',exportLogCSV);
-document.getElementById('btn-clear-logs').addEventListener('click',function(){
-  if(!confirm('모든 대여기록을 삭제하시겠습니까?\n(대여 데이터는 유지되며 로그만 삭제됩니다)'))return;
-  DB.logs=[];dbSave();renderLogs();toast('✅ 기록 삭제됨');
-});
+function clearAllLogs(){
+  document.getElementById('log-del-confirm').classList.toggle('hide');
+}
+function doDeleteAllLogs(){
+  DB.logs=[];dbSave();renderLogs();
+  document.getElementById('log-del-confirm').classList.add('hide');
+  toast('🗑 대여기록 전체 삭제됨');
+}
 document.getElementById('prod-q').addEventListener('input',renderProducts);
 document.getElementById('prod-cat-filter').addEventListener('change',renderProducts);
 document.getElementById('log-q').addEventListener('input',renderLogs);
@@ -2021,6 +2055,34 @@ document.getElementById('btn-add-hol').addEventListener('click',function(){
   if(openCalKey)calBuild(openCalKey);
 });
 
+/* ===== 고정 가로 스크롤바 ===== */
+function initFixedHScroll(){
+  const wrap=document.querySelector('.gantt-wrap');
+  const bar=document.getElementById('fixed-hscroll');
+  const inner=document.getElementById('fixed-hscroll-inner');
+  if(!wrap||!bar||!inner)return;
+  let syncing=false;
+  wrap.addEventListener('scroll',()=>{
+    if(syncing)return;syncing=true;
+    bar.scrollLeft=wrap.scrollLeft;
+    syncing=false;
+  });
+  bar.addEventListener('scroll',()=>{
+    if(syncing)return;syncing=true;
+    wrap.scrollLeft=bar.scrollLeft;
+    syncing=false;
+  });
+}
+function updateHScrollWidth(){
+  const wrap=document.querySelector('.gantt-wrap');
+  const inner=document.getElementById('fixed-hscroll-inner');
+  if(!wrap||!inner)return;
+  inner.style.width=wrap.scrollWidth+'px';
+}
+function showFixedHScroll(v){
+  const bar=document.getElementById('fixed-hscroll');
+  if(bar)bar.style.display=v?'block':'none';
+}
 /* ===== TOAST & BEEP ===== */
 function toast(msg){
   let t=document.getElementById('toast-el');
@@ -2153,6 +2215,8 @@ function applySearch(){
 /* ===== INIT ===== */
 render();
 initSearch();
+initFixedHScroll();
+showFixedHScroll(true);
 </script>
 </body>
 </html>
