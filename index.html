@@ -72,7 +72,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 
 /* GANTT */
 .main-scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
-.gantt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.gantt-wrap{overflow-x:auto;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y}
 .gantt-inner{min-width:max-content;position:relative}
 .date-hdr{display:flex;border-bottom:2px solid var(--border);background:var(--card2);position:sticky;top:0;z-index:20}
 .dh-lbl{width:var(--lw);min-width:var(--lw);padding:8px 12px;font-size:10px;font-weight:700;color:var(--text3);border-right:1px solid var(--border);display:flex;align-items:center;text-transform:uppercase;letter-spacing:.06em;flex-shrink:0}
@@ -86,7 +86,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 .dh-col.is-sat{color:#3B82F6}
 .dh-col.is-sat .dow{color:#3B82F6}
 
-.g-row{display:flex;border-bottom:1px solid var(--border);align-items:stretch}
+.g-row{display:flex;border-bottom:1px solid var(--border);align-items:stretch;min-height:var(--row-h,52px)}
 .g-lbl{width:var(--lw);min-width:var(--lw);padding:7px 30px 7px 12px;display:flex;align-items:flex-start;gap:7px;border-right:1px solid var(--border);background:var(--card);cursor:pointer;flex-shrink:0;position:relative}
 .g-lbl.dimmed{opacity:.4}
 .g-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:4px}
@@ -97,13 +97,13 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 .g-addr-ico{flex-shrink:0;opacity:.7}
 .done-badge{display:inline-block;padding:1px 5px;border-radius:4px;font-size:9px;font-weight:600;background:var(--teal-l);color:var(--teal);margin-left:3px;vertical-align:middle}
 .g-cells{display:flex;position:relative;flex:1}
-.g-cell{width:var(--col);min-width:var(--col);border-right:1px solid var(--border);flex-shrink:0;cursor:pointer}
+.g-cell{width:var(--col);min-width:var(--col);min-height:var(--row-h,52px);border-right:1px solid var(--border);flex-shrink:0;cursor:pointer}
 .g-cell.is-today{background:rgba(37,99,235,.05)}
 .g-cell.is-wknd{background:rgba(0,0,0,.012)}
 .g-cell.is-hol{background:rgba(239,68,68,.04)}
 .today-line{position:absolute;top:0;bottom:0;pointer-events:none;z-index:3;border-left:2px solid rgba(37,99,235,.3);border-right:2px solid rgba(37,99,235,.3);background:rgba(37,99,235,.05)}
 
-.sbar{position:absolute;top:7px;bottom:7px;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2px 8px;font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;cursor:pointer;z-index:5;text-align:center}
+.sbar{position:absolute;top:7px;bottom:7px;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2px 8px;font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;cursor:pointer;z-index:5;text-align:center;box-sizing:border-box}
 .sbar.dimmed{opacity:.25;filter:grayscale(.6)}
 .sbar-send{background:#ffff00;border:2.5px solid #ff0000;color:#555;border-radius:20px 0 0 20px}
 .sbar-main{color:#000;border-radius:20px}
@@ -111,8 +111,8 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 .sbar-main.no-r{border-radius:20px 0 0 20px}
 .sbar-main.no-lr{border-radius:0}
 .sbar-recv{background:#ff9900;color:#000;border-radius:0 20px 20px 0}
-.sbar .sn{font-size:11px;font-weight:700;line-height:1.2;color:#000000}
-.sbar .si{font-size:9px;font-weight:900;line-height:1.2;color:#ff0000}
+.sbar .sn{font-size:11px;font-weight:700;line-height:1.2;color:#000000;max-width:100%;overflow:hidden;white-space:nowrap}
+.sbar .si{font-size:9px;font-weight:900;line-height:1.2;color:#ff0000;max-width:100%;overflow:hidden;white-space:nowrap}
 
 .sec-hdr{display:flex;border-bottom:1px solid var(--border);border-top:2px solid var(--border2);background:var(--bg)}
 .sec-hdr-lbl{width:var(--lw);min-width:var(--lw);padding:6px 12px;font-size:10px;font-weight:700;color:var(--text3);border-right:1px solid var(--border);display:flex;align-items:center;flex-shrink:0;text-transform:uppercase;letter-spacing:.08em}
@@ -209,6 +209,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 .cal-hint{font-size:11px;font-weight:600;color:var(--blue);padding:6px 10px;background:var(--blue-l);border-radius:6px}
 #cal-send .cal-hint{color:#7a5700;background:#FFF9C0}
 #cal-recv .cal-hint{color:#7a3e00;background:#FFE0B2}
+#cal-apPick .cal-hint,#cal-apRet .cal-hint{color:#006600;background:rgba(0,255,0,.15)}
 .cal-months{display:flex;gap:14px;flex-wrap:wrap}
 .cal-month{flex:1;min-width:220px}
 .cal-navrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
@@ -235,6 +236,10 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 #cal-recv .cal-day.sel-s{background:#ff9900!important;color:#fff!important;border-radius:7px 0 0 7px}
 #cal-recv .cal-day.sel-e{background:#ff9900!important;color:#fff!important;border-radius:0 7px 7px 0}
 #cal-recv .cal-day.sel-s.sel-e{border-radius:7px!important}
+#cal-apPick .cal-day.in-rng,#cal-apRet .cal-day.in-rng{background:rgba(0,255,0,.18);color:#004400;border-radius:0}
+#cal-apPick .cal-day.sel-s,#cal-apRet .cal-day.sel-s{background:rgba(0,204,0,.7)!important;color:#000!important;border-radius:7px 0 0 7px}
+#cal-apPick .cal-day.sel-e,#cal-apRet .cal-day.sel-e{background:rgba(0,204,0,.7)!important;color:#000!important;border-radius:0 7px 7px 0}
+#cal-apPick .cal-day.sel-s.sel-e,#cal-apRet .cal-day.sel-s.sel-e{border-radius:7px!important}
 .cal-day.prev-rent-s{background:var(--blue)!important;color:#fff!important;font-weight:700;border-radius:7px 0 0 7px;opacity:.55}
 .cal-day.prev-rent-e{background:var(--blue)!important;color:#fff!important;font-weight:700;border-radius:0 7px 7px 0;opacity:.55}
 .cal-day.prev-rent-rng{background:var(--blue-ll);color:var(--blue);border-radius:0;opacity:.6}
@@ -354,6 +359,8 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 <div class="cal-popup" id="cal-rent"></div>
 <div class="cal-popup" id="cal-send"></div>
 <div class="cal-popup" id="cal-recv"></div>
+<div class="cal-popup" id="cal-apPick"></div>
+<div class="cal-popup" id="cal-apRet"></div>
 
 <!-- QR SCANNER -->
 <div id="qr-bd"></div>
@@ -410,11 +417,10 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
     <div class="legend">
       <div class="leg"><div class="leg-dot" style="background:#ffff00;border:1.5px solid #ff0000"></div>발송중</div>
       <div class="leg"><div class="leg-dot" style="background:#ff9900"></div>수거중</div>
-      <div class="leg"><div class="leg-dot" style="background:#00ffff"></div>택배발송+수거</div>
-      <div class="leg"><div class="leg-dot" style="background:#00ff00"></div>직접</div>
-      <div class="leg"><div class="leg-dot" style="background:#00ff00"></div>공항</div>
-      <div class="leg"><div class="leg-dot" style="background:#00ffff"></div>발송+직접반납</div>
-      <div class="leg"><div class="leg-dot" style="background:#00ffff"></div>직접+수거</div>
+      <div class="leg"><div class="leg-dot" style="background:#00ffff"></div>택배▶택배</div>
+      <div class="leg"><div class="leg-dot" style="background:#00ff00"></div>공항▶공항</div>
+      <div class="leg"><div class="leg-dot" style="background:#00ffff"></div>택배▶공항</div>
+      <div class="leg"><div class="leg-dot" style="background:#00ff00"></div>공항▶택배</div>
     </div>
   </div>
   <div class="search-bar">
@@ -484,39 +490,17 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
     <div class="f-row"><label>주소 <span class="req">* 필수</span></label><input id="f-addr" placeholder="서울시 강남구..." autocomplete="street-address"></div>
   </div>
 
-  <div class="sec-sep">배송 방식 <span class="req">* 필수</span></div>
+  <div class="sec-sep">대여 방법 <span class="req">* 필수</span></div>
   <div class="f-row">
-    <select id="f-ship">
+    <select id="f-ship" onchange="updateShipSections(this.value)">
       <option value="both">[수령] 택배 ▶ [반납] 택배</option>
       <option value="airport">[수령] 공항 ▶ [반납] 공항</option>
-      <option value="direct">직접 수령 / 반납</option>
-      <option value="send_only">택배 발송 + 직접 반납</option>
-      <option value="recv_only">직접 수령 + 택배 수거</option>
+      <option value="send_airport">[수령] 택배 ▶ [반납] 공항</option>
+      <option value="airport_recv">[수령] 공항 ▶ [반납] 택배</option>
     </select>
   </div>
-  <div id="sec-airport" class="hide">
-    <div class="f-half">
-      <div class="f-row"><label>수령 공항</label>
-        <select id="f-ap-airport-pick">
-          <option value="인천공항 T1">인천공항 T1</option>
-          <option value="인천공항 T2" selected>인천공항 T2</option>
-          <option value="김포공항 국제">김포공항 국제</option>
-        </select>
-      </div>
-      <div class="f-row"><label>반납 공항</label>
-        <select id="f-ap-airport-ret">
-          <option value="인천공항 T1">인천공항 T1</option>
-          <option value="인천공항 T2" selected>인천공항 T2</option>
-          <option value="김포공항 국제">김포공항 국제</option>
-        </select>
-      </div>
-    </div>
-    <div class="f-half">
-      <div class="f-row"><label>수령 시간</label><input id="f-ap-pick" type="time" value="14:00"></div>
-      <div class="f-row"><label>반납 시간</label><input id="f-ap-ret" type="time" value="22:00"></div>
-    </div>
-    <div class="f-row"><label>장소 메모 <span style="color:var(--text3);font-weight:500">(선택)</span></label><input id="f-ap-memo" placeholder="3층 B카운터, 만남 장소 등"></div>
-  </div>
+
+  <!-- 1. 대여 기간 -->
   <div class="sec-sep">대여 기간</div>
   <div class="f-row">
     <label>대여 시작 ~ 종료 <span class="req">* 필수</span></label>
@@ -524,6 +508,8 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
       <span class="rb-ico">📅</span><span class="rb-txt" id="lbl-rent">날짜를 선택하세요</span><span class="rb-arr">▼</span>
     </button>
   </div>
+
+  <!-- 2. 택배 발송 기간 (both, send_airport) -->
   <div id="sec-send" class="hide">
     <div class="sec-sep">택배 발송 기간</div>
     <div class="f-row">
@@ -533,6 +519,50 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
       </button>
     </div>
   </div>
+
+  <!-- 3. 공항 수령 정보 (airport, airport_recv) -->
+  <div id="sec-airport-pick" class="hide">
+    <div class="sec-sep">🛫 공항 수령 정보</div>
+    <div class="f-row">
+      <label>수령 날짜</label>
+      <button class="range-btn" data-open-cal="apPick">
+        <span class="rb-ico" style="color:#00cc00">📅</span><span class="rb-txt" id="lbl-apPick">날짜를 선택하세요</span><span class="rb-arr">▼</span>
+      </button>
+    </div>
+    <div class="f-half">
+      <div class="f-row"><label>수령 공항</label>
+        <select id="f-ap-airport-pick">
+          <option value="인천공항 T1">인천공항 T1</option>
+          <option value="인천공항 T2" selected>인천공항 T2</option>
+          <option value="김포공항 국제">김포공항 국제</option>
+        </select>
+      </div>
+      <div class="f-row"><label>수령 시간</label><input id="f-ap-pick" type="time" value="14:00"></div>
+    </div>
+  </div>
+
+  <!-- 4. 공항 반납 정보 (airport, send_airport) -->
+  <div id="sec-airport-ret" class="hide">
+    <div class="sec-sep">🛬 공항 반납 정보</div>
+    <div class="f-row">
+      <label>반납 날짜</label>
+      <button class="range-btn" data-open-cal="apRet">
+        <span class="rb-ico" style="color:#00cc00">📅</span><span class="rb-txt" id="lbl-apRet">날짜를 선택하세요</span><span class="rb-arr">▼</span>
+      </button>
+    </div>
+    <div class="f-half">
+      <div class="f-row"><label>반납 공항</label>
+        <select id="f-ap-airport-ret">
+          <option value="인천공항 T1">인천공항 T1</option>
+          <option value="인천공항 T2" selected>인천공항 T2</option>
+          <option value="김포공항 국제">김포공항 국제</option>
+        </select>
+      </div>
+      <div class="f-row"><label>반납 시간</label><input id="f-ap-ret" type="time" value="22:00"></div>
+    </div>
+  </div>
+
+  <!-- 5. 택배 수거 기간 (both, airport_recv) -->
   <div id="sec-recv" class="hide">
     <div class="sec-sep">택배 수거 기간</div>
     <div class="f-row">
@@ -541,6 +571,11 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
         <span class="rb-ico">📬</span><span class="rb-txt" id="lbl-recv">날짜를 선택하세요</span><span class="rb-arr">▼</span>
       </button>
     </div>
+  </div>
+
+  <!-- 공항 메모 -->
+  <div id="sec-airport-memo" class="hide">
+    <div class="f-row"><label>공항 메모 <span style="color:var(--text3);font-weight:500">(선택)</span></label><input id="f-ap-memo" placeholder="3층 B카운터, 만남 장소 등"></div>
   </div>
 
   <div class="sec-sep">대여 품목 <span class="req">* 필수</span> <span id="period-hint" style="font-size:10px;color:var(--text3);font-weight:400;margin-left:4px"></span></div>
@@ -679,7 +714,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 'use strict';
 /* ===== 한국 공휴일 ===== */
 const KH={'2025-01-01':'신정','2025-01-28':'설날연휴','2025-01-29':'설날','2025-01-30':'설날연휴','2025-03-01':'삼일절','2025-05-05':'어린이날','2025-05-06':'대체공휴일','2025-05-12':'부처님오신날','2025-06-06':'현충일','2025-08-15':'광복절','2025-10-03':'개천절','2025-10-05':'추석연휴','2025-10-06':'추석','2025-10-07':'추석연휴','2025-10-08':'대체공휴일','2025-10-09':'한글날','2025-12-25':'크리스마스','2026-01-01':'신정','2026-01-28':'설날연휴','2026-01-29':'설날','2026-01-30':'설날연휴','2026-03-01':'삼일절','2026-05-05':'어린이날','2026-05-24':'부처님오신날','2026-06-06':'현충일','2026-08-15':'광복절','2026-09-24':'추석연휴','2026-09-25':'추석','2026-09-26':'추석연휴','2026-09-27':'대체공휴일','2026-10-03':'개천절','2026-10-09':'한글날','2026-12-25':'크리스마스','2027-01-01':'신정','2027-02-16':'설날연휴','2027-02-17':'설날','2027-02-18':'설날연휴','2027-03-01':'삼일절','2027-05-02':'부처님오신날','2027-05-05':'어린이날','2027-06-06':'현충일','2027-08-15':'광복절','2027-10-03':'개천절','2027-10-04':'추석연휴','2027-10-05':'추석','2027-10-06':'추석연휴','2027-10-09':'한글날','2027-12-25':'크리스마스'};
-const SCOL={both:'#00ffff',direct:'#00ff00',airport:'#00ff00',send_only:'#00ffff',recv_only:'#00ffff'};
+const SCOL={both:'#00ffff',airport:'#00ff00',send_airport:'#00ffff',airport_recv:'#00ff00',direct:'#00ff00',send_only:'#00ffff',recv_only:'#00ffff'};
 const DAYS=['일','월','화','수','목','금','토'];
 const MNAMES=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
 
@@ -782,11 +817,11 @@ let COL_W=88, ROW_H=52;
 })();
 function saveLayout(){try{localStorage.setItem(KLY,JSON.stringify({c:COL_W,r:ROW_H}));}catch(e){}}
 function applyCss(){
-  document.documentElement.style.setProperty('--col',COL_W+'px');
+  const root=document.documentElement.style;
+  root.setProperty('--col',COL_W+'px');
+  root.setProperty('--row-h',ROW_H+'px');
   document.getElementById('col-val').textContent=COL_W+'px';
   document.getElementById('row-val').textContent=ROW_H+'px';
-  document.querySelectorAll('.g-row').forEach(el=>el.style.minHeight=ROW_H+'px');
-  document.querySelectorAll('.g-cell').forEach(el=>el.style.minHeight=ROW_H+'px');
 }
 
 /* ===== TAB ===== */
@@ -834,21 +869,20 @@ function getScheds(dstr){
   DB.rentals.forEach(r=>{
     if(r.done)return;
     const ss=r.ss?clr(dp(r.ss)):null,vs=r.vs?clr(dp(r.vs)):null;
-    if(ss&&same(d,ss))out.push({t:'send',lbl:r.cust+' 택배 발송',r});
-    if(vs&&same(d,vs))out.push({t:'recv',lbl:r.cust+' 수거 예약',r});
-    if(r.ship==='recv_only'&&same(d,clr(dp(r.end)))&&!vs)out.push({t:'recv',lbl:r.cust+' 수거 예약',r});
-    // 공항/직접 - 수령일(대여 시작일)
-    if((r.ship==='airport'||r.ship==='direct')&&r.start&&same(d,clr(dp(r.start)))){
-      const lbl=r.ship==='airport'
-        ?r.cust+' 공항수령 '+(r.apAirportPick||'')+(r.apPick?' '+r.apPick:'')
-        :r.cust+' 직접수령';
+    // 택배 발송: both, send_airport
+    if((r.ship==='both'||r.ship==='send_airport')&&ss&&same(d,ss))
+      out.push({t:'send',lbl:r.cust+' 택배 발송',r});
+    // 택배 수거: both, airport_recv
+    if((r.ship==='both'||r.ship==='airport_recv')&&vs&&same(d,vs))
+      out.push({t:'recv',lbl:r.cust+' 수거 예약',r});
+    // 공항 수령: airport, airport_recv
+    if((r.ship==='airport'||r.ship==='airport_recv')&&r.start&&same(d,clr(dp(r.start)))){
+      const lbl=r.cust+' 공항수령 '+(r.apAirportPick||'')+(r.apPick?' '+r.apPick:'');
       out.push({t:'pickup',lbl,r});
     }
-    // 공항/직접 - 반납일(대여 종료일)
-    if((r.ship==='airport'||r.ship==='direct')&&r.end&&same(d,clr(dp(r.end)))){
-      const lbl=r.ship==='airport'
-        ?r.cust+' 공항반납 '+(r.apAirportRet||'')+(r.apRet?' '+r.apRet:'')
-        :r.cust+' 직접반납';
+    // 공항 반납: airport, send_airport
+    if((r.ship==='airport'||r.ship==='send_airport')&&r.end&&same(d,clr(dp(r.end)))){
+      const lbl=r.cust+' 공항반납 '+(r.apAirportRet||'')+(r.apRet?' '+r.apRet:'');
       out.push({t:'return',lbl,r});
     }
   });
@@ -895,14 +929,24 @@ function makeBars(r,days){
   const ss=r.ss?clr(dp(r.ss)):null,se=r.se?clr(dp(r.se)):null;
   const rs=clr(dp(r.start)),re=clr(dp(r.end));
   const vs=r.vs?clr(dp(r.vs)):null,ve=r.ve?clr(dp(r.ve)):null;
-  const hasSend=!done&&ss&&se,hasRecv=!done&&vs&&ve;
+  // ship 타입으로 발송/수거 막대 표시 여부 결정
+  const shipHasSend=r.ship==='both'||r.ship==='send_airport';
+  const shipHasRecv=r.ship==='both'||r.ship==='airport_recv';
+  const hasSend=!done&&ss&&se&&shipHasSend;
+  const hasRecv=!done&&vs&&ve&&shipHasRecv;
   const col=scol(r.ship);
-  const shipLbl={both:'[택배]',direct:'[직접]',airport:'[공항]',send_only:'[발송]',recv_only:'[수거]'}[r.ship]||'';
-  const apNote=r.ship==='airport'?(
-    (r.apAirportPick?'수령:'+r.apAirportPick:'')
-    +(r.apPick?' '+r.apPick:'')
-    +(r.apAirportRet?' / 반납:'+r.apAirportRet:'')
-    +(r.apRet?' '+r.apRet:'')
+  const shipLbl={
+    both:'[택배▶택배]',airport:'[공항▶공항]',
+    send_airport:'[택배▶공항]',airport_recv:'[공항▶택배]',
+    direct:'[직접]',send_only:'[발송]',recv_only:'[수거]'
+  }[r.ship]||'';
+  const isApPick=r.ship==='airport'||r.ship==='airport_recv'; // 공항 수령 있는 타입
+  const isApRet=r.ship==='airport'||r.ship==='send_airport';  // 공항 반납 있는 타입
+  const apNote=(isApPick||isApRet)?(
+    (isApPick&&r.apAirportPick?'수령:'+r.apAirportPick:'')
+    +(isApPick&&r.apPick?' '+r.apPick:'')
+    +(isApRet&&r.apAirportRet?(isApPick?' / ':'')+'반납:'+r.apAirportRet:'')
+    +(isApRet&&r.apRet?' '+r.apRet:'')
     +(r.apMemo?' ('+r.apMemo+')':'')
   ):'';
   const nameStr=r.cust+' '+fmtMon(r.start)+'~'+fmtMon(r.end)+' '+shipLbl+(apNote?' '+apNote:'');
@@ -940,6 +984,13 @@ function render(){
   const savedAt=localStorage.getItem('rmi_saved_at');
   if(savedAt)document.getElementById('save-lbl').textContent='저장됨 '+savedAt;
 
+  // ── 성능 최적화: 날짜별 캐시 미리 계산 (1회) ──
+  const invCache={}, schedCache={};
+  days.forEach(d=>{
+    const dstr=ds(d);
+    invCache[dstr]=calcInv(dstr);
+    schedCache[dstr]=getScheds(dstr);
+  });
   let h='';
   h+='<div class="date-hdr"><div class="dh-lbl">대여 현황</div>';
   days.forEach(d=>{
@@ -953,8 +1004,8 @@ function render(){
   if(!sorted.length)h+='<div class="empty-state">등록된 대여 내역이 없습니다.<br>+ 대여 등록 버튼을 눌러 추가하세요.</div>';
   sorted.forEach(r=>{
     const done=!!r.done;
-    h+=`<div class="g-row" data-rid="${r.id}" style="min-height:${ROW_H}px">`;
-    h+=`<div class="g-lbl${done?' dimmed':''}" data-edit="${r.id}"><div class="g-dot" style="background:${scol(r.ship)}"></div><div class="g-info"><div class="g-name">${r.cust}${done?'<span class="done-badge">반납완료</span>':''}</div>${r.phone?`<div class="g-sub">📞 ${r.phone}</div>`:''}<div class="g-sub">📅 ${fmtMon(r.start)} ~ ${fmtMon(r.end)}</div></div></div>`;
+    h+=`<div class="g-row" data-rid="${r.id}">`;
+    h+=`<div class="g-lbl${done?' dimmed':''}" data-edit="${r.id}"><div class="g-dot" style="background:${scol(r.ship)}"></div><div class="g-info"><div class="g-name">${r.cust}${done?'<span class="done-badge">반납완료</span>':''}</div>${r.phone?`<div class="g-sub">📞 ${r.phone}</div>`:''}<div class="g-sub">📅 ${fmtMon(r.start)} ~ ${fmtMon(r.end)}</div></div><div class="ord-btns"><button class="ord-btn" data-ord="${r.id}" data-dir="-1" title="위로">▲</button><button class="ord-btn" data-ord="${r.id}" data-dir="1" title="아래로">▼</button></div></div>`;
     h+='<div class="g-cells">';
     days.forEach(d=>{
       const dow=d.getDay(),tod=same(d,today),hol=isHol(d);
@@ -973,7 +1024,7 @@ function render(){
   h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#00ffff"></div>📦 택배 발송</div>';
   days.forEach(d=>{
     const dow=d.getDay(),tod=same(d,today),hol=isHol(d);
-    const ch=getScheds(ds(d)).filter(s=>s.t==='send').map(s=>`<span class="chip chip-send">${s.lbl}</span>`).join('');
+    const ch=schedCache[ds(d)].filter(s=>s.t==='send').map(s=>`<span class="chip chip-send">${s.lbl}</span>`).join('');
     let cls='sched-cell';if(tod)cls+=' is-today';if(hol)cls+=' is-hol';else if(dow===0||dow===6)cls+=' is-wknd';
     h+=`<div class="${cls}" data-day="${ds(d)}">${ch}</div>`;
   });
@@ -981,7 +1032,7 @@ function render(){
   h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#00ffff"></div>📬 택배 수거</div>';
   days.forEach(d=>{
     const dow=d.getDay(),tod=same(d,today),hol=isHol(d);
-    const ch=getScheds(ds(d)).filter(s=>s.t==='recv').map(s=>`<span class="chip chip-recv">${s.lbl}</span>`).join('');
+    const ch=schedCache[ds(d)].filter(s=>s.t==='recv').map(s=>`<span class="chip chip-recv">${s.lbl}</span>`).join('');
     let cls='sched-cell';if(tod)cls+=' is-today';if(hol)cls+=' is-hol';else if(dow===0||dow===6)cls+=' is-wknd';
     h+=`<div class="${cls}" data-day="${ds(d)}">${ch}</div>`;
   });
@@ -992,7 +1043,7 @@ function render(){
   h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#00ff00"></div>🛫 수령</div>';
   days.forEach(d=>{
     const dow=d.getDay(),tod=same(d,today),hol=isHol(d);
-    const ch=getScheds(ds(d)).filter(s=>s.t==='pickup').map(s=>`<span class="chip" style="background:#00ff00;color:#000000;border:1px solid #00ff00">${s.lbl}</span>`).join('');
+    const ch=schedCache[ds(d)].filter(s=>s.t==='pickup').map(s=>`<span class="chip" style="background:#00ff00;color:#000000;border:1px solid #00ff00">${s.lbl}</span>`).join('');
     let cls='sched-cell';if(tod)cls+=' is-today';if(hol)cls+=' is-hol';else if(dow===0||dow===6)cls+=' is-wknd';
     h+=`<div class="${cls}" data-day="${ds(d)}">${ch}</div>`;
   });
@@ -1000,7 +1051,7 @@ function render(){
   h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#00ff00"></div>🛬 반납</div>';
   days.forEach(d=>{
     const dow=d.getDay(),tod=same(d,today),hol=isHol(d);
-    const ch=getScheds(ds(d)).filter(s=>s.t==='return').map(s=>`<span class="chip" style="background:#00ff00;color:#000000;border:1px solid #00ff00">${s.lbl}</span>`).join('');
+    const ch=schedCache[ds(d)].filter(s=>s.t==='return').map(s=>`<span class="chip" style="background:#00ff00;color:#000000;border:1px solid #00ff00">${s.lbl}</span>`).join('');
     let cls='sched-cell';if(tod)cls+=' is-today';if(hol)cls+=' is-hol';else if(dow===0||dow===6)cls+=' is-wknd';
     h+=`<div class="${cls}" data-day="${ds(d)}">${ch}</div>`;
   });
@@ -1014,7 +1065,7 @@ function render(){
     const total=units.reduce((s,u)=>s+(u.total||1),0); // QR:유닛수, 일반:total합
     h+=`<div class="inv-row"><div class="inv-name">${model} <span style="color:var(--text3);font-weight:400">(총 ${total})</span></div>`;
     days.forEach(d=>{
-      const invDay=calcInv(ds(d));
+      const invDay=invCache[ds(d)];
       let left=0;
       units.forEach(u=>{const l=invDay[u.id]??u.total??1;left+=Math.max(0,l);});
       const ratio=total>0?left/total:1,tod=same(d,today);
@@ -1027,25 +1078,9 @@ function render(){
 
   const gi=document.getElementById('gi');
   gi.innerHTML=h;
-  gi.querySelectorAll('.g-row').forEach((row,i)=>{
-    const r=sorted[i];if(!r)return;
-    const lbl=row.querySelector('.g-lbl');if(!lbl)return;
-    const wrap=document.createElement('div');wrap.className='ord-btns';
-    ['▲','▼'].forEach((sym,di)=>{
-      const b=document.createElement('button');b.className='ord-btn';b.textContent=sym;b.title=di===0?'위로':'아래로';
-      b.addEventListener('click',ev=>{
-        ev.stopPropagation();
-        const idx=DB.rentals.findIndex(x=>x.id===r.id);if(idx<0)return;
-        const to=idx+(di===0?-1:1);if(to<0||to>=DB.rentals.length)return;
-        const[item]=DB.rentals.splice(idx,1);DB.rentals.splice(to,0,item);
-        dbSave();render();
-      });
-      wrap.appendChild(b);
-    });
-    lbl.appendChild(wrap);
-  });
   applyCss();
   updateHScrollWidth();
+  fitBarsText();
 }
 
 /* ===== CALENDAR ===== */
@@ -1053,6 +1088,8 @@ const CSTATE={
   rent:{s:null,e:null,step:'s',y:new Date().getFullYear(),m:new Date().getMonth()},
   send:{s:null,e:null,step:'s',y:new Date().getFullYear(),m:new Date().getMonth()},
   recv:{s:null,e:null,step:'s',y:new Date().getFullYear(),m:new Date().getMonth()},
+  apPick:{s:null,e:null,step:'s',y:new Date().getFullYear(),m:new Date().getMonth()},
+  apRet:{s:null,e:null,step:'s',y:new Date().getFullYear(),m:new Date().getMonth()},
 };
 let openCalKey=null;
 function calSetDate(key,s,e){
@@ -1074,7 +1111,10 @@ function calOpen(key){
   document.getElementById('cal-bd').style.display='block';
 }
 function calClose(){
-  ['rent','send','recv'].forEach(k=>document.getElementById('cal-'+k).classList.remove('open'));
+  ['rent','send','recv','apPick','apRet'].forEach(k=>{
+    const el=document.getElementById('cal-'+k);
+    if(el)el.classList.remove('open');
+  });
   document.getElementById('cal-bd').style.display='none';
   openCalKey=null;
 }
@@ -1083,12 +1123,24 @@ function calBuild(key){
   const S=c.s?clr(c.s):null,E=c.e?clr(c.e):null;
   const prevRent=key!=='rent'?{s:CSTATE.rent.s?clr(CSTATE.rent.s):null,e:CSTATE.rent.e?clr(CSTATE.rent.e):null}:null;
   const prevSend=key==='recv'?{s:CSTATE.send.s?clr(CSTATE.send.s):null,e:CSTATE.send.e?clr(CSTATE.send.e):null}:null;
-  const hint=(!S||c.step==='s')?'① 시작일을 탭하세요':'② 종료일을 탭하세요 (시작: '+fmtD(S)+')';
+  const prevApPick=(key==='recv'||key==='apRet')&&CSTATE.apPick.s?{s:clr(CSTATE.apPick.s),e:CSTATE.apPick.e?clr(CSTATE.apPick.e):null}:null;
+  const prevApRet=(key==='recv')&&CSTATE.apRet.s?{s:clr(CSTATE.apRet.s),e:CSTATE.apRet.e?clr(CSTATE.apRet.e):null}:null;
+  const hint=(key==='apPick'||key==='apRet')
+    ?'날짜를 탭하면 바로 확정됩니다'
+    :(!S||c.step==='s')?'① 시작일을 탭하세요':'② 종료일을 탭하세요 (시작: '+fmtD(S)+')';
   let previewBadges='';
   if(key==='send'&&prevRent&&(prevRent.s||prevRent.e))previewBadges+=`<div class="cal-prev-row"><span class="cal-prev-badge rent-badge">📅 대여기간: ${fmtRange(prevRent.s,prevRent.e)||'미선택'}</span></div>`;
   if(key==='recv'){
     if(prevRent&&(prevRent.s||prevRent.e))previewBadges+=`<div class="cal-prev-row" style="margin-bottom:4px"><span class="cal-prev-badge rent-badge">📅 대여기간: ${fmtRange(prevRent.s,prevRent.e)||'미선택'}</span>`;
     if(prevSend&&(prevSend.s||prevSend.e))previewBadges+=`<span class="cal-prev-badge send-badge" style="margin-left:6px">📦 발송기간: ${fmtRange(prevSend.s,prevSend.e)||'미선택'}</span>`;
+    if(prevApPick&&prevApPick.s)previewBadges+=`<span class="cal-prev-badge" style="background:rgba(0,255,0,.18);color:#006600;border:1px solid rgba(0,204,0,.4);margin-left:6px">🛫 공항수령: ${fmtD(prevApPick.s)}</span>`;
+    if(previewBadges)previewBadges+='</div>';
+  }
+  if(key==='apPick'&&prevRent&&(prevRent.s||prevRent.e))previewBadges+=`<div class="cal-prev-row"><span class="cal-prev-badge rent-badge">📅 대여기간: ${fmtRange(prevRent.s,prevRent.e)||'미선택'}</span></div>`;
+  if(key==='apRet'){
+    if(prevRent&&(prevRent.s||prevRent.e))previewBadges+=`<div class="cal-prev-row" style="margin-bottom:4px"><span class="cal-prev-badge rent-badge">📅 대여기간: ${fmtRange(prevRent.s,prevRent.e)||'미선택'}</span>`;
+    if(CSTATE.send.s)previewBadges+=`<span class="cal-prev-badge send-badge" style="margin-left:6px">📦 발송기간: ${fmtRange(CSTATE.send.s?clr(CSTATE.send.s):null,CSTATE.send.e?clr(CSTATE.send.e):null)||'미선택'}</span>`;
+    if(prevApPick&&prevApPick.s)previewBadges+=`<span class="cal-prev-badge" style="background:rgba(0,255,0,.18);color:#006600;border:1px solid rgba(0,204,0,.4);margin-left:6px">🛫 공항수령: ${fmtD(prevApPick.s)}</span>`;
     if(previewBadges)previewBadges+='</div>';
   }
   let months='';
@@ -1117,16 +1169,27 @@ function calBuild(key){
         else if(cur.getTime()===pE.getTime())previewCls='prev-send-e';
         else if(cur>pS&&cur<pE)previewCls='prev-send-rng';
       }
+      // 공항 수령/반납 날짜 — 초록색 표시
+      let apStyle='';
+      if((key==='apRet'||key==='recv')&&prevApPick&&prevApPick.s){
+        if(cur.getTime()===prevApPick.s.getTime()) apStyle='background:rgba(0,255,0,.35);border-radius:50%;';
+      }
+      if(key==='recv'&&prevApRet&&prevApRet.s){
+        if(cur.getTime()===prevApRet.s.getTime()) apStyle='background:rgba(0,255,0,.35);border-radius:50%;';
+      }
       let cls='cal-day';
       if(iS)cls+=' sel-s';if(iE)cls+=' sel-e';if(inR)cls+=' in-rng';if(isTod)cls+=' cur-day';
       if(hol)cls+=' hol';else if(dow===6)cls+=' sat';
-      const isPreviewOnly=previewCls&&!iS&&!iE&&!inR;
+      const isPreviewOnly=previewCls&&!iS&&!iE&&!inR&&key!=='apPick'&&key!=='apRet';
       if(isPreviewOnly)cls+=' '+previewCls;
+      else if(previewCls&&!iS&&!iE&&!inR) cls+=' '+previewCls; // apPick/apRet: 색 표시는 하되 클릭 가능
       const hn=(DB.hol.find(h=>h.date===dstr)||{}).memo||KH[dstr]||'';
       const hnlbl=hn?`<span style="font-size:8px;display:block;line-height:1">${hn.slice(0,4)}</span>`:'';
-      const clickAttr=isPreviewOnly?'':`data-cal-day="${key}|${dstr}"`;
-      const cursorStyle=isPreviewOnly?'style="cursor:default"':'';
-      grid+=`<div class="${cls}" ${clickAttr} ${cursorStyle}>${day}${hnlbl}</div>`;
+      const noClick=isPreviewOnly;
+      const clickAttr=noClick?'':`data-cal-day="${key}|${dstr}"`;
+      const cursorStyle=noClick?'style="cursor:default"':'';
+      const apAttr=apStyle?`style="${apStyle}"`:'';
+      grid+=`<div class="${cls}" ${clickAttr} ${cursorStyle}${apAttr?` ${apAttr}`:''}>${day}${hnlbl}</div>`;
     }
     const prevBtn=mi===0?`<button data-cal-nav="${key}|-1">&#8592;</button>`:'<span></span>';
     const nextBtn=mi===1?`<button data-cal-nav="${key}|1">&#8594;</button>`:'<span></span>';
@@ -1183,6 +1246,8 @@ function rentalAdd(){
   calSetDate('rent',ds(now),ds(addDays(now,3)));
   calSetDate('send',ds(addDays(now,-2)),ds(addDays(now,-1)));
   calSetDate('recv',ds(addDays(now,4)),ds(addDays(now,5)));
+  calSetDate('apPick','','');
+  calSetDate('apRet','','');
   itemsClear();
   shipToggle();
   document.getElementById('del-confirm-row').classList.add('hide');
@@ -1208,6 +1273,8 @@ function rentalEdit(id){
   calSetDate('rent',r.start,r.end);
   calSetDate('send',r.ss,r.se);
   calSetDate('recv',r.vs,r.ve);
+  calSetDate('apPick',r.apPickDate||'',r.apPickDate||'');
+  calSetDate('apRet',r.apRetDate||'',r.apRetDate||'');
   itemsClear();
   if(r.items.length) r.items.forEach(it=>{
     const st=DB.stock.find(x=>x.id===it.sid);
@@ -1218,11 +1285,17 @@ function rentalEdit(id){
   document.getElementById('del-confirm-row').classList.add('hide');
   modalOpen('modal-rental');
 }
-function shipToggle(){
-  const v=document.getElementById('f-ship').value;
-  document.getElementById('sec-airport').classList.toggle('hide',v!=='airport');
-  document.getElementById('sec-send').classList.toggle('hide',!(v==='send_only'||v==='both'));
-  document.getElementById('sec-recv').classList.toggle('hide',!(v==='recv_only'||v==='both'));
+function shipToggle(){updateShipSections(document.getElementById('f-ship').value);}
+function updateShipSections(v){
+  const isSend=v==='both'||v==='send_airport';
+  const isRecv=v==='both'||v==='airport_recv';
+  const isApPick=v==='airport'||v==='airport_recv';
+  const isApRet=v==='airport'||v==='send_airport';
+  document.getElementById('sec-send').classList.toggle('hide',!isSend);
+  document.getElementById('sec-recv').classList.toggle('hide',!isRecv);
+  document.getElementById('sec-airport-pick').classList.toggle('hide',!isApPick);
+  document.getElementById('sec-airport-ret').classList.toggle('hide',!isApRet);
+  document.getElementById('sec-airport-memo').classList.toggle('hide',!isApPick&&!isApRet);
 }
 // ── 특정 기간의 일반 제품 가용 수량 계산 ──
 // ── 전체 기간(발송~수거) 기준 가용 수량 계산 ──
@@ -1427,6 +1500,8 @@ function doSaveRental(){
     vs:vc.s?ds(vc.s):'',ve:vc.e?ds(vc.e):'',
     apPick:document.getElementById('f-ap-pick').value,
     apRet:document.getElementById('f-ap-ret').value,
+    apPickDate:CSTATE.apPick.s?ds(CSTATE.apPick.s):'',
+    apRetDate:CSTATE.apRet.s?ds(CSTATE.apRet.s):'',
     apAirportPick:document.getElementById('f-ap-airport-pick').value,
     apAirportRet:document.getElementById('f-ap-airport-ret').value,
     apMemo:document.getElementById('f-ap-memo').value.trim(),
@@ -1943,6 +2018,13 @@ document.addEventListener('click',function(ev){
   if(calDay){
     const[key,dstr]=calDay.dataset.calDay.split('|');
     const c=CSTATE[key],d=clr(dp(dstr));
+    // 공항 날짜: 1번 클릭으로 즉시 확정 + 달력 닫힘
+    if(key==='apPick'||key==='apRet'){
+      c.s=d;c.e=d;c.step='s';
+      calUpdateBtn(key);calClose();
+      refreshItemDropdowns();
+      return;
+    }
     if(!c.s||c.step==='s'||(c.s&&c.e)){c.s=d;c.e=null;c.step='e';}
     else{if(d<c.s){c.s=d;c.e=null;c.step='e';}else{c.e=d;c.step='done';}}
     calBuild(key);calUpdateBtn(key);return;
@@ -1955,8 +2037,7 @@ document.addEventListener('click',function(ev){
   if(calCfm){
     const key=calCfm.dataset.calConfirm;
     calUpdateBtn(key);calClose();
-    // 대여/발송/수거 기간 모두 품목 재고에 영향
-    if(key==='rent'||key==='send'||key==='recv') refreshItemDropdowns();
+    if(key==='rent'||key==='send'||key==='recv'||key==='apPick'||key==='apRet') refreshItemDropdowns();
     return;
   }
   const openCal=t.closest('[data-open-cal]');
@@ -1976,6 +2057,14 @@ document.addEventListener('click',function(ev){
   const delHol=t.closest('[data-del-hol]');
   if(delHol){DB.hol=DB.hol.filter(h=>h.date!==delHol.dataset.delHol);dbSave();holRender();render();if(openCalKey)calBuild(openCalKey);return;}
   // 제품 액션
+  const ord=t.closest('[data-ord]');
+  if(ord){
+    const id=ord.dataset.ord,dir=parseInt(ord.dataset.dir);
+    const idx=DB.rentals.findIndex(x=>x.id===id);if(idx<0)return;
+    const to=idx+dir;if(to<0||to>=DB.rentals.length)return;
+    const[item]=DB.rentals.splice(idx,1);DB.rentals.splice(to,0,item);
+    dbSave();render();return;
+  }
   const modelDet=t.closest('[data-model-detail]');
   if(modelDet){openModelDetail(modelDet.dataset.modelDetail);return;}
   const pdet=t.closest('[data-prod-detail]');
@@ -2055,23 +2144,49 @@ document.getElementById('btn-add-hol').addEventListener('click',function(){
   if(openCalKey)calBuild(openCalKey);
 });
 
+// 막대 텍스트가 넘칠 때 글씨 크기 자동 축소
+function fitBarsText(){
+  requestAnimationFrame(()=>{
+    document.querySelectorAll('.sbar-main').forEach(bar=>{
+      const barW=bar.clientWidth-16;
+      if(barW<=0)return;
+      const sn=bar.querySelector('.sn'),si=bar.querySelector('.si');
+      if(sn){
+        let sz=11;sn.style.fontSize=sz+'px';
+        while(sn.scrollWidth>barW&&sz>6){sz-=0.5;sn.style.fontSize=sz+'px';}
+      }
+      if(si){
+        let sz=9;si.style.fontSize=sz+'px';
+        while(si.scrollWidth>barW&&sz>6){sz-=0.5;si.style.fontSize=sz+'px';}
+      }
+    });
+  });
+}
 /* ===== 고정 가로 스크롤바 ===== */
 function initFixedHScroll(){
   const wrap=document.querySelector('.gantt-wrap');
   const bar=document.getElementById('fixed-hscroll');
   const inner=document.getElementById('fixed-hscroll-inner');
   if(!wrap||!bar||!inner)return;
-  let syncing=false;
+  // 터치 기기(모바일)에서는 JS 동기화 완전히 끔
+  // → scrollLeft 강제 변경이 iOS momentum scroll 방해해서 뚝뚝 끊김
+  const isTouch=window.matchMedia('(pointer:coarse)').matches;
+  if(isTouch){
+    bar.style.display='none'; // 고정바 숨김
+    return;                   // 동기화 없음 → 네이티브 터치 스크롤만
+  }
+  // PC에서만 고정 스크롤바 동기화
+  let rafId=null;
   wrap.addEventListener('scroll',()=>{
-    if(syncing)return;syncing=true;
-    bar.scrollLeft=wrap.scrollLeft;
-    syncing=false;
-  });
+    if(rafId)return;
+    rafId=requestAnimationFrame(()=>{
+      bar.scrollLeft=wrap.scrollLeft;
+      rafId=null;
+    });
+  },{passive:true});
   bar.addEventListener('scroll',()=>{
-    if(syncing)return;syncing=true;
     wrap.scrollLeft=bar.scrollLeft;
-    syncing=false;
-  });
+  },{passive:true});
 }
 function updateHScrollWidth(){
   const wrap=document.querySelector('.gantt-wrap');
@@ -2081,7 +2196,9 @@ function updateHScrollWidth(){
 }
 function showFixedHScroll(v){
   const bar=document.getElementById('fixed-hscroll');
-  if(bar)bar.style.display=v?'block':'none';
+  if(!bar)return;
+  const isTouch=window.matchMedia('(pointer:coarse)').matches;
+  bar.style.display=(v&&!isTouch)?'block':'none';
 }
 /* ===== TOAST & BEEP ===== */
 function toast(msg){
