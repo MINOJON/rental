@@ -720,7 +720,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 <!-- Firebase -->
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-import{getDatabase,ref,set,onValue,serverTimestamp}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
+import{getDatabase,ref,set,onValue}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
 
 const firebaseConfig={
   apiKey:"AIzaSyAWoVD6FoCyAvQAlAfmqb_qigPXb-kxNC0",
@@ -735,38 +735,28 @@ const firebaseConfig={
 const fbApp=initializeApp(firebaseConfig);
 const db=getDatabase(fbApp);
 const DATA_REF=ref(db,'rental_data');
-
 let fbReady=false,fbSyncing=false;
 
 // Firebase → 로컬: 다른 기기에서 변경 시 자동 수신
 onValue(DATA_REF,snap=>{
   const data=snap.val();
-  if(!data)return;
-  // 내가 방금 저장한 데이터면 무시 (무한루프 방지)
-  if(fbSyncing)return;
-  // 로컬보다 새 데이터면 반영
-  const localTs=parseInt(localStorage.getItem('rmi_fb_ts')||'0');
-  if(data.ts&&data.ts>localTs){
-    try{
-      if(data.stock)localStorage.setItem('rmi_stock',JSON.stringify(data.stock));
-      if(data.rentals)localStorage.setItem('rmi_rentals',JSON.stringify(data.rentals));
-      if(data.logs)localStorage.setItem('rmi_logs',JSON.stringify(data.logs));
-      if(data.hol)localStorage.setItem('rmi_hol',JSON.stringify(data.hol));
-      localStorage.setItem('rmi_fb_ts',data.ts);
-      // DB 리로드 및 화면 갱신
-      if(typeof DB!=='undefined'&&typeof dbLoad==='function'){
-        Object.assign(DB,dbLoad());
-        if(typeof render==='function')render();
-        if(typeof renderProducts==='function'&&typeof curTab!=='undefined'&&curTab==='products')renderProducts();
-        if(typeof renderLogs==='function'&&typeof curTab!=='undefined'&&curTab==='logs')renderLogs();
-        showSyncToast('🔄 다른 기기에서 데이터 업데이트됨');
-      }
-    }catch(e){}
-  }
   fbReady=true;
+  if(!data||fbSyncing)return;
+  const localTs=parseInt(localStorage.getItem('rmi_fb_ts')||'0');
+  if(!data.ts||data.ts<=localTs)return;
+  // localStorage 업데이트
+  try{
+    if(data.stock)localStorage.setItem('rmi_stock',JSON.stringify(data.stock));
+    if(data.rentals)localStorage.setItem('rmi_rentals',JSON.stringify(data.rentals));
+    if(data.logs)localStorage.setItem('rmi_logs',JSON.stringify(data.logs));
+    if(data.hol)localStorage.setItem('rmi_hol',JSON.stringify(data.hol));
+    localStorage.setItem('rmi_fb_ts',data.ts);
+    // 일반 script에 CustomEvent로 알림
+    window.dispatchEvent(new CustomEvent('firebase-updated'));
+  }catch(e){}
 });
 
-// 로컬 → Firebase: 저장 시 자동 업로드
+// 로컬 → Firebase: 저장 시 업로드
 window.fbSave=function(dbData){
   if(!fbReady)return;
   fbSyncing=true;
@@ -778,17 +768,8 @@ window.fbSave=function(dbData){
     logs:dbData.logs||[],
     hol:dbData.hol||[],
     ts
-  }).catch(()=>{}).finally(()=>{fbSyncing=false;});
+  }).catch(()=>{}).finally(()=>{setTimeout(()=>{fbSyncing=false;},500);});
 };
-
-function showSyncToast(msg){
-  const el=document.getElementById('sync-toast');
-  if(!el)return;
-  el.textContent=msg;el.style.opacity='1';el.style.transform='translateX(-50%) translateY(0)';
-  clearTimeout(el._t);
-  el._t=setTimeout(()=>{el.style.opacity='0';el.style.transform='translateX(-50%) translateY(10px)';},3000);
-}
-window.showSyncToast=showSyncToast;
 </script>
 
 <script>
@@ -2490,6 +2471,15 @@ render();
 initSearch();
 initFixedHScroll();
 showFixedHScroll(true);
+
+// Firebase 실시간 업데이트 수신
+window.addEventListener('firebase-updated',()=>{
+  Object.assign(DB,dbLoad());
+  render();
+  if(curTab==='products')renderProducts();
+  if(curTab==='logs')renderLogs();
+  toast('🔄 다른 기기에서 업데이트됨');
+});
 </script>
 </body>
 </html>
