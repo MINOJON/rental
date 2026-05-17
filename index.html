@@ -717,6 +717,79 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.js"></script>
+<!-- Firebase -->
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+import{getDatabase,ref,set,onValue,serverTimestamp}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
+
+const firebaseConfig={
+  apiKey:"AIzaSyAWoVD6FoCyAvQAlAfmqb_qigPXb-kxNC0",
+  authDomain:"rental-management-91e62.firebaseapp.com",
+  databaseURL:"https://rental-management-91e62-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"rental-management-91e62",
+  storageBucket:"rental-management-91e62.firebasestorage.app",
+  messagingSenderId:"735981251412",
+  appId:"1:735981251412:web:ccc77a73fa7a7a856b36c1"
+};
+
+const fbApp=initializeApp(firebaseConfig);
+const db=getDatabase(fbApp);
+const DATA_REF=ref(db,'rental_data');
+
+let fbReady=false,fbSyncing=false;
+
+// Firebase → 로컬: 다른 기기에서 변경 시 자동 수신
+onValue(DATA_REF,snap=>{
+  const data=snap.val();
+  if(!data)return;
+  // 내가 방금 저장한 데이터면 무시 (무한루프 방지)
+  if(fbSyncing)return;
+  // 로컬보다 새 데이터면 반영
+  const localTs=parseInt(localStorage.getItem('rmi_fb_ts')||'0');
+  if(data.ts&&data.ts>localTs){
+    try{
+      if(data.stock)localStorage.setItem('rmi_stock',JSON.stringify(data.stock));
+      if(data.rentals)localStorage.setItem('rmi_rentals',JSON.stringify(data.rentals));
+      if(data.logs)localStorage.setItem('rmi_logs',JSON.stringify(data.logs));
+      if(data.hol)localStorage.setItem('rmi_hol',JSON.stringify(data.hol));
+      localStorage.setItem('rmi_fb_ts',data.ts);
+      // DB 리로드 및 화면 갱신
+      if(typeof DB!=='undefined'&&typeof dbLoad==='function'){
+        Object.assign(DB,dbLoad());
+        if(typeof render==='function')render();
+        if(typeof renderProducts==='function'&&typeof curTab!=='undefined'&&curTab==='products')renderProducts();
+        if(typeof renderLogs==='function'&&typeof curTab!=='undefined'&&curTab==='logs')renderLogs();
+        showSyncToast('🔄 다른 기기에서 데이터 업데이트됨');
+      }
+    }catch(e){}
+  }
+  fbReady=true;
+});
+
+// 로컬 → Firebase: 저장 시 자동 업로드
+window.fbSave=function(dbData){
+  if(!fbReady)return;
+  fbSyncing=true;
+  const ts=Date.now();
+  localStorage.setItem('rmi_fb_ts',ts);
+  set(DATA_REF,{
+    stock:dbData.stock||[],
+    rentals:dbData.rentals||[],
+    logs:dbData.logs||[],
+    hol:dbData.hol||[],
+    ts
+  }).catch(()=>{}).finally(()=>{fbSyncing=false;});
+};
+
+function showSyncToast(msg){
+  const el=document.getElementById('sync-toast');
+  if(!el)return;
+  el.textContent=msg;el.style.opacity='1';el.style.transform='translateX(-50%) translateY(0)';
+  clearTimeout(el._t);
+  el._t=setTimeout(()=>{el.style.opacity='0';el.style.transform='translateX(-50%) translateY(10px)';},3000);
+}
+window.showSyncToast=showSyncToast;
+</script>
 
 <script>
 'use strict';
@@ -826,6 +899,8 @@ function dbSave(){
     const t=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
     localStorage.setItem('rmi_saved_at',t);
     document.getElementById('save-lbl').textContent='저장됨 '+t;
+    // Firebase 실시간 동기화
+    if(typeof window.fbSave==='function') window.fbSave(DB);
   }catch(e){}
 }
 let DB=dbLoad();
@@ -2275,6 +2350,16 @@ function showFixedHScroll(v){
 function toast(msg){
   let t=document.getElementById('toast-el');
   if(!t){t=document.createElement('div');t.id='toast-el';t.className='toast';document.body.appendChild(t);}
+  // sync-toast 없으면 생성
+  if(!document.getElementById('sync-toast')){
+    const s=document.createElement('div');s.id='sync-toast';
+    s.style.cssText='position:fixed;bottom:60px;left:50%;transform:translateX(-50%) translateY(10px);background:#1a3a2a;color:#4ade80;font-size:12px;font-weight:600;padding:8px 16px;border-radius:20px;z-index:9998;opacity:0;transition:all .3s;white-space:nowrap;pointer-events:none;border:1px solid #22c55e44';
+    document.body.appendChild(s);
+    window.showSyncToast=function(msg){
+      s.textContent=msg;s.style.opacity='1';s.style.transform='translateX(-50%) translateY(0)';
+      clearTimeout(s._t);s._t=setTimeout(()=>{s.style.opacity='0';s.style.transform='translateX(-50%) translateY(10px)';},3000);
+    };
+  }
   t.textContent=msg;t.classList.add('show');
   clearTimeout(t._tid);t._tid=setTimeout(()=>t.classList.remove('show'),2500);
 }
