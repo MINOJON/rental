@@ -32,6 +32,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
 
+@keyframes spin{to{transform:rotate(360deg)}}
 /* TOPBAR */
 .topbar{flex-shrink:0;height:48px;padding-top:env(safe-area-inset-top);height:calc(48px + env(safe-area-inset-top));background:var(--blue);display:flex;align-items:flex-end;gap:8px;padding-bottom:8px;padding-left:12px;padding-right:12px}
 .logo-icon{width:26px;height:26px;background:rgba(255,255,255,.18);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
@@ -401,6 +402,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
   <div><div class="logo-title">렌탈 통합 관리</div><div class="logo-sub" id="today-lbl"></div></div>
   <div class="topbar-space"></div>
   <span class="save-lbl" id="save-lbl"></span>
+  <button class="nav-btn" onclick="forceRefresh()" title="최신 데이터 새로고침" style="font-size:13px">🔄</button>
   <div class="month-nav" id="month-nav">
     <button class="nav-btn" id="btn-prev">◀</button>
     <span class="mon-txt" id="mon-lbl"></span>
@@ -589,8 +591,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
   <div class="sec-sep">대여 품목 <span class="req">* 필수</span> <span id="period-hint" style="font-size:10px;color:var(--text3);font-weight:400;margin-left:4px"></span></div>
   <div class="item-list" id="item-list"></div>
   <div class="add-item-btns">
-    <button class="add-item-btn" id="btn-add-item">+ 품목 추가 (일반)</button>
-    <button class="qr-add-btn" id="btn-qr-add-item">📷 파워업밴드 QR</button>
+    <button class="add-item-btn" id="btn-add-item">+ 품목 추가</button>
   </div>
 
   <div class="f-row" style="margin-top:12px"><label>메모</label><textarea id="f-memo" placeholder="특이사항..."></textarea></div>
@@ -601,10 +602,25 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
   </div>
   <div class="modal-btns">
     <button class="mbtn mbtn-danger hide" id="btn-del" onclick="showDelConfirm()">삭제</button>
+    <button class="mbtn hide" id="btn-ship" onclick="openShipModal(editId)" style="background:#00aa44;color:#fff">📦 출고 QR</button>
     <button class="mbtn mbtn-success hide" id="btn-done" onclick="doMarkDone()">✓ 반납완료</button>
     <button class="mbtn mbtn-amber hide" id="btn-undone" onclick="doUndoDone()">↩ 반납완료 취소</button>
     <button class="mbtn" onclick="modalClose('modal-rental')">취소</button>
     <button class="mbtn mbtn-blue" id="btn-save-rental" onclick="doSaveRental()">저장</button>
+  </div>
+</div>
+</div>
+
+<!-- 출고 QR 스캔 모달 -->
+<div class="overlay" id="modal-ship">
+<div class="modal">
+  <button class="mx" data-close="modal-ship">✕</button>
+  <h3>📦 출고 QR 스캔</h3>
+  <p id="ship-cust-lbl" style="font-size:13px;color:var(--text2);margin-bottom:14px"></p>
+  <div id="ship-items-list"></div>
+  <div class="modal-btns">
+    <button class="mbtn" data-close="modal-ship">닫기</button>
+    <button class="mbtn mbtn-blue" id="btn-ship-complete" onclick="doMarkShipped()">✅ 출고 완료 처리</button>
   </div>
 </div>
 </div>
@@ -720,7 +736,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 <!-- Firebase -->
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-import{getDatabase,ref,set,onValue}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
+import{getDatabase,ref,set,onValue,get}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
 
 const firebaseConfig={
   apiKey:"AIzaSyAWoVD6FoCyAvQAlAfmqb_qigPXb-kxNC0",
@@ -737,8 +753,8 @@ const fbDb=getDatabase(fbApp);
 const DATA_REF=ref(fbDb,'rental_data');
 
 // 기기 고유 ID (이 기기에서 저장한 건지 구분용)
-const DEV_ID=localStorage.getItem('rmi_dev_id')||(()=>{
-  const id=Math.random().toString(36).slice(2)+Date.now().toString(36);
+var DEV_ID=localStorage.getItem('rmi_dev_id')||(function(){
+  var id=Math.random().toString(36).slice(2)+Date.now().toString(36);
   localStorage.setItem('rmi_dev_id',id);
   return id;
 })();
@@ -746,12 +762,10 @@ const DEV_ID=localStorage.getItem('rmi_dev_id')||(()=>{
 let fbReady=false;
 
 // Firebase → 로컬: 다른 기기 변경 시 자동 수신
-onValue(DATA_REF,snap=>{
-  const data=snap.val();
+onValue(DATA_REF,function(snap){
+  var data=snap.val();
   fbReady=true;
-  if(!data)return;
-  // 내가 저장한 데이터면 무시
-  if(data.devId===DEV_ID)return;
+  if(data&&data.devId!==DEV_ID){
   // 다른 기기 데이터 → localStorage 업데이트 후 화면 갱신
   try{
     if(data.stock!==undefined)localStorage.setItem('rmi_stock',JSON.stringify(data.stock||[]));
@@ -760,28 +774,44 @@ onValue(DATA_REF,snap=>{
     if(data.hol!==undefined)localStorage.setItem('rmi_hol',JSON.stringify(data.hol||[]));
     window.dispatchEvent(new CustomEvent('firebase-updated'));
   }catch(e){}
+  }
 });
 
-// 로컬 → Firebase: 저장 시 업로드 (devId 포함)
+// 로컬 → Firebase 저장
 window.fbSave=function(dbData){
-  if(!fbReady){
-    // fbReady 아직 안 됐으면 잠시 후 재시도
-    setTimeout(()=>{if(window.fbSave&&fbReady)window.fbSave(dbData);},1000);
-    return;
+  if(fbReady){
+    set(DATA_REF,{
+      stock:dbData.stock||[],
+      rentals:dbData.rentals||[],
+      logs:dbData.logs||[],
+      hol:dbData.hol||[],
+      ts:Date.now(),
+      devId:DEV_ID
+    }).catch(function(){});
+  } else {
+    setTimeout(function(){
+      if(window.fbSave&&fbReady){window.fbSave(dbData);}
+    },1000);
   }
-  set(DATA_REF,{
-    stock:dbData.stock||[],
-    rentals:dbData.rentals||[],
-    logs:dbData.logs||[],
-    hol:dbData.hol||[],
-    ts:Date.now(),
-    devId:DEV_ID  // 내 기기 ID 포함 → 수신 시 무시용
-  }).catch(()=>{});
+};
+// 강제 최신 데이터 읽기
+window.fbForceSync=function(){
+  get(DATA_REF).then(function(snap){
+    var data=snap.val();
+    if(data){
+      if(data.stock!==undefined)localStorage.setItem('rmi_stock',JSON.stringify(data.stock||[]));
+      if(data.rentals!==undefined)localStorage.setItem('rmi_rentals',JSON.stringify(data.rentals||[]));
+      if(data.logs!==undefined)localStorage.setItem('rmi_logs',JSON.stringify(data.logs||[]));
+      if(data.hol!==undefined)localStorage.setItem('rmi_hol',JSON.stringify(data.hol||[]));
+      window.dispatchEvent(new CustomEvent('firebase-updated'));
+    } else {
+      location.reload();
+    }
+  }).catch(function(){location.reload();});
 };
 </script>
 
 <script>
-'use strict';
 /* ===== 한국 공휴일 ===== */
 const KH={'2025-01-01':'신정','2025-01-28':'설날연휴','2025-01-29':'설날','2025-01-30':'설날연휴','2025-03-01':'삼일절','2025-05-05':'어린이날','2025-05-06':'대체공휴일','2025-05-12':'부처님오신날','2025-06-06':'현충일','2025-08-15':'광복절','2025-10-03':'개천절','2025-10-05':'추석연휴','2025-10-06':'추석','2025-10-07':'추석연휴','2025-10-08':'대체공휴일','2025-10-09':'한글날','2025-12-25':'크리스마스','2026-01-01':'신정','2026-01-28':'설날연휴','2026-01-29':'설날','2026-01-30':'설날연휴','2026-03-01':'삼일절','2026-05-05':'어린이날','2026-05-24':'부처님오신날','2026-06-06':'현충일','2026-08-15':'광복절','2026-09-24':'추석연휴','2026-09-25':'추석','2026-09-26':'추석연휴','2026-09-27':'대체공휴일','2026-10-03':'개천절','2026-10-09':'한글날','2026-12-25':'크리스마스','2027-01-01':'신정','2027-02-16':'설날연휴','2027-02-17':'설날','2027-02-18':'설날연휴','2027-03-01':'삼일절','2027-05-02':'부처님오신날','2027-05-05':'어린이날','2027-06-06':'현충일','2027-08-15':'광복절','2027-10-03':'개천절','2027-10-04':'추석연휴','2027-10-05':'추석','2027-10-06':'추석연휴','2027-10-09':'한글날','2027-12-25':'크리스마스'};
 const SCOL={both:'#00ffff',airport:'#00ff00',send_airport:'#00ffff',airport_recv:'#00ff00',direct:'#00ff00',send_only:'#00ffff',recv_only:'#00ffff'};
@@ -833,18 +863,21 @@ const MNAMES=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10
   if(mfEl)mfEl.href=URL.createObjectURL(new Blob([mf],{type:'application/manifest+json'}));
   // Service Worker (오프라인 캐시)
   if('serviceWorker' in navigator){
-    const sw=`const C='rental-v2';
-self.addEventListener('install',()=>self.skipWaiting());
-self.addEventListener('activate',()=>clients.claim());
-self.addEventListener('fetch',e=>{
-  if(e.request.method!=='GET')return;
-  e.respondWith(caches.open(C).then(c=>
-    c.match(e.request).then(r=>r||fetch(e.request).then(res=>{
-      if(res.status===200)c.put(e.request,res.clone());
-      return res;
-    }).catch(()=>r))
-  ));
-});`;
+    const sw='const C="rental-v2";'
+      +'self.addEventListener("install",function(){self.skipWaiting();});'
+      +'self.addEventListener("activate",function(){clients.claim();});'
+      +'self.addEventListener("fetch",function(e){'
+      +'  if(e.request.method==="GET"){'
+      +'    e.respondWith(caches.open(C).then(function(c){'
+      +'      return c.match(e.request).then(function(r){'
+      +'        return r||fetch(e.request).then(function(res){'
+      +'          if(res.status===200)c.put(e.request,res.clone());'
+      +'          return res;'
+      +'        }).catch(function(){return r;});'
+      +'      });'
+      +'    }));'
+      +'  }'
+      +'});';
     try{
       navigator.serviceWorker.register(
         URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))
@@ -941,6 +974,32 @@ if(localStorage.getItem('rmi_mig_v3')!=='1'){
   DB.stock=[...qrItems,...Object.values(normalMap)];
   try{localStorage.setItem('rmi_mig_v3','1');dbSave();}catch(e){}
 }
+// ── 마이그레이션 v4: QR items → model+qty+units 구조 ──
+if(localStorage.getItem('rmi_mig_v4')!=='1'){
+  DB.rentals.forEach(r=>{
+    const qrGroups={},newItems=[];
+    (r.items||[]).forEach(it=>{
+      // 이미 새 구조 (type 있음) → 그대로 유지
+      if(it.type==='qr'){newItems.unshift(it);return;}
+      if(it.type==='normal'){newItems.push(it);return;}
+      // 구 구조 (sid 기반)
+      const s=it.sid?DB.stock.find(x=>x.id===it.sid):null;
+      if(s&&s.type==='qr'){
+        if(!qrGroups[s.model])qrGroups[s.model]={qty:0,units:[]};
+        qrGroups[s.model].qty+=it.qty||1;
+        qrGroups[s.model].units.push(it.sid);
+      } else {
+        newItems.push(it);
+      }
+    });
+    Object.keys(qrGroups).forEach(model=>{
+      const g=qrGroups[model];
+      newItems.unshift({model,type:'qr',qty:g.qty,units:g.units,sid:null});
+    });
+    r.items=newItems;
+  });
+  try{localStorage.setItem('rmi_mig_v4','1');dbSave();}catch(e){}
+}
 
 // 모델 카드 펼침 상태 (메모리에만)
 let expandedModels={};
@@ -994,7 +1053,27 @@ function calcInv(dstr){
   DB.rentals.forEach(r=>{
     if(r.done)return;
     const from=clr(dp(r.ss||r.start)),to=clr(dp(r.ve||r.end));
-    if(d>=from&&d<=to) r.items.forEach(it=>rem[it.sid]=(rem[it.sid]||0)-it.qty);
+    if(d<from||d>to)return;
+    r.items.forEach(it=>{
+      if(it.type==='qr'){
+        // 출고된 유닛은 직접 차감
+        if(it.units&&it.units.length){
+          it.units.filter(Boolean).forEach(uid=>{if(rem[uid]!==undefined)rem[uid]-=1;});
+          // 아직 미출고 수량은 같은 모델 유닛 중 아직 안 쓴 것에서 차감
+          const unshipped=it.qty-(it.units.filter(Boolean).length);
+          if(unshipped>0){
+            const avail=DB.stock.filter(s=>s.model===it.model&&s.type==='qr'&&rem[s.id]>0);
+            avail.slice(0,unshipped).forEach(s=>{rem[s.id]-=1;});
+          }
+        } else {
+          // 출고 전 예약: 순서대로 유닛에서 차감
+          const avail=DB.stock.filter(s=>s.model===it.model&&s.type==='qr'&&rem[s.id]>0);
+          avail.slice(0,it.qty).forEach(s=>{rem[s.id]-=1;});
+        }
+      } else {
+        rem[it.sid]=(rem[it.sid]||0)-it.qty;
+      }
+    });
   });
   return rem;
 }
@@ -1030,7 +1109,16 @@ function iname(id){
   if(s.type==='qr'&&s.qrId) return s.model+' [..'+s.qrId.slice(-6)+']';
   return s.model;
 }
-function isum(r){return r.items.map(it=>iname(it.sid)+(it.qty>1?' x'+it.qty:'')).join(', ');}
+function isum(r){
+  return r.items.map(it=>{
+    if(it.type==='qr'){
+      const shipped=it.units?it.units.filter(Boolean).length:0;
+      const tag=shipped<it.qty?` (출고 ${shipped}/${it.qty})`:'';
+      return it.model+(it.qty>1?' x'+it.qty:'')+tag;
+    }
+    return iname(it.sid)+(it.qty>1?' x'+it.qty:'');
+  }).join(', ');
+}
 function scol(ship){return SCOL[ship]||SCOL.both;}
 // 같은 모델로 그룹화
 function getModelGroups(){
@@ -1395,6 +1483,8 @@ function rentalEdit(id){
   document.getElementById('btn-del').classList.remove('hide');
   document.getElementById('btn-done').classList.toggle('hide',r.done);
   document.getElementById('btn-undone').classList.toggle('hide',!r.done);
+  const hasQr=r.items.some(it=>it.type==='qr');
+  document.getElementById('btn-ship').classList.toggle('hide',!hasQr||r.done);
   document.getElementById('f-cust').value=r.cust;
   document.getElementById('f-phone').value=formatPhone(r.phone||'');
   document.getElementById('f-addr').value=r.addr||'';
@@ -1411,9 +1501,8 @@ function rentalEdit(id){
   calSetDate('apPick',r.apPickDate||'',r.apPickDate||'');
   calSetDate('apRet',r.apRetDate||'',r.apRetDate||'');
   itemsClear();
-  if(r.items.length) r.items.forEach(it=>{
-    const st=DB.stock.find(x=>x.id===it.sid);
-    if(st&&st.type==='qr') itemsAddQr(it.sid);
+  if(r.items.length)r.items.forEach(it=>{
+    if(it.type==='qr') itemsAdd('',it.qty,it.model,it.qty);
     else itemsAdd(it.sid,it.qty);
   });
   shipToggle();
@@ -1433,47 +1522,111 @@ function updateShipSections(v){
   document.getElementById('sec-airport-memo').classList.toggle('hide',!isApPick&&!isApRet);
 }
 // ── 특정 기간의 일반 제품 가용 수량 계산 ──
-// ── 전체 기간(발송~수거) 기준 가용 수량 계산 ──
-function getAvailQty(stockId,skipRentalId){
-  const s=DB.stock.find(x=>x.id===stockId);if(!s)return 0;
-  const total=s.total||1;
-  // 현재 모달에서 선택된 전체 기간: 발송시작(또는 대여시작) ~ 수거종료(또는 대여종료)
+// QR 제품 모델 기준 가용 수량 (예약 기반)
+function getQrModelAvail(modelName,skipRentalId){
+  const units=DB.stock.filter(s=>s.model===modelName&&s.type==='qr');
+  const total=units.length;
   const rc=CSTATE.rent,sc=CSTATE.send,vc=CSTATE.recv;
   const fromStr=sc.s?ds(sc.s):(rc.s?ds(rc.s):null);
   const toStr=vc.e?ds(vc.e):(rc.e?ds(rc.e):null);
-  if(!fromStr||!toStr)return total; // 기간 미선택 → 전체 재고
+  let reserved=0;
+  DB.rentals.forEach(r=>{
+    if(r.done||r.id===skipRentalId)return;
+    if(fromStr&&toStr){
+      const rFrom=clr(dp(r.ss||r.start)),rTo=clr(dp(r.ve||r.end));
+      const from=clr(dp(fromStr)),to=clr(dp(toStr));
+      if(rTo<from||rFrom>to)return;
+    }
+    r.items.forEach(it=>{
+      if(it.type==='qr'&&it.model===modelName)reserved+=it.qty;
+    });
+  });
+  return Math.max(0,total-reserved);
+}
+function itemsAdd(sid='',qty=1,preModel='',preQty=1){
+  const id='ir_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+  const rc=CSTATE.rent,sc=CSTATE.send,vc=CSTATE.recv;
+  const hasPeriod=(sc.s||rc.s)&&(vc.e||rc.e);
+  // 일반 제품
+  const normals=DB.stock.filter(s=>s.type==='normal');
+  let opts='<option value="">― 품목 선택 ―</option>';
+  // QR 제품 (모델 기반)
+  const qrModels=[...new Set(DB.stock.filter(s=>s.type==='qr').map(s=>s.model))].sort();
+  if(qrModels.length){
+    opts+='<optgroup label="🔖 파워업밴드">';
+    qrModels.forEach(m=>{
+      const avail=getQrModelAvail(m,editId);
+      const label=hasPeriod?`${m} (기간 가용 ${avail}개)`:`${m} (총 ${DB.stock.filter(s=>s.model===m&&s.type==='qr').length}개)`;
+      const dis=avail<=0&&m!==preModel?'disabled':'';
+      opts+=`<option value="qr__${m}"${m===preModel?' selected':''}${dis}>${label}</option>`;
+    });
+    opts+='</optgroup>';
+  }
+  if(normals.length){
+    opts+='<optgroup label="📦 일반 제품">';
+    normals.forEach(s=>{
+      const avail=getAvailQty(s.id,editId);
+      const label=hasPeriod?`${s.model} (기간 가용 ${avail}개)`:`${s.model} (재고 ${s.total}개)`;
+      const dis=hasPeriod&&avail<=0&&s.id!==sid?'disabled':'';
+      opts+=`<option value="nm__${s.id}"${s.id===sid?' selected':''}${dis}>${label}</option>`;
+    });
+    opts+='</optgroup>';
+  }
+  if(!normals.length&&!qrModels.length)opts='<option value="">제품관리에서 먼저 추가하세요</option>';
+  const initQty=preModel?preQty:qty;
+  const div=document.createElement('div');div.className='item-row';div.id=id;
+  div.innerHTML=`<select>${opts}</select><span class="qty-lbl">수량</span><input type="number" min="1" value="${initQty}"><button class="rm-btn" data-rm-item="${id}">✕</button>`;
+  document.getElementById('item-list').appendChild(div);
+}
+// 일반 제품 가용 수량 (전체 기간 기준)
+function getAvailQty(stockId,skipRentalId){
+  const s=DB.stock.find(x=>x.id===stockId);if(!s)return 0;
+  const total=s.total||1;
+  const rc=CSTATE.rent,sc=CSTATE.send,vc=CSTATE.recv;
+  const fromStr=sc.s?ds(sc.s):(rc.s?ds(rc.s):null);
+  const toStr=vc.e?ds(vc.e):(rc.e?ds(rc.e):null);
+  if(!fromStr||!toStr)return total;
   const from=clr(dp(fromStr)),to=clr(dp(toStr));
   let used=0;
   DB.rentals.forEach(r=>{
     if(r.done||r.id===skipRentalId)return;
     const rFrom=clr(dp(r.ss||r.start)),rTo=clr(dp(r.ve||r.end));
-    if(rTo<from||rFrom>to)return; // 겹치지 않음
+    if(rTo<from||rFrom>to)return;
     r.items.forEach(it=>{if(it.sid===stockId)used+=it.qty;});
   });
   return Math.max(0,total-used);
 }
-function itemsAdd(sid='',qty=1){
-  const id='ir_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
-  const rc=CSTATE.rent,sc=CSTATE.send,vc=CSTATE.recv;
-  const hasPeriod=(sc.s||rc.s)&&(vc.e||rc.e);
-  const fromStr=sc.s?ds(sc.s):(rc.s?ds(rc.s):null);
-  const toStr=vc.e?ds(vc.e):(rc.e?ds(rc.e):null);
-  const normals=DB.stock.filter(s=>s.type==='normal');
-  let opts='<option value="">― 품목 선택 ―</option>';
-  normals.forEach(s=>{
-    const avail=getAvailQty(s.id,editId);
-    const label=hasPeriod
-      ?`${s.model} (기간 가용 ${avail}개)`
-      :`${s.model} (재고 ${s.total}개)`;
-    const dis=hasPeriod&&avail<=0&&s.id!==sid?'disabled':'';
-    opts+=`<option value="${s.id}"${s.id===sid?' selected':''}${dis}>${label}</option>`;
-  });
-  if(!normals.length)opts='<option value="">제품관리에서 먼저 추가하세요</option>';
-  const div=document.createElement('div');div.className='item-row';div.id=id;
-  div.innerHTML=`<select>${opts}</select><span class="qty-lbl">수량</span><input type="number" min="1" value="${qty}"><button class="rm-btn" data-rm-item="${id}">✕</button>`;
-  document.getElementById('item-list').appendChild(div);
+// QR 제품 전용 추가 (출고 전용 - 대여 등록에서는 사용 안 함)
+function itemsAddQr(sid){
+  const s=DB.stock.find(x=>x.id===sid);if(!s)return;
+  // 같은 모델이 이미 있으면 수량 증가
+  const rows=Array.from(document.getElementById('item-list').children);
+  for(const row of rows){
+    const sel=row.querySelector('select');
+    if(sel&&sel.value===`qr__${s.model}`){
+      const inp=row.querySelector('input[type=number]');
+      if(inp) inp.value=parseInt(inp.value)+1;
+      return;
+    }
+  }
+  itemsAdd('',1,s.model,1);
 }
-// 기간(대여/발송/수거) 변경 시 드롭다운 가용 재고 새로고침
+function itemsGet(){
+  return Array.from(document.getElementById('item-list').children).map(row=>{
+    const sel=row.querySelector('select'),n=row.querySelector('input[type=number]');
+    if(!sel||!sel.value)return null;
+    const qty=parseInt(n?n.value:1)||1;
+    const val=sel.value;
+    if(val.startsWith('qr__')){
+      const model=val.slice(4);
+      return{model,type:'qr',qty,units:[],sid:null};
+    } else if(val.startsWith('nm__')){
+      return{sid:val.slice(4),type:'normal',qty};
+    }
+    return null;
+  }).filter(x=>x);
+}
+// 대여기간 변경 시 드롭다운 가용 재고 새로고침
 function refreshItemDropdowns(){
   const rc=CSTATE.rent,sc=CSTATE.send,vc=CSTATE.recv;
   const hasPeriod=(sc.s||rc.s)&&(vc.e||rc.e);
@@ -1483,40 +1636,45 @@ function refreshItemDropdowns(){
   if(hint)hint.textContent=hasPeriod?`(${fmtMon(fromStr)}~${fmtMon(toStr)} 전체기간 기준)`:'(기간 선택 시 가용 재고 표시)';
   const list=document.getElementById('item-list');if(!list)return;
   Array.from(list.children).forEach(row=>{
-    if(row.dataset.qrSid)return;
     const sel=row.querySelector('select');if(!sel)return;
     const cur=sel.value;
+    const qrModels=[...new Set(DB.stock.filter(s=>s.type==='qr').map(s=>s.model))].sort();
     const normals=DB.stock.filter(s=>s.type==='normal');
     let opts='<option value="">― 품목 선택 ―</option>';
-    normals.forEach(s=>{
-      const avail=getAvailQty(s.id,editId);
-      const label=hasPeriod?`${s.model} (기간 가용 ${avail}개)`:`${s.model} (재고 ${s.total}개)`;
-      const dis=hasPeriod&&avail<=0&&s.id!==cur?'disabled':'';
-      opts+=`<option value="${s.id}"${s.id===cur?' selected':''}${dis}>${label}</option>`;
-    });
+    if(qrModels.length){
+      opts+='<optgroup label="🔖 파워업밴드">';
+      qrModels.forEach(m=>{
+        const avail=getQrModelAvail(m,editId);
+        const label=hasPeriod?`${m} (기간 가용 ${avail}개)`:`${m} (총 ${DB.stock.filter(s=>s.model===m&&s.type==='qr').length}개)`;
+        const dis=avail<=0&&`qr__${m}`!==cur?'disabled':'';
+        opts+=`<option value="qr__${m}"${`qr__${m}`===cur?' selected':''}${dis}>${label}</option>`;
+      });
+      opts+='</optgroup>';
+    }
+    if(normals.length){
+      opts+='<optgroup label="📦 일반 제품">';
+      normals.forEach(s=>{
+        const avail=getAvailQty(s.id,editId);
+        const label=hasPeriod?`${s.model} (기간 가용 ${avail}개)`:`${s.model} (재고 ${s.total}개)`;
+        const dis=hasPeriod&&avail<=0&&`nm__${s.id}`!==cur?'disabled':'';
+        opts+=`<option value="nm__${s.id}"${`nm__${s.id}`===cur?' selected':''}${dis}>${label}</option>`;
+      });
+      opts+='</optgroup>';
+    }
     sel.innerHTML=opts;
   });
-}
-// QR 제품 전용 추가 (수량 1 고정, 수량 편집 불가)
-function itemsAddQr(sid){
-  const s=DB.stock.find(x=>x.id===sid);if(!s)return;
-  const id='ir_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
-  const div=document.createElement('div');
-  div.className='item-row';div.id=id;
-  div.dataset.qrSid=sid; // QR 제품 표식
-  const shortQr=s.qrId?s.qrId.slice(-8):'';
-  div.innerHTML=`<div style="flex:1;font-size:13px;font-weight:600;color:var(--text);padding:4px 0;line-height:1.4">🔖 ${s.model}<br><span style="font-size:11px;font-weight:400;color:var(--text3);font-family:monospace">${shortQr?'[..'+shortQr+']':''}</span></div><span style="font-size:12px;color:var(--text3);font-weight:600;white-space:nowrap">x1</span><button class="rm-btn" data-rm-item="${id}">✕</button>`;
-  document.getElementById('item-list').appendChild(div);
 }
 function itemsClear(){document.getElementById('item-list').innerHTML='';}
 function itemsGet(){
   return Array.from(document.getElementById('item-list').children).map(row=>{
-    // QR 제품인 경우 data-qr-sid
-    if(row.dataset.qrSid) return{sid:row.dataset.qrSid,qty:1};
-    // 일반 제품인 경우 select + input
-    const s=row.querySelector('select'),n=row.querySelector('input[type=number]');
-    return{sid:s?s.value:'',qty:parseInt(n?n.value:1)||1};
-  }).filter(x=>x.sid);
+    const sel=row.querySelector('select'),n=row.querySelector('input[type=number]');
+    if(!sel||!sel.value)return null;
+    const qty=parseInt(n?n.value:1)||1;
+    const val=sel.value;
+    if(val.startsWith('qr__')) return{model:val.slice(4),type:'qr',qty,units:[],sid:null};
+    if(val.startsWith('nm__')) return{sid:val.slice(4),type:'normal',qty};
+    return null;
+  }).filter(x=>x);
 }
 // QR로 품목 추가 (QR 제품 전용)
 function addItemByQrId(qrId){
@@ -1595,17 +1753,25 @@ function dayOpen(dstr){
 
 /* ===== STOCK CHECK ===== */
 function checkStock(items,startStr,endStr,skipId){
-  const from=clr(dp(startStr)),to=clr(dp(endStr));
-  for(let d=new Date(from);d<=to;d.setDate(d.getDate()+1)){
-    const dstr=ds(clr(d)),used={};
-    DB.rentals.forEach(r=>{
-      if(r.done||r.id===skipId)return;
-      const rFrom=clr(dp(r.ss||r.start)),rTo=clr(dp(r.ve||r.end)),cur=clr(dp(dstr));
-      if(cur>=rFrom&&cur<=rTo)r.items.forEach(it=>{used[it.sid]=(used[it.sid]||0)+it.qty;});
-    });
-    for(const it of items){
+  // QR 제품: 모델별 가용 수량 확인
+  for(const it of items){
+    if(it.type==='qr'){
+      const avail=getQrModelAvail(it.model,skipId);
+      if(avail<it.qty) return `"${it.model}" 가용 재고 부족 (가용: ${avail}개, 필요: ${it.qty}개)`;
+      continue;
+    }
+    // 일반 제품: 기간별 확인
+    if(!startStr||!endStr)continue;
+    const from=clr(dp(startStr)),to=clr(dp(endStr));
+    for(let d=new Date(from);d<=to;d.setDate(d.getDate()+1)){
+      const dstr=ds(clr(d)),used={};
+      DB.rentals.forEach(r=>{
+        if(r.done||r.id===skipId)return;
+        const rFrom=clr(dp(r.ss||r.start)),rTo=clr(dp(r.ve||r.end)),cur=clr(dp(dstr));
+        if(cur>=rFrom&&cur<=rTo)r.items.forEach(ri=>{if(ri.sid)used[ri.sid]=(used[ri.sid]||0)+ri.qty;});
+      });
       const stock=DB.stock.find(s=>s.id===it.sid);if(!stock)continue;
-      if((used[it.sid]||0)+it.qty>stock.total)return `"${stock.name}" 재고 부족 (${dstr}: ${stock.total}개 중 ${used[it.sid]||0}개 사용중)`;
+      if((used[it.sid]||0)+it.qty>stock.total) return `"${stock.model}" 재고 부족`;
     }
   }
   return null;
@@ -1624,6 +1790,18 @@ function doSaveRental(){
   if(!rc.s||!rc.e){toast('⚠️ 대여 기간을 선택해주세요');return;}
   const items=itemsGet();
   if(!items.length){toast('⚠️ 대여 품목을 추가해주세요');return;}
+  // 수정 시 기존 QR 출고 units 보존
+  if(editId){
+    const ex=DB.rentals.find(x=>x.id===editId);
+    if(ex){
+      items.forEach(ni=>{
+        if(ni.type==='qr'){
+          const old=ex.items.find(oi=>oi.type==='qr'&&oi.model===ni.model);
+          if(old&&old.units)ni.units=old.units; // 기존 출고 유닛 보존
+        }
+      });
+    }
+  }
   const stockErr=checkStock(items,ds(rc.s),ds(rc.e),editId);
   if(stockErr){toast('⚠️ '+stockErr);return;}
   const rec={
@@ -2125,10 +2303,14 @@ function qrManualSubmit(){
 }
 function handleQrResult(id){
   const now=Date.now();
-  // 디바운싱: 같은 QR이 1초 안에 또 잡혔으면 무시 (단일 인식 모드에서도 안전장치)
   if(id===lastScanId && now-lastScanTime<1000) return;
-  lastScanId=id;
-  lastScanTime=now;
+  lastScanId=id;lastScanTime=now;
+
+  // 출고 QR 스캔 모드
+  if(qrMode==='ship'){
+    handleShipQr(id);
+    return;
+  }
 
   if(qrMode==='prodId'){
     // 스캔된 QR이 이미 다른 제품에 등록되어 있는지 즉시 확인
@@ -2287,7 +2469,8 @@ document.getElementById('btn-hol').addEventListener('click',holOpen);
 document.getElementById('btn-csv').addEventListener('click',exportCSV);
 document.getElementById('btn-save-html').addEventListener('click',saveHTML);
 document.getElementById('btn-add-item').addEventListener('click',()=>itemsAdd());
-document.getElementById('btn-qr-add-item').addEventListener('click',()=>qrOpen('item'));
+const qrAddBtn=document.getElementById('btn-qr-add-item');
+if(qrAddBtn)qrAddBtn.addEventListener('click',()=>qrOpen('item'));
 document.getElementById('btn-pf-scan').addEventListener('click',()=>qrOpen('prodId'));
 document.getElementById('btn-add-prod').addEventListener('click',openProdAdd);
 document.getElementById('btn-log-csv').addEventListener('click',exportLogCSV);
@@ -2337,7 +2520,97 @@ function fitBarsText(){
     });
   });
 }
-/* ===== 고정 가로 스크롤바 ===== */
+/* ===== 출고 QR 스캔 ===== */
+let shipRentalId=null,shipItemIdx=null,shipUnitIdx=null;
+function openShipModal(rentalId){
+  const r=DB.rentals.find(x=>x.id===rentalId);if(!r)return;
+  shipRentalId=rentalId;
+  document.getElementById('ship-cust-lbl').textContent=r.cust+'님 / 대여기간 '+fmtMon(r.start)+'~'+fmtMon(r.end);
+  renderShipItems(r);
+  modalOpen('modal-ship');
+}
+function renderShipItems(r){
+  const qrItems=r.items.filter(it=>it.type==='qr');
+  let h='';
+  if(!qrItems.length){h='<p style="color:var(--text3);font-size:13px;padding:8px 0">QR 스캔 품목 없음</p>';}
+  else{
+    qrItems.forEach((it,ii)=>{
+      const realIdx=r.items.indexOf(it);
+      const shipped=it.units?it.units.filter(Boolean).length:0;
+      const done=shipped>=it.qty;
+      h+=`<div style="margin-bottom:12px;padding:12px;background:var(--card2);border-radius:10px;border:1.5px solid ${done?'var(--teal)':'var(--border)'}">
+        <div style="font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px">
+          ${it.model} <span style="font-size:12px;color:${done?'var(--teal)':'var(--amber)'}">
+          ${done?'✅ 출고완료':'📦 '+shipped+'/'+it.qty+' 스캔'}</span>
+        </div>`;
+      for(let i=0;i<it.qty;i++){
+        const uid=it.units&&it.units[i]?it.units[i]:null;
+        const s=uid?DB.stock.find(x=>x.id===uid):null;
+        if(s){
+          h+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px">
+            <span style="color:var(--teal)">✅</span>
+            <span style="font-family:monospace;color:var(--text2)">[..${s.qrId.slice(-8)}]</span>
+            <button class="btn" style="font-size:10px;padding:3px 7px;color:var(--red)" onclick="cancelShipUnit('${r.id}',${realIdx},${i})">취소</button>
+          </div>`;
+        } else {
+          h+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+            <span style="color:var(--text3)">⬜</span>
+            <button class="btn btn-blue" style="font-size:11px;padding:5px 12px" onclick="openShipScan('${r.id}',${realIdx},${i})">📷 QR 스캔</button>
+            <span style="font-size:11px;color:var(--text3)">미스캔</span>
+          </div>`;
+        }
+      }
+      h+='</div>';
+    });
+  }
+  document.getElementById('ship-items-list').innerHTML=h;
+  // 모두 출고됐는지 확인
+  const allDone=qrItems.every(it=>(it.units?it.units.filter(Boolean).length:0)>=it.qty);
+  document.getElementById('btn-ship-complete').textContent=allDone?'✅ 출고 완료 처리':'⚠️ 일부 미스캔 — 강제 완료';
+}
+function openShipScan(rentalId,itemIdx,unitIdx){
+  shipRentalId=rentalId;shipItemIdx=itemIdx;shipUnitIdx=unitIdx;
+  modalClose('modal-ship');
+  setTimeout(()=>{qrMode='ship';qrOpen('ship');},200);
+}
+function handleShipQr(qrId){
+  const s=DB.stock.find(x=>x.qrId===qrId);
+  if(!s){rejectAlert('⚠️ 등록되지 않은 QR입니다.\n\n제품관리에서 먼저 등록하세요.');return;}
+  const r=DB.rentals.find(x=>x.id===shipRentalId);if(!r)return;
+  const item=r.items[shipItemIdx];
+  if(s.model!==item.model){
+    rejectAlert(`⚠️ 다른 종류입니다!\n\n스캔: ${s.model}\n필요: ${item.model}\n\n맞는 제품을 스캔해주세요.`);
+    return;
+  }
+  // 이미 다른 대여에 출고됐는지 확인
+  const used=DB.rentals.find(r2=>r2.id!==shipRentalId&&!r2.done&&
+    r2.items.some(it=>it.units&&it.units.includes(s.id)));
+  if(used){rejectAlert('⚠️ 이미 다른 대여에 할당된 유닛입니다.\n\n대여자: '+used.cust);return;}
+  // 이미 같은 대여 내 다른 슬롯에 있는지 확인
+  const alreadyInThis=r.items.some((it,ii)=>it.units&&it.units.some((u,j)=>u===s.id&&!(ii===shipItemIdx&&j===shipUnitIdx)));
+  if(alreadyInThis){rejectAlert('⚠️ 이 대여에 이미 스캔된 유닛입니다.');return;}
+  if(!item.units)item.units=[];
+  item.units[shipUnitIdx]=s.id;
+  s.count=(s.count||0)+1;
+  dbSave();qrClose();playBeep();
+  toast('✅ '+s.model+' 출고 스캔 완료');
+  setTimeout(()=>openShipModal(shipRentalId),150);
+}
+function cancelShipUnit(rentalId,itemIdx,unitIdx){
+  const r=DB.rentals.find(x=>x.id===rentalId);if(!r)return;
+  const item=r.items[itemIdx];if(!item||!item.units)return;
+  const uid=item.units[unitIdx];
+  const s=uid?DB.stock.find(x=>x.id===uid):null;
+  if(s&&s.count>0)s.count--;
+  item.units[unitIdx]=null;
+  dbSave();renderShipItems(r);
+}
+function doMarkShipped(){
+  const r=DB.rentals.find(x=>x.id===shipRentalId);if(!r)return;
+  r.shipped=true;
+  dbSave();modalClose('modal-ship');render();
+  toast('📦 출고 완료 처리됨');
+}
 function initFixedHScroll(){
   const wrap=document.querySelector('.gantt-wrap');
   const bar=document.getElementById('fixed-hscroll');
@@ -2519,6 +2792,58 @@ render();
 initSearch();
 initFixedHScroll();
 showFixedHScroll(true);
+
+// ── 새로고침: Firebase에서 최신 데이터 강제 로드 ──
+function forceRefresh(){
+  const btn=document.querySelector('[onclick="forceRefresh()"]');
+  if(btn){btn.style.animation='spin 0.6s linear';setTimeout(()=>btn.style.animation='',700);}
+  if(window.fbForceSync) window.fbForceSync();
+  else location.reload();
+}
+
+// ── 당겨서 새로고침 (Pull to Refresh) ──
+(function initPullToRefresh(){
+  let startY=0,pulling=false,ind=null;
+  function getInd(){
+    if(!ind){
+      ind=document.createElement('div');
+      ind.style.cssText='position:fixed;top:0;left:0;right:0;height:0;background:var(--blue);z-index:9999;display:flex;align-items:flex-end;justify-content:center;overflow:hidden;color:#fff;font-size:12px;font-weight:600;padding-bottom:6px;transition:height .15s;pointer-events:none';
+      document.body.appendChild(ind);
+    }
+    return ind;
+  }
+  document.addEventListener('touchstart',e=>{
+    // 스크롤이 최상단일 때만
+    const scTop=(document.scrollingElement||document.documentElement).scrollTop;
+    const gantt=document.querySelector('.gantt-wrap');
+    const ganttTop=gantt?gantt.scrollTop:0;
+    if(scTop>5||ganttTop>5)return;
+    startY=e.touches[0].clientY;
+    pulling=true;
+  },{passive:true});
+  document.addEventListener('touchmove',e=>{
+    if(!pulling)return;
+    const dy=e.touches[0].clientY-startY;
+    if(dy>0&&dy<220){
+      const h=Math.min(dy*0.25,52);
+      const i=getInd();i.style.height=h+'px';
+      i.textContent=dy>150?'🔄 놓으면 새로고침':'↓ 더 당기세요';
+    }
+  },{passive:true});
+  document.addEventListener('touchend',e=>{
+    if(!pulling)return;
+    pulling=false;
+    const dy=e.changedTouches[0].clientY-startY;
+    const i=getInd();i.style.height='0';
+    if(dy>150){
+      i.textContent='🔄 불러오는 중...';i.style.height='40px';
+      setTimeout(()=>{
+        i.style.height='0';
+        forceRefresh();
+      },400);
+    }
+  });
+})();
 
 // Firebase 실시간 업데이트 수신
 window.addEventListener('firebase-updated',()=>{
