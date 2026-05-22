@@ -2807,8 +2807,10 @@ function forceRefresh(){
   function getInd(){
     if(!ind){
       ind=document.createElement('div');
-      ind.style.cssText='position:fixed;top:0;left:0;right:0;height:0;background:var(--blue);z-index:9999;display:flex;align-items:flex-end;justify-content:center;overflow:hidden;color:#fff;font-size:12px;font-weight:600;padding-bottom:6px;transition:height .15s;pointer-events:none';
-      document.body.appendChild(ind);
+      ind.style.cssText='display:none;width:100%;text-align:center;padding:10px 0;background:var(--blue);color:#fff;font-size:13px;font-weight:600;letter-spacing:.5px';
+      const gantt=document.querySelector('.gantt-wrap');
+      if(gantt)gantt.parentNode.insertBefore(ind,gantt);
+      else document.body.appendChild(ind);
     }
     return ind;
   }
@@ -2824,9 +2826,9 @@ function forceRefresh(){
   document.addEventListener('touchmove',e=>{
     if(!pulling)return;
     const dy=e.touches[0].clientY-startY;
-    if(dy>0&&dy<220){
-      const h=Math.min(dy*0.25,52);
-      const i=getInd();i.style.height=h+'px';
+    if(dy>0){
+      const i=getInd();
+      i.style.display='block';
       i.textContent=dy>150?'🔄 놓으면 새로고침':'↓ 더 당기세요';
     }
   },{passive:true});
@@ -2834,13 +2836,15 @@ function forceRefresh(){
     if(!pulling)return;
     pulling=false;
     const dy=e.changedTouches[0].clientY-startY;
-    const i=getInd();i.style.height='0';
+    const i=getInd();
     if(dy>150){
-      i.textContent='🔄 불러오는 중...';i.style.height='40px';
+      i.textContent='🔄 불러오는 중...';
       setTimeout(()=>{
-        i.style.height='0';
+        i.style.display='none';
         forceRefresh();
       },400);
+    } else {
+      i.style.display='none';
     }
   });
 })();
