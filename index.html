@@ -759,14 +759,20 @@ var DEV_ID=localStorage.getItem('rmi_dev_id')||(function(){
   return id;
 })();
 
-let fbReady=false;
+var fbReady=false;
+var lastAppliedTs=0;
+var isSaving=false;
 
-// Firebase → 로컬: 다른 기기 변경 시 자동 수신
+// Firebase → 로컬: 모든 변경 수신 (ts 기반으로 최신 데이터만)
 onValue(DATA_REF,function(snap){
   var data=snap.val();
   fbReady=true;
-  if(data&&data.devId!==DEV_ID){
-  // 다른 기기 데이터 → localStorage 업데이트 후 화면 갱신
+  if(!data)return;
+  // 내가 방금 저장 중이면 무시 (자기 자신 업데이트 방지)
+  if(isSaving)return;
+  // 이미 적용한 데이터면 무시
+  if(data.ts&&data.ts<=lastAppliedTs)return;
+  lastAppliedTs=data.ts||0;
   try{
     if(data.stock!==undefined)localStorage.setItem('rmi_stock',JSON.stringify(data.stock||[]));
     if(data.rentals!==undefined)localStorage.setItem('rmi_rentals',JSON.stringify(data.rentals||[]));
@@ -774,20 +780,24 @@ onValue(DATA_REF,function(snap){
     if(data.hol!==undefined)localStorage.setItem('rmi_hol',JSON.stringify(data.hol||[]));
     window.dispatchEvent(new CustomEvent('firebase-updated'));
   }catch(e){}
-  }
 });
 
 // 로컬 → Firebase 저장
 window.fbSave=function(dbData){
   if(fbReady){
+    var ts=Date.now();
+    lastAppliedTs=ts;
+    isSaving=true;
     set(DATA_REF,{
       stock:dbData.stock||[],
       rentals:dbData.rentals||[],
       logs:dbData.logs||[],
       hol:dbData.hol||[],
-      ts:Date.now(),
+      ts:ts,
       devId:DEV_ID
-    }).catch(function(){});
+    }).catch(function(){}).finally(function(){
+      setTimeout(function(){isSaving=false;},1000);
+    });
   } else {
     setTimeout(function(){
       if(window.fbSave&&fbReady){window.fbSave(dbData);}
