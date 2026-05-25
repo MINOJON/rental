@@ -1848,9 +1848,10 @@ function doSaveRental(){
     const newId='r'+Date.now();
     DB.rentals.push({id:newId,done:false,...rec});
     items.forEach(it=>{
-      const s=DB.stock.find(x=>x.id===it.sid);
+      const s=it.type==='qr'?null:DB.stock.find(x=>x.id===it.sid);
       if(s)s.count=(s.count||0)+it.qty;
-      DB.logs.push({id:'lg'+Date.now()+'_'+Math.random().toString(36).slice(2,5),type:'rent',sid:it.sid,name:(s?s.model||s.name||'?':'?'),qty:it.qty,rentalId:newId,cust,date:new Date().toISOString()});
+      const logName=it.type==='qr'?it.model:(s?s.model||s.name||'?':'?');
+      DB.logs.push({id:'lg'+Date.now()+'_'+Math.random().toString(36).slice(2,5),type:'rent',sid:it.sid,name:logName,qty:it.qty,rentalId:newId,cust,date:new Date().toISOString()});
     });
     toast('✅ 대여 등록 완료 - 대여횟수 자동 카운트됨');
   }
@@ -1879,8 +1880,9 @@ function doMarkDone(){
   r.done=true;
   // 반납완료 로그
   r.items.forEach(it=>{
-    const s=DB.stock.find(x=>x.id===it.sid);
-    DB.logs.push({id:'lg'+Date.now()+'_'+Math.random().toString(36).slice(2,5),type:'return',sid:it.sid,name:(s?s.model||s.name||'?':'?'),qty:it.qty,rentalId:editId,cust:r.cust,date:new Date().toISOString()});
+    const s=it.type==='qr'?null:DB.stock.find(x=>x.id===it.sid);
+    const logName=it.type==='qr'?it.model:(s?s.model||s.name||'?':'?');
+    DB.logs.push({id:'lg'+Date.now()+'_'+Math.random().toString(36).slice(2,5),type:'return',sid:it.sid,name:logName,qty:it.qty,rentalId:editId,cust:r.cust,date:new Date().toISOString()});
   });
   toast('✅ 반납완료 처리');
   dbSave();modalClose('modal-rental');render();
@@ -2338,22 +2340,35 @@ function handleQrResult(id){
 function renderLogs(){
   const q=(document.getElementById('log-q').value||'').toLowerCase();
   const f=document.getElementById('log-filter').value;
+  // ? 인 경우 대여 데이터에서 품목명 찾기
+  function getLogName(l){
+    if(l.name&&l.name!=='?')return l.name;
+    if(l.rentalId){
+      const r=DB.rentals.find(x=>x.id===l.rentalId);
+      if(r&&r.items&&r.items.length)
+        return r.items.map(it=>it.type==='qr'?it.model:iname(it.sid)).join(', ');
+    }
+    return iname(l.sid)||'?';
+  }
   const list=DB.logs.slice().reverse().filter(l=>{
-    const logName=(!l.name||l.name==='?')?iname(l.sid):l.name;
+    const logName=getLogName(l);
     if(q&&logName.toLowerCase().indexOf(q)<0&&(l.cust||'').toLowerCase().indexOf(q)<0)return false;
     if(f&&l.type!==f)return false;
     return true;
   });
   const el=document.getElementById('log-list');
   if(!list.length){el.innerHTML='<div class="empty-state">기록이 없습니다.</div>';return;}
-  el.innerHTML=list.map(l=>`<div class="log-card">
+  el.innerHTML=list.map(l=>{
+    const logName=getLogName(l);
+    return`<div class="log-card">
     <span class="log-type ${l.type==='rent'?'rent':'ret'}">${l.type==='rent'?'대여':'반납'}</span>
     <div class="log-body">
-      <div class="log-name">${(!l.name||l.name==='?')?iname(l.sid):l.name} ${l.qty>1?`<span style="color:var(--text3);font-weight:500">x${l.qty}</span>`:''}</div>
+      <div class="log-name">${logName} ${l.qty>1?`<span style="color:var(--text3);font-weight:500">x${l.qty}</span>`:''}</div>
       <div class="log-meta">${l.cust||'-'}</div>
     </div>
     <div class="log-date">${fmtDt(l.date)}</div>
-  </div>`).join('');
+  </div>`;
+  }).join('');
 }
 function exportLogCSV(){
   if(!DB.logs.length){toast('내보낼 기록이 없습니다');return;}
@@ -2796,9 +2811,9 @@ showFixedHScroll(true);
 // ── 새로고침: Firebase에서 최신 데이터 강제 로드 ──
 function forceRefresh(){
   const btn=document.querySelector('[onclick="forceRefresh()"]');
-  if(btn){btn.style.animation='spin 0.6s linear';setTimeout(()=>btn.style.animation='',700);}
-  if(window.fbForceSync) window.fbForceSync();
-  else location.reload();
+  if(btn)btn.style.animation='spin 0.6s linear';
+  // 페이지 완전 새로 로드 → Firebase에서 최신 데이터 확실하게 수신
+  setTimeout(()=>location.reload(),300);
 }
 
 // ── 당겨서 새로고침 (Pull to Refresh) ──
@@ -2855,7 +2870,11 @@ window.addEventListener('firebase-updated',()=>{
   render();
   if(curTab==='products')renderProducts();
   if(curTab==='logs')renderLogs();
-  // 동기화 토스트 직접 표시
+  // 저장 시간 표시 업데이트
+  const now=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+  const sl=document.getElementById('save-lbl');
+  if(sl)sl.textContent='동기화됨 '+now;
+  // 토스트
   let st=document.getElementById('sync-toast-el');
   if(!st){
     st=document.createElement('div');
