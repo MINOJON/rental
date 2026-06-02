@@ -760,50 +760,67 @@ var DEV_ID=localStorage.getItem('rmi_dev_id')||(function(){
 })();
 
 var fbReady=false;
-var lastAppliedTs=0;
-var isSaving=false;
+var DEV_ID2=localStorage.getItem('rmi_dev_id')||(function(){
+  var id=Math.random().toString(36).slice(2)+Date.now().toString(36);
+  localStorage.setItem('rmi_dev_id',id);
+  return id;
+})();
 
-// Firebase → 로컬: 모든 변경 수신 (ts 기반으로 최신 데이터만)
-onValue(DATA_REF,function(snap){
-  var data=snap.val();
-  fbReady=true;
-  if(!data)return;
-  // 내가 방금 저장 중이면 무시 (자기 자신 업데이트 방지)
-  if(isSaving)return;
-  // 이미 적용한 데이터면 무시
-  if(data.ts&&data.ts<=lastAppliedTs)return;
-  lastAppliedTs=data.ts||0;
-  try{
-    if(data.stock!==undefined)localStorage.setItem('rmi_stock',JSON.stringify(data.stock||[]));
-    if(data.rentals!==undefined)localStorage.setItem('rmi_rentals',JSON.stringify(data.rentals||[]));
-    if(data.logs!==undefined)localStorage.setItem('rmi_logs',JSON.stringify(data.logs||[]));
-    if(data.hol!==undefined)localStorage.setItem('rmi_hol',JSON.stringify(data.hol||[]));
-    window.dispatchEvent(new CustomEvent('firebase-updated'));
-  }catch(e){}
+var SIGNAL_REF=ref(fbDb,'rental_signal');
+
+// 신호 수신 → get()으로 최신 데이터 강제 읽기
+onValue(SIGNAL_REF,function(snap){
+  var sig=snap.val();
+  if(!sig||sig.devId===DEV_ID2)return;
+  get(DATA_REF).then(function(ds){
+    var data=ds.val();
+    if(!data)return;
+    try{
+      if(data.stock!==undefined)localStorage.setItem('rmi_stock',JSON.stringify(data.stock||[]));
+      if(data.rentals!==undefined)localStorage.setItem('rmi_rentals',JSON.stringify(data.rentals||[]));
+      if(data.logs!==undefined)localStorage.setItem('rmi_logs',JSON.stringify(data.logs||[]));
+      if(data.hol!==undefined)localStorage.setItem('rmi_hol',JSON.stringify(data.hol||[]));
+      window.dispatchEvent(new CustomEvent('firebase-updated'));
+    }catch(e){}
+  }).catch(function(){});
 });
 
-// 로컬 → Firebase 저장
+// 초기 fbReady 설정
+onValue(DATA_REF,function(){fbReady=true;});
+
+// 저장 → Firebase + 신호 발송
 window.fbSave=function(dbData){
-  if(fbReady){
-    var ts=Date.now();
-    lastAppliedTs=ts;
-    isSaving=true;
-    set(DATA_REF,{
-      stock:dbData.stock||[],
-      rentals:dbData.rentals||[],
-      logs:dbData.logs||[],
-      hol:dbData.hol||[],
-      ts:ts,
-      devId:DEV_ID
-    }).catch(function(){}).finally(function(){
-      setTimeout(function(){isSaving=false;},1000);
-    });
-  } else {
-    setTimeout(function(){
-      if(window.fbSave&&fbReady){window.fbSave(dbData);}
-    },1000);
+  if(!fbReady){
+    setTimeout(function(){if(window.fbSave&&fbReady)window.fbSave(dbData);},1000);
+    return;
   }
+  var ts=Date.now();
+  set(DATA_REF,{
+    stock:dbData.stock||[],
+    rentals:dbData.rentals||[],
+    logs:dbData.logs||[],
+    hol:dbData.hol||[],
+    ts:ts,devId:DEV_ID2
+  }).then(function(){
+    set(SIGNAL_REF,{ts:ts,devId:DEV_ID2});
+  }).catch(function(){});
 };
+
+// 강제 새로고침
+window.fbForceSync=function(){
+  get(DATA_REF).then(function(ds){
+    var data=ds.val();
+    if(data){
+      if(data.stock!==undefined)localStorage.setItem('rmi_stock',JSON.stringify(data.stock||[]));
+      if(data.rentals!==undefined)localStorage.setItem('rmi_rentals',JSON.stringify(data.rentals||[]));
+      if(data.logs!==undefined)localStorage.setItem('rmi_logs',JSON.stringify(data.logs||[]));
+      if(data.hol!==undefined)localStorage.setItem('rmi_hol',JSON.stringify(data.hol||[]));
+      window.dispatchEvent(new CustomEvent('firebase-updated'));
+    } else {location.reload();}
+  }).catch(function(){location.reload();});
+};
+
+
 // 강제 최신 데이터 읽기
 window.fbForceSync=function(){
   get(DATA_REF).then(function(snap){
