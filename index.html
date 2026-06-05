@@ -888,28 +888,11 @@ const MNAMES=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10
   });
   const mfEl=document.getElementById('pwa-manifest');
   if(mfEl)mfEl.href=URL.createObjectURL(new Blob([mf],{type:'application/manifest+json'}));
-  // Service Worker (오프라인 캐시)
+  // Service Worker 완전 제거 (캐시 문제 방지)
   if('serviceWorker' in navigator){
-    const sw='const C="rental-v2";'
-      +'self.addEventListener("install",function(){self.skipWaiting();});'
-      +'self.addEventListener("activate",function(){clients.claim();});'
-      +'self.addEventListener("fetch",function(e){'
-      +'  if(e.request.method==="GET"){'
-      +'    e.respondWith(caches.open(C).then(function(c){'
-      +'      return c.match(e.request).then(function(r){'
-      +'        return r||fetch(e.request).then(function(res){'
-      +'          if(res.status===200)c.put(e.request,res.clone());'
-      +'          return res;'
-      +'        }).catch(function(){return r;});'
-      +'      });'
-      +'    }));'
-      +'  }'
-      +'});';
-    try{
-      navigator.serviceWorker.register(
-        URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))
-      ).catch(()=>{});
-    }catch(e){}
+    navigator.serviceWorker.getRegistrations().then(function(regs){
+      regs.forEach(function(r){r.unregister();});
+    });
   }
 })();
 const KS='rmi_stock',KR='rmi_rentals',KHL='rmi_hol',KLG='rmi_logs',KLY='rmi_layout';
@@ -2892,12 +2875,20 @@ function forceRefresh(){
 })();
 
 // Firebase 실시간 업데이트 수신
-window.addEventListener('firebase-updated',()=>{
-  Object.assign(DB,dbLoad());
+window.addEventListener('firebase-updated',function(){
+  // DB 완전 교체 (Object.assign 대신 각 배열 직접 교체)
+  var fresh=dbLoad();
+  DB.stock=fresh.stock;
+  DB.rentals=fresh.rentals;
+  DB.hol=fresh.hol;
+  DB.logs=fresh.logs;
+  // 캐시 초기화 후 화면 갱신
+  if(typeof invCache!=='undefined')invCache={};
+  if(typeof schedCache!=='undefined')schedCache={};
   render();
   if(curTab==='products')renderProducts();
   if(curTab==='logs')renderLogs();
-  // 저장 시간 표시 업데이트
+  // 저장 시간 표시
   const now=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
   const sl=document.getElementById('save-lbl');
   if(sl)sl.textContent='동기화됨 '+now;
@@ -2912,7 +2903,7 @@ window.addEventListener('firebase-updated',()=>{
   st.textContent='🔄 다른 기기에서 업데이트됨';
   st.style.display='block';st.style.opacity='1';
   clearTimeout(st._t);
-  st._t=setTimeout(()=>{st.style.opacity='0';setTimeout(()=>{st.style.display='none';},300);},3000);
+  st._t=setTimeout(function(){st.style.opacity='0';setTimeout(function(){st.style.display='none';},300);},3000);
 });
 </script>
 </body>
