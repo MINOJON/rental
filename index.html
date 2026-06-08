@@ -1158,8 +1158,7 @@ function render(){
   const sorted=sortRentals();
   const ml=document.getElementById('mon-lbl');if(ml)ml.textContent=VY+'년 '+(VM+1)+'월';
   const tl=document.getElementById('today-lbl');if(tl)tl.textContent=`${today.getFullYear()}년 ${today.getMonth()+1}월 ${today.getDate()}일 ${DAYS[today.getDay()]}`;
-  const savedAt=localStorage.getItem('rmi_saved_at');
-  if(savedAt)document.getElementById('save-lbl').textContent='저장됨 '+savedAt;
+  // 저장 시간은 Firebase 동기화 시 업데이트됨
 
   // ── 성능 최적화: 날짜별 캐시 미리 계산 (1회) ──
   const invCache={}, schedCache={};
@@ -2831,14 +2830,13 @@ function forceRefresh(){
 // Firebase → DB 직접 갱신 → 화면 자동 업데이트
 // Firebase 데이터 수신 → DB 업데이트 + 화면 갱신
 function applyFirebaseData(d){
-  try{
   DB.stock=d.stock||[];
   DB.rentals=d.rentals||[];
   DB.hol=d.hol||[];
   DB.logs=d.logs||[];
   if(typeof invCache!=='undefined'){invCache={};schedCache={};}
   if(d.isFirst) runMigrations();
-  try{render();}catch(e){alert('render 오류: '+e.message+'\n'+e.stack.split('\n').slice(0,3).join('\n'));}
+  render();
   if(typeof curTab!=='undefined'){
     if(curTab==='products')renderProducts();
     if(curTab==='logs')renderLogs();
@@ -2863,7 +2861,6 @@ function applyFirebaseData(d){
     clearTimeout(st._t);
     st._t=setTimeout(function(){st.style.opacity='0';setTimeout(function(){st.style.display='none';},300);},3000);
   }
-  }catch(e){alert('applyFirebaseData 오류: '+e.message+'\n'+e.stack.split('\n').slice(0,3).join('\n'));}
 }
 window.addEventListener('firebase-data',function(e){
   applyFirebaseData(e.detail);
