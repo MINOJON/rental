@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
-<title>?뚰깉 ?듯빀 愿由??쒖뒪??/title>
+<title>렌탈 통합 관리 시스템</title>
 <!-- PWA -->
 <link rel="manifest" id="pwa-manifest">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="?뚰깉愿由?>
+<meta name="apple-mobile-web-app-title" content="렌탈관리">
 <meta name="theme-color" content="#2563EB">
 <link rel="apple-touch-icon" id="apple-touch-icon">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -63,7 +63,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 .leg{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)}
 .leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
 
-/* SIZE BAR ??紐⑤컮????以?*/
+/* SIZE BAR — 모바일 한 줄 */
 .sizebar{flex-shrink:0;background:var(--card2);border-bottom:1.5px solid var(--border);padding:5px 12px;display:flex;gap:4px;align-items:center;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .sizebar label{font-size:10px;font-weight:700;color:var(--text3);white-space:nowrap;flex-shrink:0}
 .sz-btn{min-width:26px;height:26px;padding:0 6px;border:1.5px solid var(--border2);border-radius:5px;background:var(--card);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -175,7 +175,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 
 /* ITEM ROWS */
 .item-list{display:flex;flex-direction:column;gap:7px;margin-bottom:8px}
-.item-list:empty::after{content:'燧??꾨옒 踰꾪듉?쇰줈 ?덈ぉ??異붽??섏꽭??;display:block;padding:18px 12px;text-align:center;color:var(--text3);font-size:12px;background:var(--card2);border-radius:var(--r);border:1.5px dashed var(--border2);font-weight:500}
+.item-list:empty::after{content:'⬇ 아래 버튼으로 품목을 추가하세요';display:block;padding:18px 12px;text-align:center;color:var(--text3);font-size:12px;background:var(--card2);border-radius:var(--r);border:1.5px dashed var(--border2);font-weight:500}
 .item-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:9px 11px;background:var(--bg);border-radius:var(--r);border:1.5px solid var(--border)}
 .item-row select{flex:1 1 100%;min-width:0;font-size:15px;padding:8px 28px 8px 9px;border:1.5px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-family:inherit;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpolygon points='0,0 10,0 5,6' fill='%239499B0'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;cursor:pointer;outline:none;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}
 .item-row .qty-lbl{font-size:11px;color:var(--text3);font-weight:600;margin-left:2px}
@@ -302,7 +302,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 .prod-actions .btn{font-size:11px;padding:6px 11px;flex:1;min-width:60px}
 .cnt-badge{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;background:var(--blue-l);color:var(--blue)}
 
-/* MODEL CARD (?쒗뭹愿由??? */
+/* MODEL CARD (제품관리 탭) */
 .model-card{background:var(--card);border-radius:12px;border:1px solid var(--border);margin-bottom:10px;overflow:hidden}
 .model-header{padding:11px 14px;cursor:pointer;background:var(--card2);border-bottom:1px solid transparent;transition:background .12s}
 .model-header.expanded{border-bottom-color:var(--border)}
@@ -347,13 +347,13 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 /* QR GEN */
 .qrgen-wrap{display:flex;justify-content:center;padding:16px 0}
 
-/* 怨좎젙 媛濡??ㅽ겕濡ㅻ컮 */
+/* 고정 가로 스크롤바 */
 #fixed-hscroll{position:fixed;bottom:0;left:0;right:0;height:20px;background:var(--card2);border-top:2px solid var(--border2);overflow-x:auto;overflow-y:hidden;z-index:400;display:none}
 #fixed-hscroll::-webkit-scrollbar{height:20px}
 #fixed-hscroll::-webkit-scrollbar-thumb{background:#9499B0;border-radius:4px;border:4px solid var(--card2)}
 #fixed-hscroll::-webkit-scrollbar-track{background:var(--card2)}
 #fixed-hscroll-inner{height:1px}
-/* gantt-wrap 湲곗〈 ?ㅽ겕濡ㅻ컮 ?④? (怨좎젙諛붾줈 ?泥? */
+/* gantt-wrap 기존 스크롤바 숨김 (고정바로 대체) */
 .gantt-wrap::-webkit-scrollbar{height:0}
 .gantt-wrap{scrollbar-width:none;-ms-overflow-style:none}
 /* TOAST */
@@ -365,7 +365,10 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 <body style="display:flex;flex-direction:column;height:100%;overflow:hidden">
 
 <div id="cal-bd"></div>
-<div class="cal-popup" id="cal-rent"></div>
+<div id="fb-loading" style="position:fixed;top:0;left:0;right:0;bottom:0;background:#f0f2f8;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px">
+  <div style="font-size:48px">📦</div>
+  <div style="font-size:16px;font-weight:700;color:#2563EB">렌탈 통합 관리</div>
+  <div class="cal-popup" id="cal-rent"></div>
 <div class="cal-popup" id="cal-send"></div>
 <div class="cal-popup" id="cal-recv"></div>
 <div class="cal-popup" id="cal-apPick"></div>
@@ -373,12 +376,12 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 
 <!-- QR SCANNER -->
 <div id="qr-bd"></div>
-<!-- 怨좎젙 媛濡??ㅽ겕濡ㅻ컮 -->
+<!-- 고정 가로 스크롤바 -->
 <div id="fixed-hscroll"><div id="fixed-hscroll-inner"></div></div>
 <div class="qr-pop" id="qr-pop">
   <div class="qr-pop-hdr">
-    <span id="qr-pop-title">QR ?ㅼ틪</span>
-    <button onclick="qrClose()">??/button>
+    <span id="qr-pop-title">QR 스캔</span>
+    <button onclick="qrClose()">✕</button>
   </div>
   <div class="qr-video-wrap">
     <video id="qr-video" autoplay playsinline muted></video>
@@ -389,70 +392,70 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
     <div class="qr-corner qrc4"></div>
     <div class="qr-scanline"></div>
   </div>
-  <div class="qr-pop-hint" id="qr-pop-hint">?쒗뭹 QR肄붾뱶瑜?移대찓?쇱뿉 鍮꾩떠二쇱꽭??/div>
+  <div class="qr-pop-hint" id="qr-pop-hint">제품 QR코드를 카메라에 비춰주세요</div>
   <div class="qr-manual">
-    <input id="qr-manual-input" placeholder="吏곸젒 ID ?낅젰..." autocomplete="off" onkeydown="if(event.key==='Enter')qrManualSubmit()">
-    <button onclick="qrManualSubmit()">?낅젰</button>
+    <input id="qr-manual-input" placeholder="직접 ID 입력..." autocomplete="off" onkeydown="if(event.key==='Enter')qrManualSubmit()">
+    <button onclick="qrManualSubmit()">입력</button>
   </div>
 </div>
 
 <!-- TOPBAR -->
 <div class="topbar">
-  <div class="logo-icon">?벀</div>
-  <div><div class="logo-title">?뚰깉 ?듯빀 愿由?/div><div class="logo-sub" id="today-lbl"></div></div>
+  <div class="logo-icon">📦</div>
+  <div><div class="logo-title">렌탈 통합 관리</div><div class="logo-sub" id="today-lbl"></div></div>
   <div class="topbar-space"></div>
   <span class="save-lbl" id="save-lbl"></span>
-  <button class="nav-btn" onclick="forceRefresh()" title="理쒖떊 ?곗씠???덈줈怨좎묠" style="font-size:13px">?봽</button>
+  <button class="nav-btn" onclick="forceRefresh()" title="최신 데이터 새로고침" style="font-size:13px">🔄</button>
   <div class="month-nav" id="month-nav">
-    <button class="nav-btn" id="btn-prev">?</button>
+    <button class="nav-btn" id="btn-prev">◀</button>
     <span class="mon-txt" id="mon-lbl"></span>
-    <button class="nav-btn" id="btn-next">??/button>
+    <button class="nav-btn" id="btn-next">▶</button>
   </div>
 </div>
 
 <!-- TABS -->
 <div class="tab-bar">
-  <button class="tab-btn on" data-tab="schedule">?뱟 ?ㅼ?以?/button>
-  <button class="tab-btn" data-tab="products">?벀 ?쒗뭹愿由?/button>
-  <button class="tab-btn" data-tab="logs">?뱥 ??ш린濡?/button>
+  <button class="tab-btn on" data-tab="schedule">📅 스케줄</button>
+  <button class="tab-btn" data-tab="products">📦 제품관리</button>
+  <button class="tab-btn" data-tab="logs">📋 대여기록</button>
 </div>
 
 <!-- PAGE SCHEDULE -->
 <div class="page on" id="page-schedule">
   <div class="toolbar">
-    <button class="btn btn-blue" id="btn-add-rental">+ ????깅줉</button>
-    <button class="btn" id="btn-hol">?뱟 ?대Т ?ㅼ젙</button>
-    <button class="btn btn-green" id="btn-csv">?뱤 ?묒? ?대낫?닿린</button>
-    <button class="btn" id="btn-save-html" style="color:var(--text3)">?뮶 HTML ???/button>
+    <button class="btn btn-blue" id="btn-add-rental">+ 대여 등록</button>
+    <button class="btn" id="btn-hol">📅 휴무 설정</button>
+    <button class="btn btn-green" id="btn-csv">📊 엑셀 내보내기</button>
+    <button class="btn" id="btn-save-html" style="color:var(--text3)">💾 HTML 저장</button>
     <div class="legend">
-      <div class="leg"><div class="leg-dot" style="background:#ffff00;border:1.5px solid #ff0000"></div>諛쒖넚以?/div>
-      <div class="leg"><div class="leg-dot" style="background:#ff9900"></div>?섍굅以?/div>
-      <div class="leg"><div class="leg-dot" style="background:#00ffff"></div>?앸같?띤깮諛?/div>
-      <div class="leg"><div class="leg-dot" style="background:#00ff00"></div>怨듯빆?띔났??/div>
-      <div class="leg"><div class="leg-dot" style="background:#00ffff"></div>?앸같?띔났??/div>
-      <div class="leg"><div class="leg-dot" style="background:#00ff00"></div>怨듯빆?띤깮諛?/div>
+      <div class="leg"><div class="leg-dot" style="background:#ffff00;border:1.5px solid #ff0000"></div>발송중</div>
+      <div class="leg"><div class="leg-dot" style="background:#ff9900"></div>수거중</div>
+      <div class="leg"><div class="leg-dot" style="background:#00ffff"></div>택배▶택배</div>
+      <div class="leg"><div class="leg-dot" style="background:#00ff00"></div>공항▶공항</div>
+      <div class="leg"><div class="leg-dot" style="background:#00ffff"></div>택배▶공항</div>
+      <div class="leg"><div class="leg-dot" style="background:#00ff00"></div>공항▶택배</div>
     </div>
   </div>
   <div class="search-bar">
     <div class="search-wrap">
-      <input type="search" id="search-input" placeholder="怨좉컼紐??덈ぉ/二쇱냼 寃??.." autocomplete="off">
-      <span class="search-ico" id="search-ico">?뵇</span>
-      <button class="search-clear hide" id="search-clear">??/button>
+      <input type="search" id="search-input" placeholder="고객명/품목/주소 검색..." autocomplete="off">
+      <span class="search-ico" id="search-ico">🔍</span>
+      <button class="search-clear hide" id="search-clear">✕</button>
     </div>
     <span class="search-count" id="search-count"></span>
   </div>
   <div class="sizebar">
-    <label>???덈퉬</label>
-    <button class="sz-btn" id="col-minus">竊?/button>
+    <label>열 너비</label>
+    <button class="sz-btn" id="col-minus">－</button>
     <span class="sz-val" id="col-val">88px</span>
-    <button class="sz-btn" id="col-plus">竊?/button>
+    <button class="sz-btn" id="col-plus">＋</button>
     <div class="sz-div"></div>
-    <label>???믪씠</label>
-    <button class="sz-btn" id="row-minus">竊?/button>
+    <label>행 높이</label>
+    <button class="sz-btn" id="row-minus">－</button>
     <span class="sz-val" id="row-val">52px</span>
-    <button class="sz-btn" id="row-plus">竊?/button>
+    <button class="sz-btn" id="row-plus">＋</button>
     <div class="sz-div"></div>
-    <button class="sz-btn" id="btn-size-reset" style="color:var(--text3);font-size:11px">珥덇린??/button>
+    <button class="sz-btn" id="btn-size-reset" style="color:var(--text3);font-size:11px">초기화</button>
   </div>
   <div class="main-scroll">
     <div class="gantt-wrap"><div class="gantt-inner" id="gi"></div></div>
@@ -462,9 +465,9 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 <!-- PAGE PRODUCTS -->
 <div class="page" id="page-products">
   <div class="prod-toolbar">
-    <input type="search" id="prod-q" placeholder="?쒗뭹紐??먮뒗 ID 寃??.." autocomplete="off">
-    <select id="prod-cat-filter"><option value="">?꾩껜 移댄뀒怨좊━</option></select>
-    <button class="btn btn-blue" id="btn-add-prod">+ ?쒗뭹 異붽?</button>
+    <input type="search" id="prod-q" placeholder="제품명 또는 ID 검색..." autocomplete="off">
+    <select id="prod-cat-filter"><option value="">전체 카테고리</option></select>
+    <button class="btn btn-blue" id="btn-add-prod">+ 제품 추가</button>
   </div>
   <div class="prod-scroll"><div id="prod-list"></div></div>
 </div>
@@ -472,262 +475,262 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 <!-- PAGE LOGS -->
 <div class="page" id="page-logs">
   <div class="prod-toolbar">
-    <input type="search" id="log-q" placeholder="?쒗뭹/怨좉컼紐?寃??.." autocomplete="off">
+    <input type="search" id="log-q" placeholder="제품/고객명 검색..." autocomplete="off">
     <select id="log-filter">
-      <option value="">?꾩껜</option>
-      <option value="rent">??щ쭔</option>
-      <option value="return">諛섎궔留?/option>
+      <option value="">전체</option>
+      <option value="rent">대여만</option>
+      <option value="return">반납만</option>
     </select>
-    <button class="btn btn-green" id="btn-log-csv">?뱤 CSV</button>
-    <button class="btn btn-outline-red" id="btn-clear-logs" onclick="clearAllLogs()">?뿊 ?꾩껜??젣</button>
+    <button class="btn btn-green" id="btn-log-csv">📊 CSV</button>
+    <button class="btn btn-outline-red" id="btn-clear-logs" onclick="clearAllLogs()">🗑 전체삭제</button>
   </div>
   <div id="log-del-confirm" class="hide" style="margin:8px 16px;padding:10px 12px;background:var(--red-l);border:1.5px solid rgba(220,38,38,.25);border-radius:var(--r);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-    <span style="flex:1;font-size:12px;font-weight:600;color:var(--red)">?좑툘 紐⑤뱺 ??ш린濡앹쓣 ??젣?섏떆寃좎뒿?덇퉴?</span>
-    <button class="mbtn" style="padding:6px 12px;font-size:12px" onclick="document.getElementById('log-del-confirm').classList.add('hide')">痍⑥냼</button>
-    <button class="mbtn mbtn-danger" style="padding:6px 12px;font-size:12px;margin-right:0" onclick="doDeleteAllLogs()">??젣 ?뺤씤</button>
+    <span style="flex:1;font-size:12px;font-weight:600;color:var(--red)">⚠️ 모든 대여기록을 삭제하시겠습니까?</span>
+    <button class="mbtn" style="padding:6px 12px;font-size:12px" onclick="document.getElementById('log-del-confirm').classList.add('hide')">취소</button>
+    <button class="mbtn mbtn-danger" style="padding:6px 12px;font-size:12px;margin-right:0" onclick="doDeleteAllLogs()">삭제 확인</button>
   </div>
   <div class="prod-scroll"><div id="log-list"></div></div>
 </div>
 
-<!-- ????깅줉/?섏젙 紐⑤떖 -->
+<!-- 대여 등록/수정 모달 -->
 <div class="overlay" id="modal-rental">
 <div class="modal">
-  <button class="mx" data-close="modal-rental">??/button>
-  <h3 id="rental-title">????깅줉</h3>
-  <div class="f-row"><label>怨좉컼紐?<span class="req">* ?꾩닔</span></label><input id="f-cust" placeholder="?띻만?? autocomplete="name"></div>
+  <button class="mx" data-close="modal-rental">✕</button>
+  <h3 id="rental-title">대여 등록</h3>
+  <div class="f-row"><label>고객명 <span class="req">* 필수</span></label><input id="f-cust" placeholder="홍길동" autocomplete="name"></div>
   <div class="f-half">
-    <div class="f-row"><label>?꾪솕踰덊샇 <span class="req">* ?꾩닔</span></label><input id="f-phone" placeholder="010-0000-0000" type="tel" autocomplete="tel" inputmode="tel"></div>
-    <div class="f-row"><label>二쇱냼 <span class="req">* ?꾩닔</span></label><input id="f-addr" placeholder="?쒖슱??媛뺣궓援?.." autocomplete="street-address"></div>
+    <div class="f-row"><label>전화번호 <span class="req">* 필수</span></label><input id="f-phone" placeholder="010-0000-0000" type="tel" autocomplete="tel" inputmode="tel"></div>
+    <div class="f-row"><label>주소 <span class="req">* 필수</span></label><input id="f-addr" placeholder="서울시 강남구..." autocomplete="street-address"></div>
   </div>
 
-  <div class="sec-sep">???諛⑸쾿 <span class="req">* ?꾩닔</span></div>
+  <div class="sec-sep">대여 방법 <span class="req">* 필수</span></div>
   <div class="f-row">
     <select id="f-ship" onchange="updateShipSections(this.value)">
-      <option value="both">[?섎졊] ?앸같 ??[諛섎궔] ?앸같</option>
-      <option value="airport">[?섎졊] 怨듯빆 ??[諛섎궔] 怨듯빆</option>
-      <option value="send_airport">[?섎졊] ?앸같 ??[諛섎궔] 怨듯빆</option>
-      <option value="airport_recv">[?섎졊] 怨듯빆 ??[諛섎궔] ?앸같</option>
+      <option value="both">[수령] 택배 ▶ [반납] 택배</option>
+      <option value="airport">[수령] 공항 ▶ [반납] 공항</option>
+      <option value="send_airport">[수령] 택배 ▶ [반납] 공항</option>
+      <option value="airport_recv">[수령] 공항 ▶ [반납] 택배</option>
     </select>
   </div>
 
-  <!-- 1. ???湲곌컙 -->
-  <div class="sec-sep">???湲곌컙</div>
+  <!-- 1. 대여 기간 -->
+  <div class="sec-sep">대여 기간</div>
   <div class="f-row">
-    <label>????쒖옉 ~ 醫낅즺 <span class="req">* ?꾩닔</span></label>
+    <label>대여 시작 ~ 종료 <span class="req">* 필수</span></label>
     <button class="range-btn" data-open-cal="rent">
-      <span class="rb-ico">?뱟</span><span class="rb-txt" id="lbl-rent">?좎쭨瑜??좏깮?섏꽭??/span><span class="rb-arr">??/span>
+      <span class="rb-ico">📅</span><span class="rb-txt" id="lbl-rent">날짜를 선택하세요</span><span class="rb-arr">▼</span>
     </button>
   </div>
 
-  <!-- 2. ?앸같 諛쒖넚 湲곌컙 (both, send_airport) -->
+  <!-- 2. 택배 발송 기간 (both, send_airport) -->
   <div id="sec-send" class="hide">
-    <div class="sec-sep">?앸같 諛쒖넚 湲곌컙</div>
+    <div class="sec-sep">택배 발송 기간</div>
     <div class="f-row">
-      <label>諛쒖넚 ?쒖옉 ~ ?꾩갑 ?덉젙</label>
+      <label>발송 시작 ~ 도착 예정</label>
       <button class="range-btn" data-open-cal="send">
-        <span class="rb-ico">?벀</span><span class="rb-txt" id="lbl-send">?좎쭨瑜??좏깮?섏꽭??/span><span class="rb-arr">??/span>
+        <span class="rb-ico">📦</span><span class="rb-txt" id="lbl-send">날짜를 선택하세요</span><span class="rb-arr">▼</span>
       </button>
     </div>
   </div>
 
-  <!-- 3. 怨듯빆 ?섎졊 ?뺣낫 (airport, airport_recv) -->
+  <!-- 3. 공항 수령 정보 (airport, airport_recv) -->
   <div id="sec-airport-pick" class="hide">
-    <div class="sec-sep">?쎁 怨듯빆 ?섎졊 ?뺣낫</div>
+    <div class="sec-sep">🛫 공항 수령 정보</div>
     <div class="f-row">
-      <label>?섎졊 ?좎쭨</label>
+      <label>수령 날짜</label>
       <button class="range-btn" data-open-cal="apPick">
-        <span class="rb-ico" style="color:#00cc00">?뱟</span><span class="rb-txt" id="lbl-apPick">?좎쭨瑜??좏깮?섏꽭??/span><span class="rb-arr">??/span>
+        <span class="rb-ico" style="color:#00cc00">📅</span><span class="rb-txt" id="lbl-apPick">날짜를 선택하세요</span><span class="rb-arr">▼</span>
       </button>
     </div>
     <div class="f-half">
-      <div class="f-row"><label>?섎졊 怨듯빆</label>
+      <div class="f-row"><label>수령 공항</label>
         <select id="f-ap-airport-pick">
-          <option value="?몄쿇怨듯빆 T1">?몄쿇怨듯빆 T1</option>
-          <option value="?몄쿇怨듯빆 T2" selected>?몄쿇怨듯빆 T2</option>
-          <option value="源?ш났??援?젣">源?ш났??援?젣</option>
+          <option value="인천공항 T1">인천공항 T1</option>
+          <option value="인천공항 T2" selected>인천공항 T2</option>
+          <option value="김포공항 국제">김포공항 국제</option>
         </select>
       </div>
-      <div class="f-row"><label>?섎졊 ?쒓컙</label><input id="f-ap-pick" type="time" value="14:00"></div>
+      <div class="f-row"><label>수령 시간</label><input id="f-ap-pick" type="time" value="14:00"></div>
     </div>
   </div>
 
-  <!-- 4. 怨듯빆 諛섎궔 ?뺣낫 (airport, send_airport) -->
+  <!-- 4. 공항 반납 정보 (airport, send_airport) -->
   <div id="sec-airport-ret" class="hide">
-    <div class="sec-sep">?쎂 怨듯빆 諛섎궔 ?뺣낫</div>
+    <div class="sec-sep">🛬 공항 반납 정보</div>
     <div class="f-row">
-      <label>諛섎궔 ?좎쭨</label>
+      <label>반납 날짜</label>
       <button class="range-btn" data-open-cal="apRet">
-        <span class="rb-ico" style="color:#00cc00">?뱟</span><span class="rb-txt" id="lbl-apRet">?좎쭨瑜??좏깮?섏꽭??/span><span class="rb-arr">??/span>
+        <span class="rb-ico" style="color:#00cc00">📅</span><span class="rb-txt" id="lbl-apRet">날짜를 선택하세요</span><span class="rb-arr">▼</span>
       </button>
     </div>
     <div class="f-half">
-      <div class="f-row"><label>諛섎궔 怨듯빆</label>
+      <div class="f-row"><label>반납 공항</label>
         <select id="f-ap-airport-ret">
-          <option value="?몄쿇怨듯빆 T1">?몄쿇怨듯빆 T1</option>
-          <option value="?몄쿇怨듯빆 T2" selected>?몄쿇怨듯빆 T2</option>
-          <option value="源?ш났??援?젣">源?ш났??援?젣</option>
+          <option value="인천공항 T1">인천공항 T1</option>
+          <option value="인천공항 T2" selected>인천공항 T2</option>
+          <option value="김포공항 국제">김포공항 국제</option>
         </select>
       </div>
-      <div class="f-row"><label>諛섎궔 ?쒓컙</label><input id="f-ap-ret" type="time" value="22:00"></div>
+      <div class="f-row"><label>반납 시간</label><input id="f-ap-ret" type="time" value="22:00"></div>
     </div>
   </div>
 
-  <!-- 5. ?앸같 ?섍굅 湲곌컙 (both, airport_recv) -->
+  <!-- 5. 택배 수거 기간 (both, airport_recv) -->
   <div id="sec-recv" class="hide">
-    <div class="sec-sep">?앸같 ?섍굅 湲곌컙</div>
+    <div class="sec-sep">택배 수거 기간</div>
     <div class="f-row">
-      <label>?섍굅 ?쒖옉 ~ ?섍굅 ?꾨즺</label>
+      <label>수거 시작 ~ 수거 완료</label>
       <button class="range-btn" data-open-cal="recv">
-        <span class="rb-ico">?벉</span><span class="rb-txt" id="lbl-recv">?좎쭨瑜??좏깮?섏꽭??/span><span class="rb-arr">??/span>
+        <span class="rb-ico">📬</span><span class="rb-txt" id="lbl-recv">날짜를 선택하세요</span><span class="rb-arr">▼</span>
       </button>
     </div>
   </div>
 
-  <!-- 怨듯빆 硫붾え -->
+  <!-- 공항 메모 -->
   <div id="sec-airport-memo" class="hide">
-    <div class="f-row"><label>怨듯빆 硫붾え <span style="color:var(--text3);font-weight:500">(?좏깮)</span></label><input id="f-ap-memo" placeholder="3痢?B移댁슫?? 留뚮궓 ?μ냼 ??></div>
+    <div class="f-row"><label>공항 메모 <span style="color:var(--text3);font-weight:500">(선택)</span></label><input id="f-ap-memo" placeholder="3층 B카운터, 만남 장소 등"></div>
   </div>
 
-  <div class="sec-sep">????덈ぉ <span class="req">* ?꾩닔</span> <span id="period-hint" style="font-size:10px;color:var(--text3);font-weight:400;margin-left:4px"></span></div>
+  <div class="sec-sep">대여 품목 <span class="req">* 필수</span> <span id="period-hint" style="font-size:10px;color:var(--text3);font-weight:400;margin-left:4px"></span></div>
   <div class="item-list" id="item-list"></div>
   <div class="add-item-btns">
-    <button class="add-item-btn" id="btn-add-item">+ ?덈ぉ 異붽?</button>
+    <button class="add-item-btn" id="btn-add-item">+ 품목 추가</button>
   </div>
 
-  <div class="f-row" style="margin-top:12px"><label>硫붾え</label><textarea id="f-memo" placeholder="?뱀씠?ы빆..."></textarea></div>
+  <div class="f-row" style="margin-top:12px"><label>메모</label><textarea id="f-memo" placeholder="특이사항..."></textarea></div>
   <div id="del-confirm-row" class="hide" style="margin-top:12px;padding:12px;background:var(--red-l);border:1.5px solid rgba(220,38,38,.25);border-radius:var(--r);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-    <span style="flex:1;font-size:12px;font-weight:600;color:var(--red)">?좑툘 ?뺣쭚 ??젣?섏떆寃좎뒿?덇퉴?</span>
-    <button class="mbtn" style="padding:7px 14px;font-size:12px" onclick="hideDelConfirm()">痍⑥냼</button>
-    <button class="mbtn mbtn-danger" style="padding:7px 14px;font-size:12px;margin-right:0" onclick="doDeleteConfirmed()">??젣 ?뺤씤</button>
+    <span style="flex:1;font-size:12px;font-weight:600;color:var(--red)">⚠️ 정말 삭제하시겠습니까?</span>
+    <button class="mbtn" style="padding:7px 14px;font-size:12px" onclick="hideDelConfirm()">취소</button>
+    <button class="mbtn mbtn-danger" style="padding:7px 14px;font-size:12px;margin-right:0" onclick="doDeleteConfirmed()">삭제 확인</button>
   </div>
   <div class="modal-btns">
-    <button class="mbtn mbtn-danger hide" id="btn-del" onclick="showDelConfirm()">??젣</button>
-    <button class="mbtn hide" id="btn-ship" onclick="openShipModal(editId)" style="background:#00aa44;color:#fff">?벀 異쒓퀬 QR</button>
-    <button class="mbtn mbtn-success hide" id="btn-done" onclick="doMarkDone()">??諛섎궔?꾨즺</button>
-    <button class="mbtn mbtn-amber hide" id="btn-undone" onclick="doUndoDone()">??諛섎궔?꾨즺 痍⑥냼</button>
-    <button class="mbtn" onclick="modalClose('modal-rental')">痍⑥냼</button>
-    <button class="mbtn mbtn-blue" id="btn-save-rental" onclick="doSaveRental()">???/button>
+    <button class="mbtn mbtn-danger hide" id="btn-del" onclick="showDelConfirm()">삭제</button>
+    <button class="mbtn hide" id="btn-ship" onclick="openShipModal(editId)" style="background:#00aa44;color:#fff">📦 출고 QR</button>
+    <button class="mbtn mbtn-success hide" id="btn-done" onclick="doMarkDone()">✓ 반납완료</button>
+    <button class="mbtn mbtn-amber hide" id="btn-undone" onclick="doUndoDone()">↩ 반납완료 취소</button>
+    <button class="mbtn" onclick="modalClose('modal-rental')">취소</button>
+    <button class="mbtn mbtn-blue" id="btn-save-rental" onclick="doSaveRental()">저장</button>
   </div>
 </div>
 </div>
 
-<!-- 異쒓퀬 QR ?ㅼ틪 紐⑤떖 -->
+<!-- 출고 QR 스캔 모달 -->
 <div class="overlay" id="modal-ship">
 <div class="modal">
-  <button class="mx" data-close="modal-ship">??/button>
-  <h3>?벀 異쒓퀬 QR ?ㅼ틪</h3>
+  <button class="mx" data-close="modal-ship">✕</button>
+  <h3>📦 출고 QR 스캔</h3>
   <p id="ship-cust-lbl" style="font-size:13px;color:var(--text2);margin-bottom:14px"></p>
   <div id="ship-items-list"></div>
   <div class="modal-btns">
-    <button class="mbtn" data-close="modal-ship">?リ린</button>
-    <button class="mbtn mbtn-blue" id="btn-ship-complete" onclick="doMarkShipped()">??異쒓퀬 ?꾨즺 泥섎━</button>
+    <button class="mbtn" data-close="modal-ship">닫기</button>
+    <button class="mbtn mbtn-blue" id="btn-ship-complete" onclick="doMarkShipped()">✅ 출고 완료 처리</button>
   </div>
 </div>
 </div>
 
-<!-- ?쒗뭹 異붽?/?섏젙 紐⑤떖 -->
+<!-- 제품 추가/수정 모달 -->
 <div class="overlay" id="modal-prod">
 <div class="modal">
-  <button class="mx" data-close="modal-prod">??/button>
-  <h3 id="prod-title">?쒗뭹 異붽?</h3>
+  <button class="mx" data-close="modal-prod">✕</button>
+  <h3 id="prod-title">제품 추가</h3>
   <div class="f-row">
-    <label>?쒗뭹 醫낅쪟 <span class="req">* ?꾩닔</span></label>
+    <label>제품 종류 <span class="req">* 필수</span></label>
     <select id="pf-model" onchange="pfModelChange()">
-      <option value="">???좏깮?섏꽭????/option>
-      <optgroup label="?뵔 ?뚯썙?낅객??(QR ?꾩닔)">
-        <option value="?뚯썙?낅객??- 留덈━??>?뚯썙?낅객??- 留덈━??/option>
-        <option value="?뚯썙?낅객??- 猷⑥씠吏">?뚯썙?낅객??- 猷⑥씠吏</option>
-        <option value="?뚯썙?낅객??- ?붿떆">?뚯썙?낅객??- ?붿떆</option>
-        <option value="?뚯썙?낅객??- ?ㅻ끂?쇱삤">?뚯썙?낅객??- ?ㅻ끂?쇱삤</option>
-        <option value="?뚯썙?낅객??- ?쇱튂怨듭＜">?뚯썙?낅객??- ?쇱튂怨듭＜</option>
-        <option value="?뚯썙?낅객??- ?곗씠吏">?뚯썙?낅객??- ?곗씠吏</option>
+      <option value="">― 선택하세요 ―</option>
+      <optgroup label="🔖 파워업밴드 (QR 필수)">
+        <option value="파워업밴드 - 마리오">파워업밴드 - 마리오</option>
+        <option value="파워업밴드 - 루이지">파워업밴드 - 루이지</option>
+        <option value="파워업밴드 - 요시">파워업밴드 - 요시</option>
+        <option value="파워업밴드 - 키노피오">파워업밴드 - 키노피오</option>
+        <option value="파워업밴드 - 피치공주">파워업밴드 - 피치공주</option>
+        <option value="파워업밴드 - 데이지">파워업밴드 - 데이지</option>
       </optgroup>
-      <optgroup label="?벀 ?쇰컲 ?쒗뭹">
-        <option value="?대━?ы꽣 吏?≪씠">?대━?ы꽣 吏?≪씠</option>
-        <option value="留덈━??紐⑥옄">留덈━??紐⑥옄</option>
-        <option value="猷⑥씠吏 紐⑥옄">猷⑥씠吏 紐⑥옄</option>
+      <optgroup label="📦 일반 제품">
+        <option value="해리포터 지팡이">해리포터 지팡이</option>
+        <option value="마리오 모자">마리오 모자</option>
+        <option value="루이지 모자">루이지 모자</option>
       </optgroup>
     </select>
   </div>
-  <!-- QR ?곸뿭 (?뚯썙?낅객???좏깮 ?쒕쭔 ?쒖떆) -->
+  <!-- QR 영역 (파워업밴드 선택 시만 표시) -->
   <div id="pf-qr-sec" class="hide">
     <div class="f-row">
-      <label>QR 肄붾뱶 <span class="req">* ?꾩닔</span></label>
+      <label>QR 코드 <span class="req">* 필수</span></label>
       <div style="display:flex;gap:8px">
-        <input id="pf-qrid" placeholder="QR ?ㅼ틪?섏꽭?? style="flex:1;font-family:monospace;font-size:14px" autocomplete="off" readonly>
-        <button class="qr-add-btn" id="btn-pf-scan" style="padding:10px 14px">?벜 ?ㅼ틪</button>
+        <input id="pf-qrid" placeholder="QR 스캔하세요" style="flex:1;font-family:monospace;font-size:14px" autocomplete="off" readonly>
+        <button class="qr-add-btn" id="btn-pf-scan" style="padding:10px 14px">📷 스캔</button>
       </div>
-      <p style="font-size:11px;color:var(--text3);margin-top:4px">?벜 ?ㅼ틪 踰꾪듉?쇰줈 QR???몄떇?섏꽭??/p>
+      <p style="font-size:11px;color:var(--text3);margin-top:4px">📷 스캔 버튼으로 QR을 인식하세요</p>
     </div>
   </div>
-  <!-- ?섎웾 ?곸뿭 (?쇰컲 ?쒗뭹 ?좏깮 ?쒕쭔 ?쒖떆) -->
+  <!-- 수량 영역 (일반 제품 선택 시만 표시) -->
   <div id="pf-total-sec" class="hide">
-    <div class="f-row"><label>蹂댁쑀 ?섎웾</label><input id="pf-total" type="number" min="1" value="1"></div>
+    <div class="f-row"><label>보유 수량</label><input id="pf-total" type="number" min="1" value="1"></div>
   </div>
-  <div class="f-row"><label>硫붾え</label><textarea id="pf-note" placeholder="?좏깮?ы빆"></textarea></div>
+  <div class="f-row"><label>메모</label><textarea id="pf-note" placeholder="선택사항"></textarea></div>
   <div id="pf-del-confirm" class="hide" style="margin-top:10px;padding:10px 12px;background:var(--red-l);border:1.5px solid rgba(220,38,38,.25);border-radius:var(--r);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-    <span style="flex:1;font-size:12px;font-weight:600;color:var(--red)">?좑툘 ?뺣쭚 ??젣?섏떆寃좎뒿?덇퉴?</span>
-    <button class="mbtn" style="padding:6px 12px;font-size:12px" onclick="document.getElementById('pf-del-confirm').classList.add('hide')">痍⑥냼</button>
-    <button class="mbtn mbtn-danger" style="padding:6px 12px;font-size:12px;margin-right:0" onclick="doDeleteProd()">??젣 ?뺤씤</button>
+    <span style="flex:1;font-size:12px;font-weight:600;color:var(--red)">⚠️ 정말 삭제하시겠습니까?</span>
+    <button class="mbtn" style="padding:6px 12px;font-size:12px" onclick="document.getElementById('pf-del-confirm').classList.add('hide')">취소</button>
+    <button class="mbtn mbtn-danger" style="padding:6px 12px;font-size:12px;margin-right:0" onclick="doDeleteProd()">삭제 확인</button>
   </div>
   <div class="modal-btns">
-    <button class="mbtn mbtn-danger hide" id="pf-del" onclick="deleteProd()">??젣</button>
-    <button class="mbtn" data-close="modal-prod">痍⑥냼</button>
-    <button class="mbtn mbtn-blue" onclick="saveProd()">???/button>
+    <button class="mbtn mbtn-danger hide" id="pf-del" onclick="deleteProd()">삭제</button>
+    <button class="mbtn" data-close="modal-prod">취소</button>
+    <button class="mbtn mbtn-blue" onclick="saveProd()">저장</button>
   </div>
 </div>
 </div>
 
-<!-- ?쒗뭹 ?곸꽭 紐⑤떖 -->
+<!-- 제품 상세 모달 -->
 <div class="overlay" id="modal-prod-detail">
 <div class="modal">
-  <button class="mx" data-close="modal-prod-detail">??/button>
+  <button class="mx" data-close="modal-prod-detail">✕</button>
   <h3 id="pdet-title"></h3>
   <div id="pdet-body"></div>
   <div class="modal-btns">
-    <button class="mbtn" data-close="modal-prod-detail">?リ린</button>
-    <button class="mbtn mbtn-blue" id="pdet-edit-btn">?섏젙</button>
+    <button class="mbtn" data-close="modal-prod-detail">닫기</button>
+    <button class="mbtn mbtn-blue" id="pdet-edit-btn">수정</button>
   </div>
 </div>
 </div>
 
-<!-- QR 肄붾뱶 ?앹꽦 紐⑤떖 -->
+<!-- QR 코드 생성 모달 -->
 <div class="overlay" id="modal-qr-gen">
 <div class="modal" style="text-align:center">
-  <button class="mx" data-close="modal-qr-gen">??/button>
+  <button class="mx" data-close="modal-qr-gen">✕</button>
   <h3 id="qrgen-title" style="text-align:left"></h3>
   <div class="qrgen-wrap" id="qrgen-wrap"></div>
   <p id="qrgen-sub" style="font-size:13px;color:var(--text3);margin-bottom:8px"></p>
   <div class="modal-btns">
-    <button class="mbtn" data-close="modal-qr-gen">?リ린</button>
-    <button class="mbtn mbtn-blue" onclick="downloadQR()">?뮶 PNG ???/button>
+    <button class="mbtn" data-close="modal-qr-gen">닫기</button>
+    <button class="mbtn mbtn-blue" onclick="downloadQR()">💾 PNG 저장</button>
   </div>
 </div>
 </div>
 
-<!-- ?대Т ?ㅼ젙 -->
+<!-- 휴무 설정 -->
 <div class="overlay" id="modal-hol">
 <div class="modal">
-  <button class="mx" data-close="modal-hol">??/button>
-  <h3>?대Т???ㅼ젙</h3>
-  <p style="font-size:12px;color:var(--text3);margin-bottom:12px">?щ젰??鍮④컙?됱쑝濡??쒖떆?⑸땲??</p>
+  <button class="mx" data-close="modal-hol">✕</button>
+  <h3>휴무일 설정</h3>
+  <p style="font-size:12px;color:var(--text3);margin-bottom:12px">달력에 빨간색으로 표시됩니다.</p>
   <div id="hol-list"></div>
   <div class="f-half">
-    <div class="f-row"><label>?좎쭨</label><input id="hol-date" type="date"></div>
-    <div class="f-row"><label>?ъ쑀</label><input id="hol-memo" placeholder="?닿?, 蹂묒썝 ??></div>
+    <div class="f-row"><label>날짜</label><input id="hol-date" type="date"></div>
+    <div class="f-row"><label>사유</label><input id="hol-memo" placeholder="휴가, 병원 등"></div>
   </div>
-  <button class="btn btn-outline-red" style="width:100%;margin-top:4px;padding:10px" id="btn-add-hol">+ ?대Т??異붽?</button>
-  <div class="modal-btns"><button class="mbtn" data-close="modal-hol">?リ린</button></div>
+  <button class="btn btn-outline-red" style="width:100%;margin-top:4px;padding:10px" id="btn-add-hol">+ 휴무일 추가</button>
+  <div class="modal-btns"><button class="mbtn" data-close="modal-hol">닫기</button></div>
 </div>
 </div>
 
-<!-- ?좎쭨 ?곸꽭 -->
+<!-- 날짜 상세 -->
 <div class="overlay" id="modal-day">
 <div class="modal">
-  <button class="mx" data-close="modal-day">??/button>
+  <button class="mx" data-close="modal-day">✕</button>
   <h3 id="day-title"></h3>
   <div id="day-content"></div>
-  <div class="modal-btns"><button class="mbtn" data-close="modal-day">?リ린</button></div>
+  <div class="modal-btns"><button class="mbtn" data-close="modal-day">닫기</button></div>
 </div>
 </div>
 
@@ -736,7 +739,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 <!-- Firebase -->
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-import{getDatabase,ref,set,onValue,get}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
+import{getDatabase,ref,set,onValue}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
 
 const firebaseConfig={
   apiKey:"AIzaSyAWoVD6FoCyAvQAlAfmqb_qigPXb-kxNC0",
@@ -752,65 +755,75 @@ const fbApp=initializeApp(firebaseConfig);
 const fbDb=getDatabase(fbApp);
 const DATA_REF=ref(fbDb,'rental_data');
 
-window.firebaseDataReady=false;
-window.__latestFirebaseData=null;
+var fbReady=false;
+var myTs=0;
 
-function normalizeFirebaseData(data){
-  return{
-    stock:Array.isArray(data&&data.stock)?data.stock:[],
-    rentals:Array.isArray(data&&data.rentals)?data.rentals:[],
-    logs:Array.isArray(data&&data.logs)?data.logs:[],
-    hol:Array.isArray(data&&data.hol)?data.hol:[]
-  };
-}
-
-function publishFirebaseData(data){
-  const normalized=normalizeFirebaseData(data);
-  window.__latestFirebaseData=normalized;
-  window.firebaseDataReady=true;
-  window.dispatchEvent(new CustomEvent('firebase-data',{detail:normalized}));
-}
-
-// Firebase가 원본입니다. DATA_REF 변경을 모든 기기가 직접 구독합니다.
+// Firebase 변경 즉시 감지 → 모든 기기 자동 갱신
 onValue(DATA_REF,function(snap){
-  publishFirebaseData(snap.val());
-},function(err){
-  console.error('Firebase sync failed',err);
-  window.dispatchEvent(new CustomEvent('firebase-error',{detail:err}));
+  var isFirst=!fbReady;
+  fbReady=true;
+  var data=snap.val();
+  // Firebase가 비어있으면 → localStorage 데이터 업로드 요청
+  if(!data){
+    window.dispatchEvent(new CustomEvent('firebase-empty'));
+    return;
+  }
+  // 내가 방금 저장한 것 → 화면 갱신 생략 (이미 반영됨)
+  if(!isFirst&&data.ts&&data.ts===myTs)return;
+  // DB 업데이트 + 화면 갱신
+  window.dispatchEvent(new CustomEvent('firebase-data',{detail:{
+    stock:data.stock||[],
+    rentals:data.rentals||[],
+    hol:data.hol||[],
+    logs:data.logs||[],
+    isFirst:isFirst
+  }}));
 });
 
+// Firebase에 저장
 window.fbSave=function(dbData){
-  return set(DATA_REF,{
+  if(!fbReady){
+    setTimeout(function(){if(window.fbSave&&fbReady)window.fbSave(dbData);},1000);
+    return;
+  }
+  myTs=Date.now();
+  set(DATA_REF,{
     stock:dbData.stock||[],
     rentals:dbData.rentals||[],
-    logs:dbData.logs||[],
     hol:dbData.hol||[],
-    updatedAt:Date.now()
-  });
+    logs:dbData.logs||[],
+    ts:myTs
+  }).catch(function(){});
 };
 
+// 🔄 버튼 강제 동기화
 window.fbForceSync=function(){
-  return get(DATA_REF).then(function(snap){
-    publishFirebaseData(snap.val());
-  });
+  myTs=0; // ts 리셋 → 내 데이터도 강제 반영
+  onValue(DATA_REF,function(snap){
+    var data=snap.val();
+    if(data)window.dispatchEvent(new CustomEvent('firebase-data',{detail:{
+      stock:data.stock||[],rentals:data.rentals||[],hol:data.hol||[],logs:data.logs||[]
+    }}));
+    else location.reload();
+  },{onlyOnce:true});
 };
 </script>
 
 <script>
-/* ===== ?쒓뎅 怨듯쑕??===== */
-const KH={'2025-01-01':'?좎젙','2025-01-28':'?ㅻ궇?고쑕','2025-01-29':'?ㅻ궇','2025-01-30':'?ㅻ궇?고쑕','2025-03-01':'?쇱씪??,'2025-05-05':'?대┛?대궇','2025-05-06':'?泥닿났?댁씪','2025-05-12':'遺泥섎떂?ㅼ떊??,'2025-06-06':'?꾩땐??,'2025-08-15':'愿묐났??,'2025-10-03':'媛쒖쿇??,'2025-10-05':'異붿꽍?고쑕','2025-10-06':'異붿꽍','2025-10-07':'異붿꽍?고쑕','2025-10-08':'?泥닿났?댁씪','2025-10-09':'?쒓???,'2025-12-25':'?щ━?ㅻ쭏??,'2026-01-01':'?좎젙','2026-01-28':'?ㅻ궇?고쑕','2026-01-29':'?ㅻ궇','2026-01-30':'?ㅻ궇?고쑕','2026-03-01':'?쇱씪??,'2026-05-05':'?대┛?대궇','2026-05-24':'遺泥섎떂?ㅼ떊??,'2026-06-06':'?꾩땐??,'2026-08-15':'愿묐났??,'2026-09-24':'異붿꽍?고쑕','2026-09-25':'異붿꽍','2026-09-26':'異붿꽍?고쑕','2026-09-27':'?泥닿났?댁씪','2026-10-03':'媛쒖쿇??,'2026-10-09':'?쒓???,'2026-12-25':'?щ━?ㅻ쭏??,'2027-01-01':'?좎젙','2027-02-16':'?ㅻ궇?고쑕','2027-02-17':'?ㅻ궇','2027-02-18':'?ㅻ궇?고쑕','2027-03-01':'?쇱씪??,'2027-05-02':'遺泥섎떂?ㅼ떊??,'2027-05-05':'?대┛?대궇','2027-06-06':'?꾩땐??,'2027-08-15':'愿묐났??,'2027-10-03':'媛쒖쿇??,'2027-10-04':'異붿꽍?고쑕','2027-10-05':'異붿꽍','2027-10-06':'異붿꽍?고쑕','2027-10-09':'?쒓???,'2027-12-25':'?щ━?ㅻ쭏??};
+/* ===== 한국 공휴일 ===== */
+const KH={'2025-01-01':'신정','2025-01-28':'설날연휴','2025-01-29':'설날','2025-01-30':'설날연휴','2025-03-01':'삼일절','2025-05-05':'어린이날','2025-05-06':'대체공휴일','2025-05-12':'부처님오신날','2025-06-06':'현충일','2025-08-15':'광복절','2025-10-03':'개천절','2025-10-05':'추석연휴','2025-10-06':'추석','2025-10-07':'추석연휴','2025-10-08':'대체공휴일','2025-10-09':'한글날','2025-12-25':'크리스마스','2026-01-01':'신정','2026-01-28':'설날연휴','2026-01-29':'설날','2026-01-30':'설날연휴','2026-03-01':'삼일절','2026-05-05':'어린이날','2026-05-24':'부처님오신날','2026-06-06':'현충일','2026-08-15':'광복절','2026-09-24':'추석연휴','2026-09-25':'추석','2026-09-26':'추석연휴','2026-09-27':'대체공휴일','2026-10-03':'개천절','2026-10-09':'한글날','2026-12-25':'크리스마스','2027-01-01':'신정','2027-02-16':'설날연휴','2027-02-17':'설날','2027-02-18':'설날연휴','2027-03-01':'삼일절','2027-05-02':'부처님오신날','2027-05-05':'어린이날','2027-06-06':'현충일','2027-08-15':'광복절','2027-10-03':'개천절','2027-10-04':'추석연휴','2027-10-05':'추석','2027-10-06':'추석연휴','2027-10-09':'한글날','2027-12-25':'크리스마스'};
 const SCOL={both:'#00ffff',airport:'#00ff00',send_airport:'#00ffff',airport_recv:'#00ff00',direct:'#00ff00',send_only:'#00ffff',recv_only:'#00ffff'};
-const DAYS=['??,'??,'??,'??,'紐?,'湲?,'??];
-const MNAMES=['1??,'2??,'3??,'4??,'5??,'6??,'7??,'8??,'9??,'10??,'11??,'12??];
+const DAYS=['일','월','화','수','목','금','토'];
+const MNAMES=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
 
-// ?? PWA 珥덇린????
+// ── PWA 초기화 ──
 (function initPWA(){
-  // Canvas濡????꾩씠肄??앹꽦
+  // Canvas로 앱 아이콘 생성
   function makeIcon(size){
     const c=document.createElement('canvas');
     c.width=c.height=size;
     const ctx=c.getContext('2d');
-    // ?뚮? 諛곌꼍 (?κ렐 紐⑥꽌由?
+    // 파란 배경 (둥근 모서리)
     const r=size*0.22;
     ctx.beginPath();
     ctx.moveTo(r,0);ctx.lineTo(size-r,0);
@@ -823,10 +836,10 @@ const MNAMES=['1??,'2??,'3??,'4??,'5??,'6??,'7??,'8??,'9??,'10??,'11??,'12??];
     ctx.quadraticCurveTo(0,0,r,0);
     ctx.closePath();
     ctx.fillStyle='#2563EB';ctx.fill();
-    // ?벀 ?대え吏
+    // 📦 이모지
     ctx.font=`${size*0.52}px serif`;
     ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText('?벀',size/2,size*0.54);
+    ctx.fillText('📦',size/2,size*0.54);
     return c.toDataURL('image/png');
   }
   const icon192=makeIcon(192),icon512=makeIcon(512);
@@ -835,7 +848,7 @@ const MNAMES=['1??,'2??,'3??,'4??,'5??,'6??,'7??,'8??,'9??,'10??,'11??,'12??];
   if(ati)ati.href=icon192;
   // manifest (blob URL)
   const mf=JSON.stringify({
-    name:'?뚰깉 ?듯빀 愿由?,short_name:'?뚰깉愿由?,
+    name:'렌탈 통합 관리',short_name:'렌탈관리',
     start_url:location.href,display:'standalone',
     background_color:'#f0f2f8',theme_color:'#2563EB',
     orientation:'portrait-primary',
@@ -846,132 +859,101 @@ const MNAMES=['1??,'2??,'3??,'4??,'5??,'6??,'7??,'8??,'9??,'10??,'11??,'12??];
   });
   const mfEl=document.getElementById('pwa-manifest');
   if(mfEl)mfEl.href=URL.createObjectURL(new Blob([mf],{type:'application/manifest+json'}));
-  // Service Worker ?꾩쟾 ?쒓굅 (罹먯떆 臾몄젣 諛⑹?)
+  // Service Worker 완전 제거 (캐시 문제 방지)
   if('serviceWorker' in navigator){
     navigator.serviceWorker.getRegistrations().then(function(regs){
       regs.forEach(function(r){r.unregister();});
     });
   }
 })();
-const KS='rmi_stock',KR='rmi_rentals',KHL='rmi_hol',KLG='rmi_logs',KLY='rmi_layout';
-function emptyDb(){return{stock:[],rentals:[],hol:[],logs:[]};}
-function dbLoad(){return emptyDb();}
-function applyFirebaseData(data){
-  DB={
-    stock:Array.isArray(data&&data.stock)?data.stock:[],
-    rentals:Array.isArray(data&&data.rentals)?data.rentals:[],
-    hol:Array.isArray(data&&data.hol)?data.hol:[],
-    logs:Array.isArray(data&&data.logs)?data.logs:[]
-  };
-  try{if(typeof invCache!=='undefined')invCache={};}catch(e){}
-  try{if(typeof schedCache!=='undefined')schedCache={};}catch(e){}
-  try{render();}catch(e){}
-  try{if(curTab==='products')renderProducts();}catch(e){}
-  try{if(curTab==='logs')renderLogs();}catch(e){}
-  const now=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
-  const sl=document.getElementById('save-lbl');
-  if(sl)sl.textContent='동기화됨 '+now;
-}
-function dbSave(){
-  const sl=document.getElementById('save-lbl');
-  if(!window.firebaseDataReady||typeof window.fbSave!=='function'){
-    if(sl)sl.textContent='Firebase 연결 중...';
-    console.warn('Firebase is not ready yet. Save skipped to prevent overwriting remote data.');
-    return Promise.resolve();
-  }
-  const t=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
-  if(sl)sl.textContent='저장 중...';
-  return window.fbSave(DB).then(function(){
-    if(sl)sl.textContent='저장됨 '+t;
-  }).catch(function(err){
-    console.error('Firebase save failed',err);
-    if(sl)sl.textContent='저장 실패';
-    alert('Firebase 저장에 실패했습니다. 인터넷 연결을 확인해주세요.');
-  });
-}
-let DB=dbLoad();
-window.addEventListener('firebase-data',function(ev){applyFirebaseData(ev.detail);});
-window.addEventListener('firebase-error',function(){
-  const sl=document.getElementById('save-lbl');
-  if(sl)sl.textContent='동기화 실패';
-});
-if(window.__latestFirebaseData)applyFirebaseData(window.__latestFirebaseData);
+const KLY='rmi_layout'; // localStorage는 개인설정(열너비/행높이)만
 
-/* ===== ?쒗뭹 醫낅쪟 ?뺤쓽 ===== */
+// DB는 빈 상태로 시작 → Firebase onValue에서 채워짐
+let DB={stock:[],rentals:[],hol:[],logs:[]};
+
+function dbSave(){
+  // Firebase에만 저장 (localStorage X)
+  if(typeof window.fbSave==='function') window.fbSave(DB);
+  const t=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+  const sl=document.getElementById('save-lbl');
+  if(sl)sl.textContent='저장됨 '+t;
+}
+
+/* ===== 제품 종류 정의 ===== */
 const MODELS=[
-  {name:'?뚯썙?낅객??- 留덈━??,type:'qr'},
-  {name:'?뚯썙?낅객??- 猷⑥씠吏',type:'qr'},
-  {name:'?뚯썙?낅객??- ?붿떆',type:'qr'},
-  {name:'?뚯썙?낅객??- ?ㅻ끂?쇱삤',type:'qr'},
-  {name:'?뚯썙?낅객??- ?쇱튂怨듭＜',type:'qr'},
-  {name:'?뚯썙?낅객??- ?곗씠吏',type:'qr'},
-  {name:'?대━?ы꽣 吏?≪씠',type:'normal'},
-  {name:'留덈━??紐⑥옄',type:'normal'},
-  {name:'猷⑥씠吏 紐⑥옄',type:'normal'},
+  {name:'파워업밴드 - 마리오',type:'qr'},
+  {name:'파워업밴드 - 루이지',type:'qr'},
+  {name:'파워업밴드 - 요시',type:'qr'},
+  {name:'파워업밴드 - 키노피오',type:'qr'},
+  {name:'파워업밴드 - 피치공주',type:'qr'},
+  {name:'파워업밴드 - 데이지',type:'qr'},
+  {name:'해리포터 지팡이',type:'normal'},
+  {name:'마리오 모자',type:'normal'},
+  {name:'루이지 모자',type:'normal'},
 ];
 function isQrModel(name){return MODELS.some(m=>m.name===name&&m.type==='qr');}
-function modelType(name){const m=MODELS.find(x=>x.name===name);return m?m.type:(name&&name.startsWith('?뚯썙?낅객??)?'qr':'normal');}
+function modelType(name){const m=MODELS.find(x=>x.name===name);return m?m.type:(name&&name.startsWith('파워업밴드')?'qr':'normal');}
 
-// ?? ?곗씠??留덉씠洹몃젅?댁뀡 ??
+// ── 데이터 마이그레이션 ──
 DB.stock.forEach(s=>{
   if(s.qrId===undefined) s.qrId='';
   if(s.count===undefined) s.count=0;
   if(s.note===undefined) s.note='';
-  if(!s.model) s.model=s.name||'湲고?';
+  if(!s.model) s.model=s.name||'기타';
   if(!s.type) s.type=s.qrId?'qr':'normal';
 });
-// normal ?쒗뭹 ?⑹튂湲? 媛숈? model??QR ?녿뒗 ?좊떅????1媛???ぉ(total ?⑹궛)
-if(localStorage.getItem('rmi_mig_v3')!=='1'){
-  const qrItems=[],normalMap={};
-  DB.stock.forEach(s=>{
-    if(s.qrId||s.type==='qr'){
-      s.type='qr';s.total=1;
-      qrItems.push(s);
-    } else {
-      const m=s.model||'湲고?';
-      if(!normalMap[m]){
-        normalMap[m]={id:s.id,model:m,type:'normal',qrId:'',total:s.total||1,count:s.count||0,note:s.note||''};
+// normal 제품 합치기: 같은 model의 QR 없는 유닛들 → 1개 항목(total 합산)
+function runMigrations(){
+  if(localStorage.getItem('rmi_mig_v3')!=='1'){
+    const qrItems=[],normalMap={};
+    DB.stock.forEach(s=>{
+      if(s.qrId||s.type==='qr'){
+        s.type='qr';s.total=1;
+        qrItems.push(s);
       } else {
-        normalMap[m].total+=(s.total||1);
-        normalMap[m].count+=(s.count||0);
-        // 湲곗〈 ???濡쒓렇??sid瑜????id濡?援먯껜
-        const oldId=s.id,newId=normalMap[m].id;
-        DB.rentals.forEach(r=>{r.items.forEach(it=>{if(it.sid===oldId)it.sid=newId;});});
-        DB.logs.forEach(l=>{if(l.sid===oldId)l.sid=newId;});
-      }
-    }
-  });
-  DB.stock=[...qrItems,...Object.values(normalMap)];
-  try{localStorage.setItem('rmi_mig_v3','1');dbSave();}catch(e){}
-}
-// ?? 留덉씠洹몃젅?댁뀡 v4: QR items ??model+qty+units 援ъ“ ??
-if(localStorage.getItem('rmi_mig_v4')!=='1'){
-  DB.rentals.forEach(r=>{
-    const qrGroups={},newItems=[];
-    (r.items||[]).forEach(it=>{
-      // ?대? ??援ъ“ (type ?덉쓬) ??洹몃?濡??좎?
-      if(it.type==='qr'){newItems.unshift(it);return;}
-      if(it.type==='normal'){newItems.push(it);return;}
-      // 援?援ъ“ (sid 湲곕컲)
-      const s=it.sid?DB.stock.find(x=>x.id===it.sid):null;
-      if(s&&s.type==='qr'){
-        if(!qrGroups[s.model])qrGroups[s.model]={qty:0,units:[]};
-        qrGroups[s.model].qty+=it.qty||1;
-        qrGroups[s.model].units.push(it.sid);
-      } else {
-        newItems.push(it);
+        const m=s.model||'기타';
+        if(!normalMap[m]){
+          normalMap[m]={id:s.id,model:m,type:'normal',qrId:'',total:s.total||1,count:s.count||0,note:s.note||''};
+        } else {
+          normalMap[m].total+=(s.total||1);
+          normalMap[m].count+=(s.count||0);
+          const oldId=s.id,newId=normalMap[m].id;
+          DB.rentals.forEach(r=>{r.items.forEach(it=>{if(it.sid===oldId)it.sid=newId;});});
+          DB.logs.forEach(l=>{if(l.sid===oldId)l.sid=newId;});
+        }
       }
     });
-    Object.keys(qrGroups).forEach(model=>{
-      const g=qrGroups[model];
-      newItems.unshift({model,type:'qr',qty:g.qty,units:g.units,sid:null});
+    DB.stock=[...qrItems,...Object.values(normalMap)];
+    localStorage.setItem('rmi_mig_v3','1');
+    dbSave();
+  }
+  if(localStorage.getItem('rmi_mig_v4')!=='1'){
+    DB.rentals.forEach(r=>{
+      const qrGroups={},newItems=[];
+      (r.items||[]).forEach(it=>{
+        if(it.type==='qr'){newItems.unshift(it);return;}
+        if(it.type==='normal'){newItems.push(it);return;}
+        const s=it.sid?DB.stock.find(x=>x.id===it.sid):null;
+        if(s&&s.type==='qr'){
+          if(!qrGroups[s.model])qrGroups[s.model]={qty:0,units:[]};
+          qrGroups[s.model].qty+=it.qty||1;
+          qrGroups[s.model].units.push(it.sid);
+        } else {
+          newItems.push(it);
+        }
+      });
+      Object.keys(qrGroups).forEach(model=>{
+        const g=qrGroups[model];
+        newItems.unshift({model,type:'qr',qty:g.qty,units:g.units,sid:null});
+      });
+      r.items=newItems;
     });
-    r.items=newItems;
-  });
-  try{localStorage.setItem('rmi_mig_v4','1');dbSave();}catch(e){}
+    localStorage.setItem('rmi_mig_v4','1');
+    dbSave();
+  }
 }
 
-// 紐⑤뜽 移대뱶 ?쇱묠 ?곹깭 (硫붾え由ъ뿉留?
+// 모델 카드 펼침 상태 (메모리에만)
 let expandedModels={};
 
 /* ===== LAYOUT ===== */
@@ -984,8 +966,10 @@ function applyCss(){
   const root=document.documentElement.style;
   root.setProperty('--col',COL_W+'px');
   root.setProperty('--row-h',ROW_H+'px');
-  document.getElementById('col-val').textContent=COL_W+'px';
-  document.getElementById('row-val').textContent=ROW_H+'px';
+  const cv=document.getElementById('col-val');
+  const rv=document.getElementById('row-val');
+  if(cv)cv.textContent=COL_W+'px';
+  if(rv)rv.textContent=ROW_H+'px';
 }
 
 /* ===== TAB ===== */
@@ -1008,8 +992,8 @@ function ds(d){return d?d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDat
 function dp(s){if(!s)return null;const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
 function clr(d){const c=new Date(d);c.setHours(0,0,0,0);return c;}
 function same(a,b){return a&&b&&clr(a).getTime()===clr(b).getTime();}
-function fmtD(d){return d?(d.getMonth()+1)+'??+d.getDate()+'??:'';}
-function fmtRange(s,e){if(!s)return null;if(!e)return fmtD(s)+' ??醫낅즺???좏깮';return fmtD(s)+' ~ '+fmtD(e);}
+function fmtD(d){return d?(d.getMonth()+1)+'월'+d.getDate()+'일':'';}
+function fmtRange(s,e){if(!s)return null;if(!e)return fmtD(s)+' → 종료일 선택';return fmtD(s)+' ~ '+fmtD(e);}
 function fmtDt(iso){const d=new Date(iso);return d.getFullYear()+'.'+pad(d.getMonth()+1)+'.'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());}
 function monthDays(){const arr=[],f=new Date(VY,VM,1),l=new Date(VY,VM+1,0);for(let d=new Date(f);d<=l;d.setDate(d.getDate()+1))arr.push(clr(new Date(d)));return arr;}
 function isHol(d){const s=ds(clr(d));return !!(KH[s]||DB.hol.find(h=>h.date===s));}
@@ -1026,17 +1010,17 @@ function calcInv(dstr){
     if(d<from||d>to)return;
     r.items.forEach(it=>{
       if(it.type==='qr'){
-        // 異쒓퀬???좊떅? 吏곸젒 李④컧
+        // 출고된 유닛은 직접 차감
         if(it.units&&it.units.length){
           it.units.filter(Boolean).forEach(uid=>{if(rem[uid]!==undefined)rem[uid]-=1;});
-          // ?꾩쭅 誘몄텧怨??섎웾? 媛숈? 紐⑤뜽 ?좊떅 以??꾩쭅 ????寃껋뿉??李④컧
+          // 아직 미출고 수량은 같은 모델 유닛 중 아직 안 쓴 것에서 차감
           const unshipped=it.qty-(it.units.filter(Boolean).length);
           if(unshipped>0){
             const avail=DB.stock.filter(s=>s.model===it.model&&s.type==='qr'&&rem[s.id]>0);
             avail.slice(0,unshipped).forEach(s=>{rem[s.id]-=1;});
           }
         } else {
-          // 異쒓퀬 ???덉빟: ?쒖꽌?濡??좊떅?먯꽌 李④컧
+          // 출고 전 예약: 순서대로 유닛에서 차감
           const avail=DB.stock.filter(s=>s.model===it.model&&s.type==='qr'&&rem[s.id]>0);
           avail.slice(0,it.qty).forEach(s=>{rem[s.id]-=1;});
         }
@@ -1053,20 +1037,20 @@ function getScheds(dstr){
   DB.rentals.forEach(r=>{
     if(r.done)return;
     const ss=r.ss?clr(dp(r.ss)):null,vs=r.vs?clr(dp(r.vs)):null;
-    // ?앸같 諛쒖넚: both, send_airport
+    // 택배 발송: both, send_airport
     if((r.ship==='both'||r.ship==='send_airport')&&ss&&same(d,ss))
-      out.push({t:'send',lbl:r.cust+' ?앸같 諛쒖넚',r});
-    // ?앸같 ?섍굅: both, airport_recv
+      out.push({t:'send',lbl:r.cust+' 택배 발송',r});
+    // 택배 수거: both, airport_recv
     if((r.ship==='both'||r.ship==='airport_recv')&&vs&&same(d,vs))
-      out.push({t:'recv',lbl:r.cust+' ?섍굅 ?덉빟',r});
-    // 怨듯빆 ?섎졊: airport, airport_recv
+      out.push({t:'recv',lbl:r.cust+' 수거 예약',r});
+    // 공항 수령: airport, airport_recv
     if((r.ship==='airport'||r.ship==='airport_recv')&&r.start&&same(d,clr(dp(r.start)))){
-      const lbl=r.cust+' 怨듯빆?섎졊 '+(r.apAirportPick||'')+(r.apPick?' '+r.apPick:'');
+      const lbl=r.cust+' 공항수령 '+(r.apAirportPick||'')+(r.apPick?' '+r.apPick:'');
       out.push({t:'pickup',lbl,r});
     }
-    // 怨듯빆 諛섎궔: airport, send_airport
+    // 공항 반납: airport, send_airport
     if((r.ship==='airport'||r.ship==='send_airport')&&r.end&&same(d,clr(dp(r.end)))){
-      const lbl=r.cust+' 怨듯빆諛섎궔 '+(r.apAirportRet||'')+(r.apRet?' '+r.apRet:'');
+      const lbl=r.cust+' 공항반납 '+(r.apAirportRet||'')+(r.apRet?' '+r.apRet:'');
       out.push({t:'return',lbl,r});
     }
   });
@@ -1083,26 +1067,27 @@ function isum(r){
   return r.items.map(it=>{
     if(it.type==='qr'){
       const shipped=it.units?it.units.filter(Boolean).length:0;
-      const tag=shipped<it.qty?` (異쒓퀬 ${shipped}/${it.qty})`:'';
+      const tag=shipped<it.qty?` (출고 ${shipped}/${it.qty})`:'';
       return it.model+(it.qty>1?' x'+it.qty:'')+tag;
     }
     return iname(it.sid)+(it.qty>1?' x'+it.qty:'');
   }).join(', ');
 }
 function scol(ship){return SCOL[ship]||SCOL.both;}
-// 媛숈? 紐⑤뜽濡?洹몃９??function getModelGroups(){
+// 같은 모델로 그룹화
+function getModelGroups(){
   const groups={};
   DB.stock.forEach(s=>{
-    const m=s.model||'湲고?';
+    const m=s.model||'기타';
     if(!groups[m]) groups[m]=[];
     groups[m].push(s);
   });
   return groups;
 }
-// 紐⑤뜽 ?듦퀎 (珥??섎웾, 媛?? ??ъ쨷, ?꾩쟻 移댁슫??
+// 모델 통계 (총 수량, 가용, 대여중, 누적 카운트)
 function getModelStats(modelName){
   const units=DB.stock.filter(s=>s.model===modelName);
-  // QR ?쒗뭹: ?좊떅 ??= total, ?쇰컲 ?쒗뭹: s.total ?⑷퀎
+  // QR 제품: 유닛 수 = total, 일반 제품: s.total 합계
   const total=units.reduce((sum,u)=>sum+(u.total||1),0);
   const count=units.reduce((s,u)=>s+(u.count||0),0);
   const today=ds(clr(new Date()));
@@ -1121,21 +1106,23 @@ function makeBars(r,days){
   const ss=r.ss?clr(dp(r.ss)):null,se=r.se?clr(dp(r.se)):null;
   const rs=clr(dp(r.start)),re=clr(dp(r.end));
   const vs=r.vs?clr(dp(r.vs)):null,ve=r.ve?clr(dp(r.ve)):null;
-  // ship ??낆쑝濡?諛쒖넚/?섍굅 留됰? ?쒖떆 ?щ? 寃곗젙
+  // ship 타입으로 발송/수거 막대 표시 여부 결정
   const shipHasSend=r.ship==='both'||r.ship==='send_airport';
   const shipHasRecv=r.ship==='both'||r.ship==='airport_recv';
   const hasSend=!done&&ss&&se&&shipHasSend;
   const hasRecv=!done&&vs&&ve&&shipHasRecv;
   const col=scol(r.ship);
   const shipLbl={
-    both:'[?앸같?띤깮諛?',airport:'[怨듯빆?띔났??',
-    send_airport:'[?앸같?띔났??',airport_recv:'[怨듯빆?띤깮諛?',
-    direct:'[吏곸젒]',send_only:'[諛쒖넚]',recv_only:'[?섍굅]'
+    both:'[택배▶택배]',airport:'[공항▶공항]',
+    send_airport:'[택배▶공항]',airport_recv:'[공항▶택배]',
+    direct:'[직접]',send_only:'[발송]',recv_only:'[수거]'
   }[r.ship]||'';
-  const isApPick=r.ship==='airport'||r.ship==='airport_recv'; // 怨듯빆 ?섎졊 ?덈뒗 ???  const isApRet=r.ship==='airport'||r.ship==='send_airport';  // 怨듯빆 諛섎궔 ?덈뒗 ???  const apNote=(isApPick||isApRet)?(
-    (isApPick&&r.apAirportPick?'?섎졊:'+r.apAirportPick:'')
+  const isApPick=r.ship==='airport'||r.ship==='airport_recv'; // 공항 수령 있는 타입
+  const isApRet=r.ship==='airport'||r.ship==='send_airport';  // 공항 반납 있는 타입
+  const apNote=(isApPick||isApRet)?(
+    (isApPick&&r.apAirportPick?'수령:'+r.apAirportPick:'')
     +(isApPick&&r.apPick?' '+r.apPick:'')
-    +(isApRet&&r.apAirportRet?(isApPick?' / ':'')+'諛섎궔:'+r.apAirportRet:'')
+    +(isApRet&&r.apAirportRet?(isApPick?' / ':'')+'반납:'+r.apAirportRet:'')
     +(isApRet&&r.apRet?' '+r.apRet:'')
     +(r.apMemo?' ('+r.apMemo+')':'')
   ):'';
@@ -1148,11 +1135,11 @@ function makeBars(r,days){
     return `<div class="sbar ${extraCls}${dim}" data-edit="${r.id}" style="left:${si*COL_W+1}px;width:${(ei-si+1)*COL_W-2}px;${style}">${inner}</div>`;
   }
   let out='';
-  if(hasSend)out+=span(ss,se,'sbar-send','','<span>諛쒖넚以?/span>');
+  if(hasSend)out+=span(ss,se,'sbar-send','','<span>발송중</span>');
   let mainCls='sbar-main';
   if(hasSend&&hasRecv)mainCls+=' no-lr';else if(hasSend)mainCls+=' no-l';else if(hasRecv)mainCls+=' no-r';
   out+=span(rs,re,mainCls,'background:'+col+';','<span class="sn">'+nameStr+'</span><span class="si">'+itemStr+'</span>');
-  if(hasRecv)out+=span(vs,ve,'sbar-recv','','<span>?섍굅以?/span>');
+  if(hasRecv)out+=span(vs,ve,'sbar-recv','','<span>수거중</span>');
   return out;
 }
 
@@ -1169,12 +1156,12 @@ function render(){
   const today=clr(new Date()),days=monthDays();
   const todayIdx=days.findIndex(d=>same(d,today));
   const sorted=sortRentals();
-  document.getElementById('mon-lbl').textContent=VY+'??'+(VM+1)+'??;
-  document.getElementById('today-lbl').textContent=`${today.getFullYear()}??${today.getMonth()+1}??${today.getDate()}??${DAYS[today.getDay()]}`;
+  const ml=document.getElementById('mon-lbl');if(ml)ml.textContent=VY+'년 '+(VM+1)+'월';
+  const tl=document.getElementById('today-lbl');if(tl)tl.textContent=`${today.getFullYear()}년 ${today.getMonth()+1}월 ${today.getDate()}일 ${DAYS[today.getDay()]}`;
   const savedAt=localStorage.getItem('rmi_saved_at');
-  if(savedAt)document.getElementById('save-lbl').textContent='??λ맖 '+savedAt;
+  if(savedAt)document.getElementById('save-lbl').textContent='저장됨 '+savedAt;
 
-  // ?? ?깅뒫 理쒖쟻?? ?좎쭨蹂?罹먯떆 誘몃━ 怨꾩궛 (1?? ??
+  // ── 성능 최적화: 날짜별 캐시 미리 계산 (1회) ──
   const invCache={}, schedCache={};
   days.forEach(d=>{
     const dstr=ds(d);
@@ -1182,7 +1169,7 @@ function render(){
     schedCache[dstr]=getScheds(dstr);
   });
   let h='';
-  h+='<div class="date-hdr"><div class="dh-lbl">????꾪솴</div>';
+  h+='<div class="date-hdr"><div class="dh-lbl">대여 현황</div>';
   days.forEach(d=>{
     const dow=d.getDay(),tod=same(d,today),hol=isHol(d),hn=holName(d);
     let cls='dh-col';
@@ -1191,11 +1178,11 @@ function render(){
     h+=`<div class="${cls}" data-day="${ds(d)}"><div>${d.getDate()}</div><div class="dow">${DAYS[dow]}</div>${hn?`<span class="hol-nm">${hn.slice(0,4)}</span>`:''}</div>`;
   });
   h+='</div>';
-  if(!sorted.length)h+='<div class="empty-state">?깅줉??????댁뿭???놁뒿?덈떎.<br>+ ????깅줉 踰꾪듉???뚮윭 異붽??섏꽭??</div>';
+  if(!sorted.length)h+='<div class="empty-state">등록된 대여 내역이 없습니다.<br>+ 대여 등록 버튼을 눌러 추가하세요.</div>';
   sorted.forEach(r=>{
     const done=!!r.done;
     h+=`<div class="g-row" data-rid="${r.id}">`;
-    h+=`<div class="g-lbl${done?' dimmed':''}" data-edit="${r.id}"><div class="g-dot" style="background:${scol(r.ship)}"></div><div class="g-info"><div class="g-name">${r.cust}${done?'<span class="done-badge">諛섎궔?꾨즺</span>':''}</div>${r.phone?`<div class="g-sub">?뱸 ${r.phone}</div>`:''}<div class="g-sub">?뱟 ${fmtMon(r.start)} ~ ${fmtMon(r.end)}</div></div><div class="ord-btns"><button class="ord-btn" data-ord="${r.id}" data-dir="-1" title="?꾨줈">??/button><button class="ord-btn" data-ord="${r.id}" data-dir="1" title="?꾨옒濡?>??/button></div></div>`;
+    h+=`<div class="g-lbl${done?' dimmed':''}" data-edit="${r.id}"><div class="g-dot" style="background:${scol(r.ship)}"></div><div class="g-info"><div class="g-name">${r.cust}${done?'<span class="done-badge">반납완료</span>':''}</div>${r.phone?`<div class="g-sub">📞 ${r.phone}</div>`:''}<div class="g-sub">📅 ${fmtMon(r.start)} ~ ${fmtMon(r.end)}</div></div><div class="ord-btns"><button class="ord-btn" data-ord="${r.id}" data-dir="-1" title="위로">▲</button><button class="ord-btn" data-ord="${r.id}" data-dir="1" title="아래로">▼</button></div></div>`;
     h+='<div class="g-cells">';
     days.forEach(d=>{
       const dow=d.getDay(),tod=same(d,today),hol=isHol(d);
@@ -1208,10 +1195,10 @@ function render(){
     h+=makeBars(r,days);
     h+='</div></div>';
   });
-  h+='<div class="sec-hdr"><div class="sec-hdr-lbl">?벀 ?앸같 ????ㅼ?以?/div>';
+  h+='<div class="sec-hdr"><div class="sec-hdr-lbl">📦 택배 대여 스케줄</div>';
   days.forEach(d=>h+=`<div class="sec-hdr-cell${same(d,today)?' is-today':''}"></div>`);
   h+='</div>';
-  h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#00ffff"></div>?벀 ?앸같 諛쒖넚</div>';
+  h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#00ffff"></div>📦 택배 발송</div>';
   days.forEach(d=>{
     const dow=d.getDay(),tod=same(d,today),hol=isHol(d);
     const ch=schedCache[ds(d)].filter(s=>s.t==='send').map(s=>`<span class="chip chip-send">${s.lbl}</span>`).join('');
@@ -1219,7 +1206,7 @@ function render(){
     h+=`<div class="${cls}" data-day="${ds(d)}">${ch}</div>`;
   });
   h+='</div>';
-  h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#00ffff"></div>?벉 ?앸같 ?섍굅</div>';
+  h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#00ffff"></div>📬 택배 수거</div>';
   days.forEach(d=>{
     const dow=d.getDay(),tod=same(d,today),hol=isHol(d);
     const ch=schedCache[ds(d)].filter(s=>s.t==='recv').map(s=>`<span class="chip chip-recv">${s.lbl}</span>`).join('');
@@ -1227,10 +1214,10 @@ function render(){
     h+=`<div class="${cls}" data-day="${ds(d)}">${ch}</div>`;
   });
   h+='</div>';
-  h+='<div class="sec-hdr"><div class="sec-hdr-lbl">?룫 怨듯빆쨌吏곸젒 ????ㅼ?以?/div>';
+  h+='<div class="sec-hdr"><div class="sec-hdr-lbl">🏢 공항·직접 대여 스케줄</div>';
   days.forEach(d=>h+=`<div class="sec-hdr-cell${same(d,today)?' is-today':''}"></div>`);
   h+='</div>';
-  h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#00ff00"></div>?쎁 ?섎졊</div>';
+  h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#00ff00"></div>🛫 수령</div>';
   days.forEach(d=>{
     const dow=d.getDay(),tod=same(d,today),hol=isHol(d);
     const ch=schedCache[ds(d)].filter(s=>s.t==='pickup').map(s=>`<span class="chip" style="background:#00ff00;color:#000000;border:1px solid #00ff00">${s.lbl}</span>`).join('');
@@ -1238,7 +1225,7 @@ function render(){
     h+=`<div class="${cls}" data-day="${ds(d)}">${ch}</div>`;
   });
   h+='</div>';
-  h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#00ff00"></div>?쎂 諛섎궔</div>';
+  h+='<div class="sched-row"><div class="sched-lbl"><div class="sched-lbl-dot" style="background:#00ff00"></div>🛬 반납</div>';
   days.forEach(d=>{
     const dow=d.getDay(),tod=same(d,today),hol=isHol(d);
     const ch=schedCache[ds(d)].filter(s=>s.t==='return').map(s=>`<span class="chip" style="background:#00ff00;color:#000000;border:1px solid #00ff00">${s.lbl}</span>`).join('');
@@ -1246,20 +1233,21 @@ function render(){
     h+=`<div class="${cls}" data-day="${ds(d)}">${ch}</div>`;
   });
   h+='</div>';
-  h+='<div class="sec-hdr"><div class="sec-hdr-lbl">?ш퀬 ?꾪솴</div>';
+  h+='<div class="sec-hdr"><div class="sec-hdr-lbl">재고 현황</div>';
   days.forEach(d=>h+=`<div class="sec-hdr-cell${same(d,today)?' is-today':''}"></div>`);
   h+='</div><div class="inv-section">';
   const stockGroups=getModelGroups();
   Object.keys(stockGroups).sort().forEach(model=>{
     const units=stockGroups[model];
-    const total=units.reduce((s,u)=>s+(u.total||1),0); // QR:?좊떅?? ?쇰컲:total??    h+=`<div class="inv-row"><div class="inv-name">${model} <span style="color:var(--text3);font-weight:400">(珥?${total})</span></div>`;
+    const total=units.reduce((s,u)=>s+(u.total||1),0); // QR:유닛수, 일반:total합
+    h+=`<div class="inv-row"><div class="inv-name">${model} <span style="color:var(--text3);font-weight:400">(총 ${total})</span></div>`;
     days.forEach(d=>{
       const invDay=invCache[ds(d)];
       let left=0;
       units.forEach(u=>{const l=invDay[u.id]??u.total??1;left+=Math.max(0,l);});
       const ratio=total>0?left/total:1,tod=same(d,today);
       const cls=left<=0?'danger':ratio<=.5?'warn':left===total?'full':'ok';
-      h+=`<div class="inv-cell ${cls}${tod?' is-today':''}">${left<=0?'??:left}</div>`;
+      h+=`<div class="inv-cell ${cls}${tod?' is-today':''}">${left<=0?'✕':left}</div>`;
     });
     h+='</div>';
   });
@@ -1288,7 +1276,7 @@ function calSetDate(key,s,e){
 }
 function calUpdateBtn(key){
   const c=CSTATE[key];
-  const txt=fmtRange(c.s,c.e)||'?좎쭨瑜??좏깮?섏꽭??;
+  const txt=fmtRange(c.s,c.e)||'날짜를 선택하세요';
   const el=document.getElementById('lbl-'+key);
   if(el){el.textContent=txt;el.classList.toggle('filled',!!(c.s&&c.e));}
 }
@@ -1315,21 +1303,21 @@ function calBuild(key){
   const prevApPick=(key==='recv'||key==='apRet')&&CSTATE.apPick.s?{s:clr(CSTATE.apPick.s),e:CSTATE.apPick.e?clr(CSTATE.apPick.e):null}:null;
   const prevApRet=(key==='recv')&&CSTATE.apRet.s?{s:clr(CSTATE.apRet.s),e:CSTATE.apRet.e?clr(CSTATE.apRet.e):null}:null;
   const hint=(key==='apPick'||key==='apRet')
-    ?'?좎쭨瑜???븯硫?諛붾줈 ?뺤젙?⑸땲??
-    :(!S||c.step==='s')?'???쒖옉?쇱쓣 ??븯?몄슂':'??醫낅즺?쇱쓣 ??븯?몄슂 (?쒖옉: '+fmtD(S)+')';
+    ?'날짜를 탭하면 바로 확정됩니다'
+    :(!S||c.step==='s')?'① 시작일을 탭하세요':'② 종료일을 탭하세요 (시작: '+fmtD(S)+')';
   let previewBadges='';
-  if(key==='send'&&prevRent&&(prevRent.s||prevRent.e))previewBadges+=`<div class="cal-prev-row"><span class="cal-prev-badge rent-badge">?뱟 ??ш린媛? ${fmtRange(prevRent.s,prevRent.e)||'誘몄꽑??}</span></div>`;
+  if(key==='send'&&prevRent&&(prevRent.s||prevRent.e))previewBadges+=`<div class="cal-prev-row"><span class="cal-prev-badge rent-badge">📅 대여기간: ${fmtRange(prevRent.s,prevRent.e)||'미선택'}</span></div>`;
   if(key==='recv'){
-    if(prevRent&&(prevRent.s||prevRent.e))previewBadges+=`<div class="cal-prev-row" style="margin-bottom:4px"><span class="cal-prev-badge rent-badge">?뱟 ??ш린媛? ${fmtRange(prevRent.s,prevRent.e)||'誘몄꽑??}</span>`;
-    if(prevSend&&(prevSend.s||prevSend.e))previewBadges+=`<span class="cal-prev-badge send-badge" style="margin-left:6px">?벀 諛쒖넚湲곌컙: ${fmtRange(prevSend.s,prevSend.e)||'誘몄꽑??}</span>`;
-    if(prevApPick&&prevApPick.s)previewBadges+=`<span class="cal-prev-badge" style="background:rgba(0,255,0,.18);color:#006600;border:1px solid rgba(0,204,0,.4);margin-left:6px">?쎁 怨듯빆?섎졊: ${fmtD(prevApPick.s)}</span>`;
+    if(prevRent&&(prevRent.s||prevRent.e))previewBadges+=`<div class="cal-prev-row" style="margin-bottom:4px"><span class="cal-prev-badge rent-badge">📅 대여기간: ${fmtRange(prevRent.s,prevRent.e)||'미선택'}</span>`;
+    if(prevSend&&(prevSend.s||prevSend.e))previewBadges+=`<span class="cal-prev-badge send-badge" style="margin-left:6px">📦 발송기간: ${fmtRange(prevSend.s,prevSend.e)||'미선택'}</span>`;
+    if(prevApPick&&prevApPick.s)previewBadges+=`<span class="cal-prev-badge" style="background:rgba(0,255,0,.18);color:#006600;border:1px solid rgba(0,204,0,.4);margin-left:6px">🛫 공항수령: ${fmtD(prevApPick.s)}</span>`;
     if(previewBadges)previewBadges+='</div>';
   }
-  if(key==='apPick'&&prevRent&&(prevRent.s||prevRent.e))previewBadges+=`<div class="cal-prev-row"><span class="cal-prev-badge rent-badge">?뱟 ??ш린媛? ${fmtRange(prevRent.s,prevRent.e)||'誘몄꽑??}</span></div>`;
+  if(key==='apPick'&&prevRent&&(prevRent.s||prevRent.e))previewBadges+=`<div class="cal-prev-row"><span class="cal-prev-badge rent-badge">📅 대여기간: ${fmtRange(prevRent.s,prevRent.e)||'미선택'}</span></div>`;
   if(key==='apRet'){
-    if(prevRent&&(prevRent.s||prevRent.e))previewBadges+=`<div class="cal-prev-row" style="margin-bottom:4px"><span class="cal-prev-badge rent-badge">?뱟 ??ш린媛? ${fmtRange(prevRent.s,prevRent.e)||'誘몄꽑??}</span>`;
-    if(CSTATE.send.s)previewBadges+=`<span class="cal-prev-badge send-badge" style="margin-left:6px">?벀 諛쒖넚湲곌컙: ${fmtRange(CSTATE.send.s?clr(CSTATE.send.s):null,CSTATE.send.e?clr(CSTATE.send.e):null)||'誘몄꽑??}</span>`;
-    if(prevApPick&&prevApPick.s)previewBadges+=`<span class="cal-prev-badge" style="background:rgba(0,255,0,.18);color:#006600;border:1px solid rgba(0,204,0,.4);margin-left:6px">?쎁 怨듯빆?섎졊: ${fmtD(prevApPick.s)}</span>`;
+    if(prevRent&&(prevRent.s||prevRent.e))previewBadges+=`<div class="cal-prev-row" style="margin-bottom:4px"><span class="cal-prev-badge rent-badge">📅 대여기간: ${fmtRange(prevRent.s,prevRent.e)||'미선택'}</span>`;
+    if(CSTATE.send.s)previewBadges+=`<span class="cal-prev-badge send-badge" style="margin-left:6px">📦 발송기간: ${fmtRange(CSTATE.send.s?clr(CSTATE.send.s):null,CSTATE.send.e?clr(CSTATE.send.e):null)||'미선택'}</span>`;
+    if(prevApPick&&prevApPick.s)previewBadges+=`<span class="cal-prev-badge" style="background:rgba(0,255,0,.18);color:#006600;border:1px solid rgba(0,204,0,.4);margin-left:6px">🛫 공항수령: ${fmtD(prevApPick.s)}</span>`;
     if(previewBadges)previewBadges+='</div>';
   }
   let months='';
@@ -1358,7 +1346,7 @@ function calBuild(key){
         else if(cur.getTime()===pE.getTime())previewCls='prev-send-e';
         else if(cur>pS&&cur<pE)previewCls='prev-send-rng';
       }
-      // 怨듯빆 ?섎졊/諛섎궔 ?좎쭨 ??珥덈줉???쒖떆
+      // 공항 수령/반납 날짜 — 초록색 표시
       let apStyle='';
       if((key==='apRet'||key==='recv')&&prevApPick&&prevApPick.s){
         if(cur.getTime()===prevApPick.s.getTime()) apStyle='background:rgba(0,255,0,.35);border-radius:50%;';
@@ -1371,7 +1359,8 @@ function calBuild(key){
       if(hol)cls+=' hol';else if(dow===6)cls+=' sat';
       const isPreviewOnly=previewCls&&!iS&&!iE&&!inR&&key!=='apPick'&&key!=='apRet';
       if(isPreviewOnly)cls+=' '+previewCls;
-      else if(previewCls&&!iS&&!iE&&!inR) cls+=' '+previewCls; // apPick/apRet: ???쒖떆???섎릺 ?대┃ 媛??      const hn=(DB.hol.find(h=>h.date===dstr)||{}).memo||KH[dstr]||'';
+      else if(previewCls&&!iS&&!iE&&!inR) cls+=' '+previewCls; // apPick/apRet: 색 표시는 하되 클릭 가능
+      const hn=(DB.hol.find(h=>h.date===dstr)||{}).memo||KH[dstr]||'';
       const hnlbl=hn?`<span style="font-size:8px;display:block;line-height:1">${hn.slice(0,4)}</span>`:'';
       const noClick=isPreviewOnly;
       const clickAttr=noClick?'':`data-cal-day="${key}|${dstr}"`;
@@ -1381,21 +1370,21 @@ function calBuild(key){
     }
     const prevBtn=mi===0?`<button data-cal-nav="${key}|-1">&#8592;</button>`:'<span></span>';
     const nextBtn=mi===1?`<button data-cal-nav="${key}|1">&#8594;</button>`:'<span></span>';
-    months+=`<div class="cal-month"><div class="cal-navrow">${prevBtn}<strong>${cy}??${MNAMES[cm]}</strong>${nextBtn}</div><div class="cal-grid">${grid}</div></div>`;
+    months+=`<div class="cal-month"><div class="cal-navrow">${prevBtn}<strong>${cy}년 ${MNAMES[cm]}</strong>${nextBtn}</div><div class="cal-grid">${grid}</div></div>`;
   }
-  const infoTxt=fmtRange(S,E)||'?쒖옉?쇱쓣 ??븯?몄슂';
+  const infoTxt=fmtRange(S,E)||'시작일을 탭하세요';
   document.getElementById('cal-'+key).innerHTML=
     (previewBadges||'')
     +`<div class="cal-hint">${hint}</div>`
     +`<div class="cal-months">${months}</div>`
-    +`<div class="cal-footer"><span class="cal-info">${infoTxt}</span><button class="mbtn" data-cal-clear="${key}">珥덇린??/button><button class="mbtn mbtn-blue" data-cal-confirm="${key}">?뺤씤</button></div>`;
+    +`<div class="cal-footer"><span class="cal-info">${infoTxt}</span><button class="mbtn" data-cal-clear="${key}">초기화</button><button class="mbtn mbtn-blue" data-cal-confirm="${key}">확인</button></div>`;
 }
 
 /* ===== MODAL ===== */
 function modalOpen(id){document.getElementById(id).classList.add('open');}
 function modalClose(id){
   document.getElementById(id).classList.remove('open');
-  // ?쒗뭹?곸꽭 紐⑤떖 ?ロ옄 ???섏젙踰꾪듉 ?먮났
+  // 제품상세 모달 닫힐 때 수정버튼 원복
   if(id==='modal-prod-detail'){
     const b=document.getElementById('pdet-edit-btn');
     if(b)b.classList.remove('hide');
@@ -1411,23 +1400,23 @@ function holOpen(){
 }
 function holRender(){
   document.getElementById('hol-list').innerHTML=DB.hol.length===0
-    ?'<p style="font-size:12px;color:var(--text3);padding:6px 0">?깅줉???대Т???놁쓬</p>'
-    :DB.hol.sort((a,b)=>a.date.localeCompare(b.date)).map(h=>`<div class="hol-row"><span>${h.date}${h.memo?' ('+h.memo+')':''}</span><button data-del-hol="${h.date}">??젣</button></div>`).join('');
+    ?'<p style="font-size:12px;color:var(--text3);padding:6px 0">등록된 휴무일 없음</p>'
+    :DB.hol.sort((a,b)=>a.date.localeCompare(b.date)).map(h=>`<div class="hol-row"><span>${h.date}${h.memo?' ('+h.memo+')':''}</span><button data-del-hol="${h.date}">삭제</button></div>`).join('');
 }
 
 /* ===== RENTAL MODAL ===== */
 let editId=null;
 function rentalAdd(){
   editId=null;
-  document.getElementById('rental-title').textContent='????깅줉';
+  var _el_rental_title=document.getElementById('rental-title');if(_el_rental_title)_el_rental_title.textContent='대여 등록';
   document.getElementById('btn-del').classList.add('hide');
   document.getElementById('btn-done').classList.add('hide');
   document.getElementById('btn-undone').classList.add('hide');
   ['f-cust','f-phone','f-addr','f-memo','f-ap-memo'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-ap-pick').value='14:00';
   document.getElementById('f-ap-ret').value='22:00';
-  document.getElementById('f-ap-airport-pick').value='?몄쿇怨듯빆 T2';
-  document.getElementById('f-ap-airport-ret').value='?몄쿇怨듯빆 T2';
+  document.getElementById('f-ap-airport-pick').value='인천공항 T2';
+  document.getElementById('f-ap-airport-ret').value='인천공항 T2';
   document.getElementById('f-ship').value='both';
   const now=new Date();
   function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
@@ -1444,7 +1433,7 @@ function rentalAdd(){
 function rentalEdit(id){
   const r=DB.rentals.find(x=>x.id===id);if(!r)return;
   editId=id;
-  document.getElementById('rental-title').textContent='????섏젙';
+  var _el_rental_title=document.getElementById('rental-title');if(_el_rental_title)_el_rental_title.textContent='대여 수정';
   document.getElementById('btn-del').classList.remove('hide');
   document.getElementById('btn-done').classList.toggle('hide',r.done);
   document.getElementById('btn-undone').classList.toggle('hide',!r.done);
@@ -1486,8 +1475,8 @@ function updateShipSections(v){
   document.getElementById('sec-airport-ret').classList.toggle('hide',!isApRet);
   document.getElementById('sec-airport-memo').classList.toggle('hide',!isApPick&&!isApRet);
 }
-// ?? ?뱀젙 湲곌컙???쇰컲 ?쒗뭹 媛???섎웾 怨꾩궛 ??
-// QR ?쒗뭹 紐⑤뜽 湲곗? 媛???섎웾 (?덉빟 湲곕컲)
+// ── 특정 기간의 일반 제품 가용 수량 계산 ──
+// QR 제품 모델 기준 가용 수량 (예약 기반)
 function getQrModelAvail(modelName,skipRentalId){
   const units=DB.stock.filter(s=>s.model===modelName&&s.type==='qr');
   const total=units.length;
@@ -1512,38 +1501,38 @@ function itemsAdd(sid='',qty=1,preModel='',preQty=1){
   const id='ir_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
   const rc=CSTATE.rent,sc=CSTATE.send,vc=CSTATE.recv;
   const hasPeriod=(sc.s||rc.s)&&(vc.e||rc.e);
-  // ?쇰컲 ?쒗뭹
+  // 일반 제품
   const normals=DB.stock.filter(s=>s.type==='normal');
-  let opts='<option value="">???덈ぉ ?좏깮 ??/option>';
-  // QR ?쒗뭹 (紐⑤뜽 湲곕컲)
+  let opts='<option value="">― 품목 선택 ―</option>';
+  // QR 제품 (모델 기반)
   const qrModels=[...new Set(DB.stock.filter(s=>s.type==='qr').map(s=>s.model))].sort();
   if(qrModels.length){
-    opts+='<optgroup label="?뵔 ?뚯썙?낅객??>';
+    opts+='<optgroup label="🔖 파워업밴드">';
     qrModels.forEach(m=>{
       const avail=getQrModelAvail(m,editId);
-      const label=hasPeriod?`${m} (湲곌컙 媛??${avail}媛?`:`${m} (珥?${DB.stock.filter(s=>s.model===m&&s.type==='qr').length}媛?`;
+      const label=hasPeriod?`${m} (기간 가용 ${avail}개)`:`${m} (총 ${DB.stock.filter(s=>s.model===m&&s.type==='qr').length}개)`;
       const dis=avail<=0&&m!==preModel?'disabled':'';
       opts+=`<option value="qr__${m}"${m===preModel?' selected':''}${dis}>${label}</option>`;
     });
     opts+='</optgroup>';
   }
   if(normals.length){
-    opts+='<optgroup label="?벀 ?쇰컲 ?쒗뭹">';
+    opts+='<optgroup label="📦 일반 제품">';
     normals.forEach(s=>{
       const avail=getAvailQty(s.id,editId);
-      const label=hasPeriod?`${s.model} (湲곌컙 媛??${avail}媛?`:`${s.model} (?ш퀬 ${s.total}媛?`;
+      const label=hasPeriod?`${s.model} (기간 가용 ${avail}개)`:`${s.model} (재고 ${s.total}개)`;
       const dis=hasPeriod&&avail<=0&&s.id!==sid?'disabled':'';
       opts+=`<option value="nm__${s.id}"${s.id===sid?' selected':''}${dis}>${label}</option>`;
     });
     opts+='</optgroup>';
   }
-  if(!normals.length&&!qrModels.length)opts='<option value="">?쒗뭹愿由ъ뿉??癒쇱? 異붽??섏꽭??/option>';
+  if(!normals.length&&!qrModels.length)opts='<option value="">제품관리에서 먼저 추가하세요</option>';
   const initQty=preModel?preQty:qty;
   const div=document.createElement('div');div.className='item-row';div.id=id;
-  div.innerHTML=`<select>${opts}</select><span class="qty-lbl">?섎웾</span><input type="number" min="1" value="${initQty}"><button class="rm-btn" data-rm-item="${id}">??/button>`;
+  div.innerHTML=`<select>${opts}</select><span class="qty-lbl">수량</span><input type="number" min="1" value="${initQty}"><button class="rm-btn" data-rm-item="${id}">✕</button>`;
   document.getElementById('item-list').appendChild(div);
 }
-// ?쇰컲 ?쒗뭹 媛???섎웾 (?꾩껜 湲곌컙 湲곗?)
+// 일반 제품 가용 수량 (전체 기간 기준)
 function getAvailQty(stockId,skipRentalId){
   const s=DB.stock.find(x=>x.id===stockId);if(!s)return 0;
   const total=s.total||1;
@@ -1561,10 +1550,10 @@ function getAvailQty(stockId,skipRentalId){
   });
   return Math.max(0,total-used);
 }
-// QR ?쒗뭹 ?꾩슜 異붽? (異쒓퀬 ?꾩슜 - ????깅줉?먯꽌???ъ슜 ????
+// QR 제품 전용 추가 (출고 전용 - 대여 등록에서는 사용 안 함)
 function itemsAddQr(sid){
   const s=DB.stock.find(x=>x.id===sid);if(!s)return;
-  // 媛숈? 紐⑤뜽???대? ?덉쑝硫??섎웾 利앷?
+  // 같은 모델이 이미 있으면 수량 증가
   const rows=Array.from(document.getElementById('item-list').children);
   for(const row of rows){
     const sel=row.querySelector('select');
@@ -1591,36 +1580,36 @@ function itemsGet(){
     return null;
   }).filter(x=>x);
 }
-// ??ш린媛?蹂寃????쒕∼?ㅼ슫 媛???ш퀬 ?덈줈怨좎묠
+// 대여기간 변경 시 드롭다운 가용 재고 새로고침
 function refreshItemDropdowns(){
   const rc=CSTATE.rent,sc=CSTATE.send,vc=CSTATE.recv;
   const hasPeriod=(sc.s||rc.s)&&(vc.e||rc.e);
   const fromStr=sc.s?ds(sc.s):(rc.s?ds(rc.s):null);
   const toStr=vc.e?ds(vc.e):(rc.e?ds(rc.e):null);
   const hint=document.getElementById('period-hint');
-  if(hint)hint.textContent=hasPeriod?`(${fmtMon(fromStr)}~${fmtMon(toStr)} ?꾩껜湲곌컙 湲곗?)`:'(湲곌컙 ?좏깮 ??媛???ш퀬 ?쒖떆)';
+  if(hint)hint.textContent=hasPeriod?`(${fmtMon(fromStr)}~${fmtMon(toStr)} 전체기간 기준)`:'(기간 선택 시 가용 재고 표시)';
   const list=document.getElementById('item-list');if(!list)return;
   Array.from(list.children).forEach(row=>{
     const sel=row.querySelector('select');if(!sel)return;
     const cur=sel.value;
     const qrModels=[...new Set(DB.stock.filter(s=>s.type==='qr').map(s=>s.model))].sort();
     const normals=DB.stock.filter(s=>s.type==='normal');
-    let opts='<option value="">???덈ぉ ?좏깮 ??/option>';
+    let opts='<option value="">― 품목 선택 ―</option>';
     if(qrModels.length){
-      opts+='<optgroup label="?뵔 ?뚯썙?낅객??>';
+      opts+='<optgroup label="🔖 파워업밴드">';
       qrModels.forEach(m=>{
         const avail=getQrModelAvail(m,editId);
-        const label=hasPeriod?`${m} (湲곌컙 媛??${avail}媛?`:`${m} (珥?${DB.stock.filter(s=>s.model===m&&s.type==='qr').length}媛?`;
+        const label=hasPeriod?`${m} (기간 가용 ${avail}개)`:`${m} (총 ${DB.stock.filter(s=>s.model===m&&s.type==='qr').length}개)`;
         const dis=avail<=0&&`qr__${m}`!==cur?'disabled':'';
         opts+=`<option value="qr__${m}"${`qr__${m}`===cur?' selected':''}${dis}>${label}</option>`;
       });
       opts+='</optgroup>';
     }
     if(normals.length){
-      opts+='<optgroup label="?벀 ?쇰컲 ?쒗뭹">';
+      opts+='<optgroup label="📦 일반 제품">';
       normals.forEach(s=>{
         const avail=getAvailQty(s.id,editId);
-        const label=hasPeriod?`${s.model} (湲곌컙 媛??${avail}媛?`:`${s.model} (?ш퀬 ${s.total}媛?`;
+        const label=hasPeriod?`${s.model} (기간 가용 ${avail}개)`:`${s.model} (재고 ${s.total}개)`;
         const dis=hasPeriod&&avail<=0&&`nm__${s.id}`!==cur?'disabled':'';
         opts+=`<option value="nm__${s.id}"${`nm__${s.id}`===cur?' selected':''}${dis}>${label}</option>`;
       });
@@ -1641,31 +1630,31 @@ function itemsGet(){
     return null;
   }).filter(x=>x);
 }
-// QR濡??덈ぉ 異붽? (QR ?쒗뭹 ?꾩슜)
+// QR로 품목 추가 (QR 제품 전용)
 function addItemByQrId(qrId){
   const s=DB.stock.find(x=>x.qrId===qrId);
   if(!s){
-    rejectAlert('?좑툘 ?깅줉?섏? ?딆? QR 肄붾뱶?낅땲??\n\nQR ID: '+qrId+'\n\n[?쒗뭹愿由? ??뿉??癒쇱? ?쒗뭹???깅줉?섏꽭??');
+    rejectAlert('⚠️ 등록되지 않은 QR 코드입니다.\n\nQR ID: '+qrId+'\n\n[제품관리] 탭에서 먼저 제품을 등록하세요.');
     return false;
   }
-  // ?대? ?꾩옱 紐⑤떖???덈ぉ 由ъ뒪?몄뿉 ?덈뒗吏 (data-qrSid濡?寃??
+  // 이미 현재 모달의 품목 리스트에 있는지 (data-qrSid로 검사)
   const rows=Array.from(document.getElementById('item-list').children);
   for(const row of rows){
     if(row.dataset.qrSid===s.id){
-      rejectAlert('?좑툘 ?대? ?깅줉???쒗뭹?낅땲??\n\n?쒗뭹: '+s.model+'\nQR: [..'+s.qrId.slice(-8)+']\n\n媛숈? ?쒗뭹????踰??ㅼ틪?섏뀲?듬땲??');
+      rejectAlert('⚠️ 이미 등록된 제품입니다.\n\n제품: '+s.model+'\nQR: [..'+s.qrId.slice(-8)+']\n\n같은 제품을 두 번 스캔하셨습니다.');
       return false;
     }
   }
-  // ?ㅻⅨ ?쒖꽦 ??ъ뿉 臾띠뿬?덈뒗吏
+  // 다른 활성 대여에 묶여있는지
   const activeRental=DB.rentals.find(r=>!r.done&&r.id!==editId&&r.items.some(it=>it.sid===s.id));
   if(activeRental){
-    rejectAlert('?좑툘 ?대떦 ?쒗뭹? ?꾩옱 ???以묒씤 ?쒗뭹?낅땲??\n\n?쒗뭹: '+s.model+'\nQR: [..'+s.qrId.slice(-8)+']\n\n??ъ옄: '+activeRental.cust+'\n??ш린媛? '+activeRental.start+' ~ '+activeRental.end+'\n\n諛섎궔 ?꾨즺 ???ㅼ떆 ????깅줉?댁＜?몄슂.');
+    rejectAlert('⚠️ 해당 제품은 현재 대여 중인 제품입니다.\n\n제품: '+s.model+'\nQR: [..'+s.qrId.slice(-8)+']\n\n대여자: '+activeRental.cust+'\n대여기간: '+activeRental.start+' ~ '+activeRental.end+'\n\n반납 완료 후 다시 대여 등록해주세요.');
     return false;
   }
-  // QR ?꾩슜 ?됱쑝濡?異붽?
+  // QR 전용 행으로 추가
   itemsAddQr(s.id);
   playBeep();
-  toast('??'+s.model+' 異붽???);
+  toast('✅ '+s.model+' 추가됨');
   return true;
 }
 
@@ -1673,25 +1662,25 @@ function addItemByQrId(qrId){
 function dayOpen(dstr){
   const d=new Date(dstr+'T00:00:00');
   const hol=isHol(dp(dstr)),hn=holName(dp(dstr));
-  document.getElementById('day-title').textContent=(d.getMonth()+1)+'??+d.getDate()+'??('+DAYS[d.getDay()]+')'+(hol?' ?뵶'+hn:'');
+  var _el_day_title=document.getElementById('day-title');if(_el_day_title)_el_day_title.textContent=(d.getMonth()+1)+'월'+d.getDate()+'일 ('+DAYS[d.getDay()]+')'+(hol?' 🔴'+hn:'');
   const scheds=getScheds(dstr),inv=calcInv(dstr),dd=clr(dp(dstr));
   let h='';
-  if(hol)h+=`<div style="background:var(--red-l);color:var(--red);padding:9px 12px;border-radius:7px;font-size:13px;font-weight:600;margin-bottom:10px">?뵶 ${hn||'?대Т??}</div>`;
+  if(hol)h+=`<div style="background:var(--red-l);color:var(--red);padding:9px 12px;border-radius:7px;font-size:13px;font-weight:600;margin-bottom:10px">🔴 ${hn||'휴무일'}</div>`;
   const sendS=scheds.filter(s=>s.t==='send'),recvS=scheds.filter(s=>s.t==='recv');
   const pickupS=scheds.filter(s=>s.t==='pickup'),returnS=scheds.filter(s=>s.t==='return');
-  h+='<div class="d-sec" style="color:#cc0000">?벀 ?앸같 諛쒖넚</div>';
-  if(!sendS.length)h+='<p style="font-size:12px;color:var(--text3);padding:4px 0">?대떦 ?놁쓬</p>';
+  h+='<div class="d-sec" style="color:#cc0000">📦 택배 발송</div>';
+  if(!sendS.length)h+='<p style="font-size:12px;color:var(--text3);padding:4px 0">해당 없음</p>';
   sendS.forEach(s=>h+=`<div class="day-item"><span class="chip2" style="background:#00ffff;color:#000000;border:1.5px solid #00ffff">${s.lbl}</span><span style="color:var(--text2);font-size:12px">${isum(s.r)}</span></div>`);
-  h+='<div class="d-sec" style="color:#cc6600;margin-top:10px">?벉 ?앸같 ?섍굅</div>';
-  if(!recvS.length)h+='<p style="font-size:12px;color:var(--text3);padding:4px 0">?대떦 ?놁쓬</p>';
+  h+='<div class="d-sec" style="color:#cc6600;margin-top:10px">📬 택배 수거</div>';
+  if(!recvS.length)h+='<p style="font-size:12px;color:var(--text3);padding:4px 0">해당 없음</p>';
   recvS.forEach(s=>h+=`<div class="day-item"><span class="chip2" style="background:#00ffff;color:#000000">${s.lbl}</span><span style="color:var(--text2);font-size:12px">${isum(s.r)}</span></div>`);
-  h+='<div class="d-sec" style="color:#0891B2;margin-top:10px">?쎁 怨듯빆쨌吏곸젒 ?섎졊</div>';
-  if(!pickupS.length)h+='<p style="font-size:12px;color:var(--text3);padding:4px 0">?대떦 ?놁쓬</p>';
+  h+='<div class="d-sec" style="color:#0891B2;margin-top:10px">🛫 공항·직접 수령</div>';
+  if(!pickupS.length)h+='<p style="font-size:12px;color:var(--text3);padding:4px 0">해당 없음</p>';
   pickupS.forEach(s=>h+=`<div class="day-item"><span class="chip2" style="background:#00ff00;color:#000000;border:1.5px solid #00ff00">${s.lbl}</span><span style="color:var(--text2);font-size:12px">${isum(s.r)}</span></div>`);
-  h+='<div class="d-sec" style="color:#7C3AED;margin-top:10px">?쎂 怨듯빆쨌吏곸젒 諛섎궔</div>';
-  if(!returnS.length)h+='<p style="font-size:12px;color:var(--text3);padding:4px 0">?대떦 ?놁쓬</p>';
+  h+='<div class="d-sec" style="color:#7C3AED;margin-top:10px">🛬 공항·직접 반납</div>';
+  if(!returnS.length)h+='<p style="font-size:12px;color:var(--text3);padding:4px 0">해당 없음</p>';
   returnS.forEach(s=>h+=`<div class="day-item"><span class="chip2" style="background:#00ff00;color:#000000;border:1.5px solid #00ff00">${s.lbl}</span><span style="color:var(--text2);font-size:12px">${isum(s.r)}</span></div>`);
-  h+='<div class="d-sec">?ш퀬 ?꾪솴</div>';
+  h+='<div class="d-sec">재고 현황</div>';
   const dayStockGroups=getModelGroups();
   Object.keys(dayStockGroups).sort().forEach(model=>{
     const units=dayStockGroups[model];
@@ -1704,11 +1693,11 @@ function dayOpen(dstr){
   });
   const active=DB.rentals.filter(r=>{if(r.done)return false;return dd>=clr(dp(r.ss||r.start))&&dd<=clr(dp(r.ve||r.end));});
   if(active.length){
-    h+='<div class="d-sec">???????以묒씤 ??ぉ</div>';
+    h+='<div class="d-sec">이 날 대여 중인 항목</div>';
     active.forEach(r=>{
       const inS=r.ss&&dd>=clr(dp(r.ss))&&dd<=(r.se?clr(dp(r.se)):clr(dp(r.start)));
       const inV=r.vs&&dd>=clr(dp(r.vs))&&dd<=(r.ve?clr(dp(r.ve)):clr(dp(r.end)));
-      const phase=inS?'諛쒖넚以?:inV?'?섍굅以?:'??ъ쨷',pc=inS?'#D97706':inV?'#ff9900':'#2563EB';
+      const phase=inS?'발송중':inV?'수거중':'대여중',pc=inS?'#D97706':inV?'#ff9900':'#2563EB';
       h+=`<div class="day-item"><div style="width:9px;height:9px;border-radius:50%;background:${scol(r.ship)};flex-shrink:0"></div><div style="flex:1;min-width:0"><div style="font-size:12px">${r.cust}${r.phone?' <span style="color:var(--text3)">'+r.phone+'</span>':''}</div>${r.addr?'<div style="font-size:10px;color:var(--text3)">'+r.addr+'</div>':''}<div style="font-size:11px;color:var(--text2)">${isum(r)}</div></div><span style="font-size:11px;font-weight:700;color:${pc};flex-shrink:0">${phase}</span></div>`;
     });
   }
@@ -1718,14 +1707,14 @@ function dayOpen(dstr){
 
 /* ===== STOCK CHECK ===== */
 function checkStock(items,startStr,endStr,skipId){
-  // QR ?쒗뭹: 紐⑤뜽蹂?媛???섎웾 ?뺤씤
+  // QR 제품: 모델별 가용 수량 확인
   for(const it of items){
     if(it.type==='qr'){
       const avail=getQrModelAvail(it.model,skipId);
-      if(avail<it.qty) return `"${it.model}" 媛???ш퀬 遺議?(媛?? ${avail}媛? ?꾩슂: ${it.qty}媛?`;
+      if(avail<it.qty) return `"${it.model}" 가용 재고 부족 (가용: ${avail}개, 필요: ${it.qty}개)`;
       continue;
     }
-    // ?쇰컲 ?쒗뭹: 湲곌컙蹂??뺤씤
+    // 일반 제품: 기간별 확인
     if(!startStr||!endStr)continue;
     const from=clr(dp(startStr)),to=clr(dp(endStr));
     for(let d=new Date(from);d<=to;d.setDate(d.getDate()+1)){
@@ -1736,39 +1725,39 @@ function checkStock(items,startStr,endStr,skipId){
         if(cur>=rFrom&&cur<=rTo)r.items.forEach(ri=>{if(ri.sid)used[ri.sid]=(used[ri.sid]||0)+ri.qty;});
       });
       const stock=DB.stock.find(s=>s.id===it.sid);if(!stock)continue;
-      if((used[it.sid]||0)+it.qty>stock.total) return `"${stock.model}" ?ш퀬 遺議?;
+      if((used[it.sid]||0)+it.qty>stock.total) return `"${stock.model}" 재고 부족`;
     }
   }
   return null;
 }
 
-/* ===== SAVE RENTAL (????잛닔 ?먮룞 移댁슫??) ===== */
+/* ===== SAVE RENTAL (대여 횟수 자동 카운트!) ===== */
 function doSaveRental(){
   const cust=document.getElementById('f-cust').value.trim();
   const phone=document.getElementById('f-phone').value.trim();
   const addr=document.getElementById('f-addr').value.trim();
   const ship=document.getElementById('f-ship').value;
   const rc=CSTATE.rent,sc=CSTATE.send,vc=CSTATE.recv;
-  if(!cust){toast('?좑툘 怨좉컼紐낆쓣 ?낅젰?댁＜?몄슂');const el=document.getElementById('f-cust');el.style.borderColor='var(--red)';el.focus();setTimeout(()=>el.style.borderColor='',2000);return;}
-  if(!phone){toast('?좑툘 ?꾪솕踰덊샇瑜??낅젰?댁＜?몄슂');const el=document.getElementById('f-phone');el.style.borderColor='var(--red)';el.focus();setTimeout(()=>el.style.borderColor='',2000);return;}
-  if(!addr){toast('?좑툘 二쇱냼瑜??낅젰?댁＜?몄슂');const el=document.getElementById('f-addr');el.style.borderColor='var(--red)';el.focus();setTimeout(()=>el.style.borderColor='',2000);return;}
-  if(!rc.s||!rc.e){toast('?좑툘 ???湲곌컙???좏깮?댁＜?몄슂');return;}
+  if(!cust){toast('⚠️ 고객명을 입력해주세요');const el=document.getElementById('f-cust');el.style.borderColor='var(--red)';el.focus();setTimeout(()=>el.style.borderColor='',2000);return;}
+  if(!phone){toast('⚠️ 전화번호를 입력해주세요');const el=document.getElementById('f-phone');el.style.borderColor='var(--red)';el.focus();setTimeout(()=>el.style.borderColor='',2000);return;}
+  if(!addr){toast('⚠️ 주소를 입력해주세요');const el=document.getElementById('f-addr');el.style.borderColor='var(--red)';el.focus();setTimeout(()=>el.style.borderColor='',2000);return;}
+  if(!rc.s||!rc.e){toast('⚠️ 대여 기간을 선택해주세요');return;}
   const items=itemsGet();
-  if(!items.length){toast('?좑툘 ????덈ぉ??異붽??댁＜?몄슂');return;}
-  // ?섏젙 ??湲곗〈 QR 異쒓퀬 units 蹂댁〈
+  if(!items.length){toast('⚠️ 대여 품목을 추가해주세요');return;}
+  // 수정 시 기존 QR 출고 units 보존
   if(editId){
     const ex=DB.rentals.find(x=>x.id===editId);
     if(ex){
       items.forEach(ni=>{
         if(ni.type==='qr'){
           const old=ex.items.find(oi=>oi.type==='qr'&&oi.model===ni.model);
-          if(old&&old.units)ni.units=old.units; // 湲곗〈 異쒓퀬 ?좊떅 蹂댁〈
+          if(old&&old.units)ni.units=old.units; // 기존 출고 유닛 보존
         }
       });
     }
   }
   const stockErr=checkStock(items,ds(rc.s),ds(rc.e),editId);
-  if(stockErr){toast('?좑툘 '+stockErr);return;}
+  if(stockErr){toast('⚠️ '+stockErr);return;}
   const rec={
     cust,
     phone,
@@ -1788,7 +1777,7 @@ function doSaveRental(){
   if(editId){
     const ex=DB.rentals.find(x=>x.id===editId);
     if(ex){
-      // ?섏젙: ?덈ぉ 蹂寃쎈맂 寃쎌슦 李⑥씠留뚰겮 移댁슫??議곗젙
+      // 수정: 품목 변경된 경우 차이만큼 카운트 조정
       const oldItems=ex.items||[];
       const oldMap={};oldItems.forEach(it=>oldMap[it.sid]=(oldMap[it.sid]||0)+it.qty);
       const newMap={};items.forEach(it=>newMap[it.sid]=(newMap[it.sid]||0)+it.qty);
@@ -1798,10 +1787,10 @@ function doSaveRental(){
         if(diff>0){
           const s=DB.stock.find(x=>x.id===sid);
           if(s)s.count=(s.count||0)+diff;
-          // 異붽???留뚰겮 rent 濡쒓렇
+          // 추가된 만큼 rent 로그
           DB.logs.push({id:'lg'+Date.now()+'_'+Math.random().toString(36).slice(2,5),type:'rent',sid,name:(s?s.model||s.name||'?':'?'),qty:diff,rentalId:editId,cust,date:new Date().toISOString()});
         } else if(diff<0){
-          // 媛먯냼 ??移댁슫??李④컧
+          // 감소 시 카운트 차감
           const s=DB.stock.find(x=>x.id===sid);
           if(s)s.count=Math.max(0,(s.count||0)+diff);
         }
@@ -1809,7 +1798,7 @@ function doSaveRental(){
       Object.assign(ex,{...rec,done:ex.done});
     }
   } else {
-    // ?좉퇋 ?깅줉: 媛??덈ぉ count += qty, rent 濡쒓렇 湲곕줉
+    // 신규 등록: 각 품목 count += qty, rent 로그 기록
     const newId='r'+Date.now();
     DB.rentals.push({id:newId,done:false,...rec});
     items.forEach(it=>{
@@ -1818,7 +1807,7 @@ function doSaveRental(){
       const logName=it.type==='qr'?it.model:(s?s.model||s.name||'?':'?');
       DB.logs.push({id:'lg'+Date.now()+'_'+Math.random().toString(36).slice(2,5),type:'rent',sid:it.sid,name:logName,qty:it.qty,rentalId:newId,cust,date:new Date().toISOString()});
     });
-    toast('??????깅줉 ?꾨즺 - ??ы슏???먮룞 移댁슫?몃맖');
+    toast('✅ 대여 등록 완료 - 대여횟수 자동 카운트됨');
   }
   dbSave();modalClose('modal-rental');render();
 }
@@ -1826,7 +1815,7 @@ function showDelConfirm(){document.getElementById('del-confirm-row').classList.r
 function hideDelConfirm(){document.getElementById('del-confirm-row').classList.add('hide');}
 function doDeleteConfirmed(){
   if(!editId)return;
-  // ??젣 ??移댁슫??李④컧 (諛섎궔?꾨즺媛 ?꾨땲?덈떎硫?
+  // 삭제 시 카운트 차감 (반납완료가 아니었다면)
   const r=DB.rentals.find(x=>x.id===editId);
   if(r&&!r.done){
     r.items.forEach(it=>{
@@ -1835,7 +1824,7 @@ function doDeleteConfirmed(){
     });
   }
   DB.rentals=DB.rentals.filter(x=>x.id!==editId);
-  // 愿??濡쒓렇???쒓굅
+  // 관련 로그도 제거
   DB.logs=DB.logs.filter(l=>l.rentalId!==editId);
   dbSave();modalClose('modal-rental');render();
 }
@@ -1843,20 +1832,20 @@ function doMarkDone(){
   if(!editId)return;
   const r=DB.rentals.find(x=>x.id===editId);if(!r)return;
   r.done=true;
-  // 諛섎궔?꾨즺 濡쒓렇
+  // 반납완료 로그
   r.items.forEach(it=>{
     const s=it.type==='qr'?null:DB.stock.find(x=>x.id===it.sid);
     const logName=it.type==='qr'?it.model:(s?s.model||s.name||'?':'?');
     DB.logs.push({id:'lg'+Date.now()+'_'+Math.random().toString(36).slice(2,5),type:'return',sid:it.sid,name:logName,qty:it.qty,rentalId:editId,cust:r.cust,date:new Date().toISOString()});
   });
-  toast('??諛섎궔?꾨즺 泥섎━');
+  toast('✅ 반납완료 처리');
   dbSave();modalClose('modal-rental');render();
 }
 function doUndoDone(){
   if(!editId)return;
   const r=DB.rentals.find(x=>x.id===editId);if(!r)return;
   r.done=false;
-  // 媛??理쒓렐 諛섎궔 濡쒓렇 ?쒓굅
+  // 가장 최근 반납 로그 제거
   for(let i=DB.logs.length-1;i>=0;i--){
     if(DB.logs[i].rentalId===editId&&DB.logs[i].type==='return'){
       DB.logs.splice(i,1);
@@ -1867,24 +1856,24 @@ function doUndoDone(){
 
 /* ===== HOL & CSV & HTML ===== */
 function exportCSV(){
-  if(!DB.rentals.length){alert('?대낫??????댁뿭???놁뒿?덈떎.');return;}
-  const SHIP={both:'?앸같諛쒖넚+?섍굅',direct:'吏곸젒?섎졊/諛섎궔',airport:'怨듯빆?섎졊/諛섎궔',send_only:'?앸같諛쒖넚+吏곸젒諛섎궔',recv_only:'吏곸젒?섎졊+?앸같?섍굅'};
-  const hdrs=['怨좉컼紐?,'??ы뭹紐?,'?섎웾','??ъ떆??,'諛섎궔?덉젙','諛곗넚諛⑹떇','諛쒖넚?쒖옉','諛쒖넚醫낅즺','?섍굅?쒖옉','?섍굅醫낅즺','?섎졊怨듯빆','?섎졊?쒓컙','諛섎궔怨듯빆','諛섎궔?쒓컙','怨듯빆?μ냼硫붾え','硫붾え','?곹깭'];
-  const rows=DB.rentals.map(r=>[r.cust,r.items.map(it=>iname(it.sid)).join('/'),r.items.map(it=>it.qty).join('/'),r.start,r.end,SHIP[r.ship]||r.ship,r.ss||'',r.se||'',r.vs||'',r.ve||'',r.apAirportPick||'',r.apPick||'',r.apAirportRet||'',r.apRet||'',r.apMemo||'',r.memo||'',r.done?'諛섎궔?꾨즺':'??ъ쨷']);
-  const sh=['?덈ぉ紐?,'QR_ID','移댄뀒怨좊━','珥앸낫??,'?꾩쟻??ы슏??,'?꾩옱??ъ쨷','媛?⑹옱怨?];
+  if(!DB.rentals.length){alert('내보낼 대여 내역이 없습니다.');return;}
+  const SHIP={both:'택배발송+수거',direct:'직접수령/반납',airport:'공항수령/반납',send_only:'택배발송+직접반납',recv_only:'직접수령+택배수거'};
+  const hdrs=['고객명','대여품목','수량','대여시작','반납예정','배송방식','발송시작','발송종료','수거시작','수거종료','수령공항','수령시간','반납공항','반납시간','공항장소메모','메모','상태'];
+  const rows=DB.rentals.map(r=>[r.cust,r.items.map(it=>iname(it.sid)).join('/'),r.items.map(it=>it.qty).join('/'),r.start,r.end,SHIP[r.ship]||r.ship,r.ss||'',r.se||'',r.vs||'',r.ve||'',r.apAirportPick||'',r.apPick||'',r.apAirportRet||'',r.apRet||'',r.apMemo||'',r.memo||'',r.done?'반납완료':'대여중']);
+  const sh=['품목명','QR_ID','카테고리','총보유','누적대여횟수','현재대여중','가용재고'];
   const inv=calcInv(ds(clr(new Date())));
   const sr=DB.stock.map(s=>[s.name,s.qrId||'',s.cat||'',s.total,s.count||0,s.total-(inv[s.id]??s.total),inv[s.id]??s.total]);
   function esc(v){return'"'+String(v??'').replace(/"/g,'""')+'"';}
   function toCSV(hdrs,rows){return[hdrs.map(esc),...rows.map(r=>r.map(esc))].map(r=>r.join(',')).join('\n');}
-  const csv='\uFEFF=== ????꾪솴 ===\n'+toCSV(hdrs,rows)+'\n\n=== ?쒗뭹/?ш퀬 ?꾪솴 ===\n'+toCSV(sh,sr);
+  const csv='\uFEFF=== 대여 현황 ===\n'+toCSV(hdrs,rows)+'\n\n=== 제품/재고 현황 ===\n'+toCSV(sh,sr);
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
-  a.download='?뚰깉愿由?'+ds(new Date())+'.csv';
+  a.download='렌탈관리_'+ds(new Date())+'.csv';
   document.body.appendChild(a);a.click();document.body.removeChild(a);
 }
 function saveHTML(){
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([document.documentElement.outerHTML],{type:'text/html;charset=utf-8'}));
-  a.download='?뚰깉?듯빀愿由ъ떆?ㅽ뀥.html';
+  a.download='렌탈통합관리시스템.html';
   document.body.appendChild(a);a.click();document.body.removeChild(a);
 }
 
@@ -1898,7 +1887,7 @@ function getModels(){return[...new Set(DB.stock.map(s=>s.model).filter(Boolean))
 function renderProducts(){
   const cats=getCats(),models=getModels();
   const sel=document.getElementById('prod-cat-filter'),cv=sel.value;
-  sel.innerHTML='<option value="">?꾩껜 移댄뀒怨좊━</option>'+cats.map(c=>`<option value="${c}"${c===cv?' selected':''}>${c}</option>`).join('');
+  sel.innerHTML='<option value="">전체 카테고리</option>'+cats.map(c=>`<option value="${c}"${c===cv?' selected':''}>${c}</option>`).join('');
   const cdl=document.getElementById('cat-dl');
   if(cdl)cdl.innerHTML=cats.map(c=>`<option value="${c}">`).join('');
   const mdl=document.getElementById('model-dl');
@@ -1921,92 +1910,92 @@ function renderProducts(){
   });
 
   const el=document.getElementById('prod-list');
-  if(!filtered.length){el.innerHTML='<div class="empty-state">?깅줉???쒗뭹???놁뒿?덈떎.<br>+ ?쒗뭹 異붽? 踰꾪듉???뚮윭 ?깅줉?섏꽭??</div>';return;}
+  if(!filtered.length){el.innerHTML='<div class="empty-state">등록된 제품이 없습니다.<br>+ 제품 추가 버튼을 눌러 등록하세요.</div>';return;}
   el.innerHTML=filtered.map(m=>{
     const units=groups[m];
     const stats=getModelStats(m);
     const cat=units[0].cat||'';
-    const expanded=expandedModels[m]!==false; // 湲곕낯 ?쇱묠
+    const expanded=expandedModels[m]!==false; // 기본 펼침
     const unitsHtml=units.map(u=>{
       const left=inv[u.id]??1;
       const isUsing=left<=0;
       return `<div class="unit-row">
         <div class="unit-row-top">
-          <span class="unit-name">${u.model||'湲곕낯'}</span>
-          <span class="unit-status ${isUsing?'out':'ok'}">${isUsing?'??ъ쨷':'蹂닿?以?}</span>
-          <span class="unit-count">?뱤 ${u.count||0}??/span>
+          <span class="unit-name">${u.model||'기본'}</span>
+          <span class="unit-status ${isUsing?'out':'ok'}">${isUsing?'대여중':'보관중'}</span>
+          <span class="unit-count">📊 ${u.count||0}회</span>
           <div class="unit-actions" style="margin-left:auto">
-            <button class="btn" data-prod-detail="${u.id}">?곸꽭</button>
-            <button class="btn" data-prod-edit="${u.id}">?섏젙</button>
-            ${u.qrId?`<button class="btn btn-blue" data-prod-qr="${u.id}">?벜</button>`:''}
+            <button class="btn" data-prod-detail="${u.id}">상세</button>
+            <button class="btn" data-prod-edit="${u.id}">수정</button>
+            ${u.qrId?`<button class="btn btn-blue" data-prod-qr="${u.id}">📷</button>`:''}
           </div>
         </div>
         ${u.qrId
-          ?`<div class="unit-qr">?뵔 ${u.qrId}</div>`
-          :'<div class="unit-qr-empty">QR 誘몄꽕??/div>'}
+          ?`<div class="unit-qr">🔖 ${u.qrId}</div>`
+          :'<div class="unit-qr-empty">QR 미설정</div>'}
       </div>`;
     }).join('');
     return `<div class="model-card">
       <div class="model-header${expanded?' expanded':''}" data-toggle-model="${m}">
         <div class="model-header-row1">
-          <div class="model-toggle">${expanded?'??:'??}</div>
+          <div class="model-toggle">${expanded?'▼':'▶'}</div>
           <div class="model-name">${m}</div>
-          <button class="btn" data-model-detail="${m}" style="font-size:11px;padding:4px 10px;margin-left:auto;flex-shrink:0">?곸꽭</button>
+          <button class="btn" data-model-detail="${m}" style="font-size:11px;padding:4px 10px;margin-left:auto;flex-shrink:0">상세</button>
         </div>
         <div class="model-header-row2">
-          <span>珥?<strong>${stats.total}</strong></span>
-          <span style="color:${stats.using>0?'var(--amber)':'var(--text3)'}">???<strong>${stats.using}</strong></span>
-          <span style="color:${stats.available<=0?'var(--red)':'var(--teal)'}">媛??<strong>${stats.available}</strong></span>
-          <span class="cnt-badge">?뱤 ${stats.count}??/span>
+          <span>총 <strong>${stats.total}</strong></span>
+          <span style="color:${stats.using>0?'var(--amber)':'var(--text3)'}">대여 <strong>${stats.using}</strong></span>
+          <span style="color:${stats.available<=0?'var(--red)':'var(--teal)'}">가용 <strong>${stats.available}</strong></span>
+          <span class="cnt-badge">📊 ${stats.count}회</span>
         </div>
       </div>
-      ${expanded?`<div class="model-units">${unitsHtml}<button class="unit-add-btn" data-add-unit="${m}">+ "${m}" ?⑥쐞 異붽?</button></div>`:''}
+      ${expanded?`<div class="model-units">${unitsHtml}<button class="unit-add-btn" data-add-unit="${m}">+ "${m}" 단위 추가</button></div>`:''}
     </div>`;
   }).join('');
 }
 
-// 紐⑤뜽 ?꾩껜 ?곸꽭 (?ш퀬/??ъ쨷/媛???듦퀎留? QR쨌湲곕줉 ?놁쓬)
+// 모델 전체 상세 (재고/대여중/가용 통계만, QR·기록 없음)
 function openModelDetail(modelName){
   const stats=getModelStats(modelName);
   const units=DB.stock.filter(s=>s.model===modelName);
-  document.getElementById('pdet-title').textContent=modelName+' ???꾩껜 ?꾪솴';
+  var _el_pdet_title=document.getElementById('pdet-title');if(_el_pdet_title)_el_pdet_title.textContent=modelName+' — 전체 현황';
   document.getElementById('pdet-edit-btn').classList.add('hide');
   let h=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
     <div style="background:var(--card2);border-radius:12px;padding:16px 8px;text-align:center">
       <div style="font-size:28px;font-weight:700;color:var(--blue)">${stats.total}</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:3px">珥?蹂댁쑀</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:3px">총 보유</div>
     </div>
     <div style="background:var(--card2);border-radius:12px;padding:16px 8px;text-align:center">
       <div style="font-size:28px;font-weight:700;color:${stats.using>0?'var(--amber)':'var(--text3)'}">${stats.using}</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:3px">???以?/div>
+      <div style="font-size:11px;color:var(--text3);margin-top:3px">대여 중</div>
     </div>
     <div style="background:var(--card2);border-radius:12px;padding:16px 8px;text-align:center">
       <div style="font-size:28px;font-weight:700;color:${stats.available<=0?'var(--red)':'var(--teal)'}">${stats.available}</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:3px">?꾩옱 媛??/div>
+      <div style="font-size:11px;color:var(--text3);margin-top:3px">현재 가용</div>
     </div>
   </div>
   <div style="padding:10px 12px;background:var(--card2);border-radius:8px;font-size:12px;color:var(--text3)">
-    ?뱤 ?꾩쟻 ???<strong style="color:var(--blue)">${stats.count}??/strong>
-    &nbsp;쨌&nbsp; ?좊떅 ${units.length}媛??깅줉
+    📊 누적 대여 <strong style="color:var(--blue)">${stats.count}회</strong>
+    &nbsp;·&nbsp; 유닛 ${units.length}개 등록
   </div>`;
   document.getElementById('pdet-body').innerHTML=h;
   modalOpen('modal-prod-detail');
 }
 
-// ?쒗뭹 紐⑤떖: 醫낅쪟 ?좏깮???곕씪 QR/?섎웾 ?곸뿭 ?좉?
+// 제품 모달: 종류 선택에 따라 QR/수량 영역 토글
 function pfModelChange(){
   const v=document.getElementById('pf-model').value;
   const isQr=isQrModel(v);
   document.getElementById('pf-qr-sec').classList.toggle('hide',!isQr);
   document.getElementById('pf-total-sec').classList.toggle('hide',isQr||!v);
   if(!isQr&&v){
-    // ?섏젙 紐⑤뱶: ?먭린 ?먯떊??total ?쒖떆
+    // 수정 모드: 자기 자신의 total 표시
     if(editProdId){
       const self=DB.stock.find(s=>s.id===editProdId);
       if(self){document.getElementById('pf-total').value=self.total||1;}
       return;
     }
-    // 異붽? 紐⑤뱶: ?대? ?깅줉??媛숈? 紐⑤뜽 total 誘몃━ ?쒖떆
+    // 추가 모드: 이미 등록된 같은 모델 total 미리 표시
     const existing=DB.stock.find(s=>s.model===v&&s.type==='normal');
     if(existing){
       document.getElementById('pf-total').value=existing.total;
@@ -2020,7 +2009,7 @@ function pfModelChange(){
 }
 function openProdAdd(preFillModel){
   editProdId=null;
-  document.getElementById('prod-title').textContent='?쒗뭹 異붽?';
+  var _el_prod_title=document.getElementById('prod-title');if(_el_prod_title)_el_prod_title.textContent='제품 추가';
   document.getElementById('pf-del').classList.add('hide');
   document.getElementById('pf-del-confirm').classList.add('hide');
   document.getElementById('pf-model').value=preFillModel||'';
@@ -2033,7 +2022,7 @@ function openProdAdd(preFillModel){
 function openProdEdit(id){
   const s=DB.stock.find(x=>x.id===id);if(!s)return;
   editProdId=id;
-  document.getElementById('prod-title').textContent='?쒗뭹 ?섏젙';
+  var _el_prod_title=document.getElementById('prod-title');if(_el_prod_title)_el_prod_title.textContent='제품 수정';
   document.getElementById('pf-del').classList.remove('hide');
   document.getElementById('pf-del-confirm').classList.add('hide');
   document.getElementById('pf-model').value=s.model||'';
@@ -2045,15 +2034,15 @@ function openProdEdit(id){
 }
 function saveProd(){
   const model=document.getElementById('pf-model').value;
-  if(!model){toast('?좑툘 ?쒗뭹 醫낅쪟瑜??좏깮?섏꽭??);return;}
+  if(!model){toast('⚠️ 제품 종류를 선택하세요');return;}
   const isQr=isQrModel(model);
   const qrId=document.getElementById('pf-qrid').value.trim();
   const total=isQr?1:Math.max(1,parseInt(document.getElementById('pf-total').value)||1);
   const note=document.getElementById('pf-note').value.trim();
-  if(isQr&&!qrId){toast('?좑툘 ?뚯썙?낅객?쒕뒗 QR ?ㅼ틪???꾩닔?낅땲??);return;}
+  if(isQr&&!qrId){toast('⚠️ 파워업밴드는 QR 스캔이 필수입니다');return;}
   if(qrId){
     const dup=DB.stock.find(s=>s.qrId===qrId&&s.id!==editProdId);
-    if(dup){rejectAlert('?좑툘 ?대? ?깅줉??QR?낅땲??\n\n??'+dup.model+'\nQR: '+qrId);return;}
+    if(dup){rejectAlert('⚠️ 이미 등록된 QR입니다.\n\n→ '+dup.model+'\nQR: '+qrId);return;}
   }
   if(editProdId){
     const s=DB.stock.find(x=>x.id===editProdId);
@@ -2062,21 +2051,21 @@ function saveProd(){
     if(!isQr){
       const existing=DB.stock.find(s=>s.model===model&&s.type==='normal'&&s.id!==editProdId);
       if(existing){
-        existing.total=total; // ?낅젰??媛믪쓣 ?꾩옱 蹂댁쑀濡??ㅼ젙
+        existing.total=total; // 입력한 값을 현재 보유로 설정
         existing.note=note||existing.note;
         dbSave();modalClose('modal-prod');renderProducts();render();
-        toast('??'+model+' 蹂댁쑀 ?섎웾??'+total+'媛쒕줈 ?섏젙?덉뒿?덈떎');return;
+        toast('✅ '+model+' 보유 수량을 '+total+'개로 수정했습니다');return;
       }
     }
     DB.stock.push({id:'s'+Date.now(),model,type:isQr?'qr':'normal',qrId,total,count:0,note});
   }
   dbSave();modalClose('modal-prod');renderProducts();render();
-  toast('????λ맖');
+  toast('✅ 저장됨');
 }
 function deleteProd(){
   if(!editProdId)return;
   const s=DB.stock.find(x=>x.id===editProdId);if(!s)return;
-  // ?몃씪???뺤씤 ???쒖떆
+  // 인라인 확인 행 표시
   const row=document.getElementById('pf-del-confirm');
   if(row)row.classList.toggle('hide');
 }
@@ -2086,42 +2075,43 @@ function doDeleteProd(){
   DB.stock=DB.stock.filter(x=>x.id!==editProdId);
   DB.rentals=DB.rentals.filter(r=>!r.items.some(it=>it.sid===editProdId));
   dbSave();modalClose('modal-prod');renderProducts();render();
-  toast('?뿊 '+s.model+' ??젣??);
+  toast('🗑 '+s.model+' 삭제됨');
 }
 
 function openProdDetail(id){
   const s=DB.stock.find(x=>x.id===id);if(!s)return;
-  document.getElementById('pdet-title').textContent=s.model||'?';
+  var _el_pdet_title=document.getElementById('pdet-title');if(_el_pdet_title)_el_pdet_title.textContent=s.model||'?';
   const pLogs=DB.logs.filter(l=>l.sid===id).slice().reverse().slice(0,20);
   const inv=calcInv(ds(clr(new Date())));
   const left=inv[s.id]??(s.total||1);
-  const isUsing=left<(s.total||1); // ?쇰??쇰룄 ?섍? ?덉쑝硫?  const using=Math.max(0,(s.total||1)-left);
-  const total=s.total||1; // ?ㅼ젣 蹂댁쑀 ?ш퀬 (????щ? 臾닿?)
+  const isUsing=left<(s.total||1); // 일부라도 나가 있으면
+  const using=Math.max(0,(s.total||1)-left);
+  const total=s.total||1; // 실제 보유 재고 (대여 여부 무관)
   let h=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
     <div style="background:var(--card2);border-radius:10px;padding:12px 8px;text-align:center">
       <div style="font-size:24px;font-weight:700;color:var(--teal)">${total}</div>
-      <div style="font-size:10px;color:var(--text3);margin-top:2px">?꾩옱 蹂댁쑀 ?ш퀬</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:2px">현재 보유 재고</div>
     </div>
     <div style="background:var(--card2);border-radius:10px;padding:12px 8px;text-align:center">
       <div style="font-size:24px;font-weight:700;color:var(--blue)">${s.count||0}</div>
-      <div style="font-size:10px;color:var(--text3);margin-top:2px">?꾩쟻 ????잛닔</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:2px">누적 대여 횟수</div>
     </div>
     <div style="background:var(--card2);border-radius:10px;padding:12px 8px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center">
       ${using>0
-        ?`<div style="font-size:20px;font-weight:700;color:var(--amber)">${using}</div><div style="font-size:10px;color:var(--amber)">??ъ쨷</div>`
-        :`<div style="font-size:13px;font-weight:700;color:var(--teal)">蹂닿?以?/div>`}
+        ?`<div style="font-size:20px;font-weight:700;color:var(--amber)">${using}</div><div style="font-size:10px;color:var(--amber)">대여중</div>`
+        :`<div style="font-size:13px;font-weight:700;color:var(--teal)">보관중</div>`}
     </div>
   </div>`;
-  // QR ?쒗뭹?대㈃ QR ?뺣낫 ?쒖떆
+  // QR 제품이면 QR 정보 표시
   if(s.type==='qr'){
-    h+=`<p style="font-size:12px;color:var(--text3);margin-bottom:4px">QR ID: <span style="font-family:monospace;color:var(--text2);font-size:11px">${s.qrId||'誘몄꽕??}</span></p>`;
+    h+=`<p style="font-size:12px;color:var(--text3);margin-bottom:4px">QR ID: <span style="font-family:monospace;color:var(--text2);font-size:11px">${s.qrId||'미설정'}</span></p>`;
   }
-  if(s.note)h+=`<p style="font-size:12px;color:var(--text3);margin-bottom:8px">硫붾え: ${s.note}</p>`;
-  h+='<div class="d-sec" style="margin-top:12px">???諛섎궔 湲곕줉 (理쒓렐 20嫄?</div>';
-  if(!pLogs.length)h+='<p style="font-size:12px;color:var(--text3);padding:6px 0">湲곕줉 ?놁쓬</p>';
+  if(s.note)h+=`<p style="font-size:12px;color:var(--text3);margin-bottom:8px">메모: ${s.note}</p>`;
+  h+='<div class="d-sec" style="margin-top:12px">대여/반납 기록 (최근 20건)</div>';
+  if(!pLogs.length)h+='<p style="font-size:12px;color:var(--text3);padding:6px 0">기록 없음</p>';
   pLogs.forEach(l=>{
     h+=`<div class="day-item">
-      <span class="log-type ${l.type==='rent'?'rent':'ret'}">${l.type==='rent'?'???:'諛섎궔'}</span>
+      <span class="log-type ${l.type==='rent'?'rent':'ret'}">${l.type==='rent'?'대여':'반납'}</span>
       <div style="flex:1;font-size:12px"><div>${l.cust||'-'}</div><div style="font-size:10px;color:var(--text3)">${fmtDt(l.date)}</div></div>
     </div>`;
   });
@@ -2135,8 +2125,8 @@ let qrGenCvs=null,qrGenName='';
 function openQrGen(id){
   const s=DB.stock.find(x=>x.id===id);if(!s||!s.qrId)return;
   qrGenName=s.qrId;
-  document.getElementById('qrgen-title').textContent=s.name+' ??QR肄붾뱶';
-  document.getElementById('qrgen-sub').textContent='QR ID: '+s.qrId;
+  var _el_qrgen_title=document.getElementById('qrgen-title');if(_el_qrgen_title)_el_qrgen_title.textContent=s.name+' — QR코드';
+  var _el_qrgen_sub=document.getElementById('qrgen-sub');if(_el_qrgen_sub)_el_qrgen_sub.textContent='QR ID: '+s.qrId;
   const wrap=document.getElementById('qrgen-wrap');
   wrap.innerHTML='';qrGenCvs=null;
   modalOpen('modal-qr-gen');
@@ -2158,7 +2148,7 @@ function openQrGen(id){
   },80);
 }
 function downloadQR(){
-  if(!qrGenCvs){toast('?좑툘 QR ?앹꽦 以?);return;}
+  if(!qrGenCvs){toast('⚠️ QR 생성 중');return;}
   const a=document.createElement('a');
   a.download=(qrGenName||'qr')+'.png';
   a.href=qrGenCvs.toDataURL();a.click();
@@ -2167,13 +2157,13 @@ function downloadQR(){
 /* ============================================
    QR SCANNER
    ============================================ */
-let qrStream=null,qrRaf=null,qrMode=null; // qrMode: 'item' (??щ벑濡??덈ぉ異붽?) | 'prodId' (?쒗뭹?깅줉 ID ?낅젰)
-let lastScanId=null, lastScanTime=0; // 媛숈? QR 以묐났 ?몄떇 諛⑹????붾컮?댁떛
+let qrStream=null,qrRaf=null,qrMode=null; // qrMode: 'item' (대여등록 품목추가) | 'prodId' (제품등록 ID 입력)
+let lastScanId=null, lastScanTime=0; // 같은 QR 중복 인식 방지용 디바운싱
 function qrOpen(mode){
   qrMode=mode;
   lastScanId=null; lastScanTime=0;
-  document.getElementById('qr-pop-title').textContent=mode==='prodId'?'?쒗뭹 QR ID ?낅젰':'????덈ぉ QR ?ㅼ틪';
-  document.getElementById('qr-pop-hint').innerHTML=mode==='prodId'?'?쒗뭹??遺李⑸맂 QR???ㅼ틪?섎㈃<br>ID媛 ?먮룞 ?낅젰?⑸땲??:'?쒗뭹 QR????踰??ㅼ틪?섎㈃<br>?덈ぉ???먮룞 異붽??섍퀬 ?ロ옓?덈떎';
+  var _el_qr_pop_title=document.getElementById('qr-pop-title');if(_el_qr_pop_title)_el_qr_pop_title.textContent=mode==='prodId'?'제품 QR ID 입력':'대여 품목 QR 스캔';
+  document.getElementById('qr-pop-hint').innerHTML=mode==='prodId'?'제품에 부착된 QR을 스캔하면<br>ID가 자동 입력됩니다':'제품 QR을 한 번 스캔하면<br>품목에 자동 추가되고 닫힙니다';
   document.getElementById('qr-manual-input').value='';
   document.getElementById('qr-bd').style.display='block';
   document.getElementById('qr-pop').classList.add('open');
@@ -2209,23 +2199,23 @@ function qrOpen(mode){
       if(video.readyState>=video.HAVE_ENOUGH_DATA)qrRaf=requestAnimationFrame(tick);
     })
     .catch(()=>{
-      // 移대찓??沅뚰븳 嫄곕? or PWA ?쒗븳 ???뚯씪 ?낅젰 ?대갚
+      // 카메라 권한 거부 or PWA 제한 → 파일 입력 폴백
       qrOpenFileFallback();
     });
 }
-// PWA/沅뚰븳 臾몄젣 ??移대찓??珥ъ쁺?쇰줈 QR ?몄떇
+// PWA/권한 문제 시 카메라 촬영으로 QR 인식
 function qrOpenFileFallback(){
-  document.getElementById('qr-pop-hint').innerHTML='?벜 ?꾨옒 踰꾪듉?쇰줈 移대찓?쇰? ?댁뼱<br>QR 肄붾뱶瑜?珥ъ쁺?댁＜?몄슂';
-  // 湲곗〈 file input ?덉쑝硫??쒓굅
+  document.getElementById('qr-pop-hint').innerHTML='📷 아래 버튼으로 카메라를 열어<br>QR 코드를 촬영해주세요';
+  // 기존 file input 있으면 제거
   const old=document.getElementById('qr-file-input');if(old)old.remove();
   const input=document.createElement('input');
   input.type='file';input.accept='image/*';input.capture='environment';
   input.id='qr-file-input';input.style.display='none';
   document.body.appendChild(input);
-  // 珥ъ쁺 踰꾪듉 ?쒖떆
+  // 촬영 버튼 표시
   const hint=document.getElementById('qr-pop-hint');
   const btn=document.createElement('button');
-  btn.textContent='?벜 移대찓?쇰줈 QR 珥ъ쁺';
+  btn.textContent='📷 카메라로 QR 촬영';
   btn.style.cssText='margin-top:12px;padding:12px 24px;background:#2563EB;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;display:block;width:100%';
   btn.onclick=()=>input.click();
   hint.after(btn);
@@ -2245,12 +2235,12 @@ function qrOpenFileFallback(){
         if(id.startsWith('RENTAL:'))id=id.replace('RENTAL:','');
         handleQrResult(id);
       } else {
-        toast('?좑툘 QR 肄붾뱶瑜??몄떇?섏? 紐삵뻽?듬땲?? ?ㅼ떆 珥ъ쁺?댁＜?몄슂.');
+        toast('⚠️ QR 코드를 인식하지 못했습니다. 다시 촬영해주세요.');
       }
       URL.revokeObjectURL(img.src);
     };
   };
-  // ?먮룞?쇰줈 移대찓???닿린
+  // 자동으로 카메라 열기
   setTimeout(()=>input.click(),300);
 }
 function qrClose(){
@@ -2264,7 +2254,7 @@ function qrClose(){
 }
 function qrManualSubmit(){
   const v=document.getElementById('qr-manual-input').value.trim();
-  if(!v){toast('?좑툘 ID瑜??낅젰?섏꽭??);return;}
+  if(!v){toast('⚠️ ID를 입력하세요');return;}
   handleQrResult(v);
 }
 function handleQrResult(id){
@@ -2272,27 +2262,27 @@ function handleQrResult(id){
   if(id===lastScanId && now-lastScanTime<1000) return;
   lastScanId=id;lastScanTime=now;
 
-  // 異쒓퀬 QR ?ㅼ틪 紐⑤뱶
+  // 출고 QR 스캔 모드
   if(qrMode==='ship'){
     handleShipQr(id);
     return;
   }
 
   if(qrMode==='prodId'){
-    // ?ㅼ틪??QR???대? ?ㅻⅨ ?쒗뭹???깅줉?섏뼱 ?덈뒗吏 利됱떆 ?뺤씤
+    // 스캔된 QR이 이미 다른 제품에 등록되어 있는지 즉시 확인
     const dup=DB.stock.find(s=>s.qrId===id&&s.id!==editProdId);
     if(dup){
       qrClose();
-      const fullName=(dup.model||'')+(dup.name&&dup.name!=='湲곕낯'?' '+dup.name:'');
-      rejectAlert('?좑툘 ?대? ?깅줉???쒗뭹?낅땲??\n\n??QR 肄붾뱶???대? ?ㅼ쓬 ?⑥쐞???깅줉?섏뼱 ?덉뒿?덈떎:\n??'+fullName+(dup.cat?' ('+dup.cat+')':'')+'\n\nQR ID: '+id+'\n\n媛??⑥쐞??怨좎쑀??QR 肄붾뱶瑜?媛?몄빞 ?⑸땲??');
+      const fullName=(dup.model||'')+(dup.name&&dup.name!=='기본'?' '+dup.name:'');
+      rejectAlert('⚠️ 이미 등록된 제품입니다.\n\n이 QR 코드는 이미 다음 단위에 등록되어 있습니다:\n→ '+fullName+(dup.cat?' ('+dup.cat+')':'')+'\n\nQR ID: '+id+'\n\n각 단위는 고유한 QR 코드를 가져야 합니다.');
       return;
     }
     document.getElementById('pf-qrid').value=id;
     playBeep();
-    toast('??QR ID ?낅젰: '+id);
+    toast('✅ QR ID 입력: '+id);
     qrClose();
   } else if(qrMode==='item'){
-    // ?⑥씪 ?몄떇: ??踰?泥섎━ ??移대찓???먮룞 醫낅즺 (?쒗뭹 異붽?? ?숈씪 諛⑹떇)
+    // 단일 인식: 한 번 처리 후 카메라 자동 종료 (제품 추가와 동일 방식)
     addItemByQrId(id);
     qrClose();
   }
@@ -2304,7 +2294,7 @@ function handleQrResult(id){
 function renderLogs(){
   const q=(document.getElementById('log-q').value||'').toLowerCase();
   const f=document.getElementById('log-filter').value;
-  // ? ??寃쎌슦 ????곗씠?곗뿉???덈ぉ紐?李얘린
+  // ? 인 경우 대여 데이터에서 품목명 찾기
   function getLogName(l){
     if(l.name&&l.name!=='?')return l.name;
     if(l.rentalId){
@@ -2321,11 +2311,11 @@ function renderLogs(){
     return true;
   });
   const el=document.getElementById('log-list');
-  if(!list.length){el.innerHTML='<div class="empty-state">湲곕줉???놁뒿?덈떎.</div>';return;}
+  if(!list.length){el.innerHTML='<div class="empty-state">기록이 없습니다.</div>';return;}
   el.innerHTML=list.map(l=>{
     const logName=getLogName(l);
     return`<div class="log-card">
-    <span class="log-type ${l.type==='rent'?'rent':'ret'}">${l.type==='rent'?'???:'諛섎궔'}</span>
+    <span class="log-type ${l.type==='rent'?'rent':'ret'}">${l.type==='rent'?'대여':'반납'}</span>
     <div class="log-body">
       <div class="log-name">${logName} ${l.qty>1?`<span style="color:var(--text3);font-weight:500">x${l.qty}</span>`:''}</div>
       <div class="log-meta">${l.cust||'-'}</div>
@@ -2335,12 +2325,12 @@ function renderLogs(){
   }).join('');
 }
 function exportLogCSV(){
-  if(!DB.logs.length){toast('?대낫??湲곕줉???놁뒿?덈떎');return;}
-  const rows=[['?좎쭨?쒓컖','?좏삎','?쒗뭹紐?,'?섎웾','怨좉컼紐?]].concat(DB.logs.map(l=>[fmtDt(l.date),l.type==='rent'?'???:'諛섎궔',l.name||'',l.qty||1,l.cust||'']));
+  if(!DB.logs.length){toast('내보낼 기록이 없습니다');return;}
+  const rows=[['날짜시각','유형','제품명','수량','고객명']].concat(DB.logs.map(l=>[fmtDt(l.date),l.type==='rent'?'대여':'반납',l.name||'',l.qty||1,l.cust||'']));
   const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
-  a.download='??ш린濡?'+ds(new Date())+'.csv';
+  a.download='대여기록_'+ds(new Date())+'.csv';
   document.body.appendChild(a);a.click();document.body.removeChild(a);
 }
 
@@ -2349,12 +2339,12 @@ function exportLogCSV(){
    ============================================ */
 document.addEventListener('click',function(ev){
   const t=ev.target;
-  // ?щ젰
+  // 달력
   const calDay=t.closest('[data-cal-day]');
   if(calDay){
     const[key,dstr]=calDay.dataset.calDay.split('|');
     const c=CSTATE[key],d=clr(dp(dstr));
-    // 怨듯빆 ?좎쭨: 1踰??대┃?쇰줈 利됱떆 ?뺤젙 + ?щ젰 ?ロ옒
+    // 공항 날짜: 1번 클릭으로 즉시 확정 + 달력 닫힘
     if(key==='apPick'||key==='apRet'){
       c.s=d;c.e=d;c.step='s';
       calUpdateBtn(key);calClose();
@@ -2378,21 +2368,21 @@ document.addEventListener('click',function(ev){
   }
   const openCal=t.closest('[data-open-cal]');
   if(openCal){calOpen(openCal.dataset.openCal);return;}
-  // 紐⑤떖
+  // 모달
   const closeBtn=t.closest('[data-close]');
   if(closeBtn){modalClose(closeBtn.dataset.close);return;}
-  // 媛꾪듃 ??/ ?좎쭨
+  // 간트 행 / 날짜
   const editBtn=t.closest('[data-edit]');
   if(editBtn){rentalEdit(editBtn.dataset.edit);return;}
   const dayBtn=t.closest('[data-day]');
   if(dayBtn){dayOpen(dayBtn.dataset.day);return;}
-  // ?덈ぉ ??젣
+  // 품목 삭제
   const rmItem=t.closest('[data-rm-item]');
   if(rmItem){const el=document.getElementById(rmItem.dataset.rmItem);if(el)el.remove();return;}
-  // ?대Т ??젣
+  // 휴무 삭제
   const delHol=t.closest('[data-del-hol]');
   if(delHol){DB.hol=DB.hol.filter(h=>h.date!==delHol.dataset.delHol);dbSave();holRender();render();if(openCalKey)calBuild(openCalKey);return;}
-  // ?쒗뭹 ?≪뀡
+  // 제품 액션
   const ord=t.closest('[data-ord]');
   if(ord){
     const id=ord.dataset.ord,dir=parseInt(ord.dataset.dir);
@@ -2409,28 +2399,29 @@ document.addEventListener('click',function(ev){
   if(pedt){openProdEdit(pedt.dataset.prodEdit);return;}
   const pqr=t.closest('[data-prod-qr]');
   if(pqr){openQrGen(pqr.dataset.prodQr);return;}
-  // + ?⑥쐞 異붽? (紐⑤뜽 誘몃━ ?낅젰)
+  // + 단위 추가 (모델 미리 입력)
   const addUnit=t.closest('[data-add-unit]');
   if(addUnit){openProdAdd(addUnit.dataset.addUnit);return;}
-  // 紐⑤뜽 移대뱶 ?쇱묠/?묓옒 ?좉?
+  // 모델 카드 펼침/접힘 토글
   const togModel=t.closest('[data-toggle-model]');
   if(togModel){
     const m=togModel.dataset.toggleModel;
-    expandedModels[m]=expandedModels[m]===false; // ?좉?
+    expandedModels[m]=expandedModels[m]===false; // 토글
     renderProducts();
     return;
   }
-  // overlay 諛곌꼍 ?대┃
+  // overlay 배경 클릭
   if(t.classList.contains('overlay')){modalClose(t.id);return;}
 });
 document.addEventListener('change',ev=>{if(ev.target.id==='f-ship')shipToggle();});
-// ?꾪솕踰덊샇 ?먮룞 ?щ㎎??document.addEventListener('input',ev=>{
+// 전화번호 자동 포맷팅
+document.addEventListener('input',ev=>{
   if(ev.target.id==='f-phone'){
     const el=ev.target;
     const oldLen=el.value.length;
     const cursor=el.selectionStart||0;
     el.value=formatPhone(el.value);
-    // 而ㅼ꽌 ?꾩튂 蹂댁젙
+    // 커서 위치 보정
     const diff=el.value.length-oldLen;
     const newPos=Math.max(0,cursor+diff);
     try{el.setSelectionRange(newPos,newPos);}catch(e){}
@@ -2458,7 +2449,7 @@ function clearAllLogs(){
 function doDeleteAllLogs(){
   DB.logs=[];dbSave();renderLogs();
   document.getElementById('log-del-confirm').classList.add('hide');
-  toast('?뿊 ??ш린濡??꾩껜 ??젣??);
+  toast('🗑 대여기록 전체 삭제됨');
 }
 document.getElementById('prod-q').addEventListener('input',renderProducts);
 document.getElementById('prod-cat-filter').addEventListener('change',renderProducts);
@@ -2474,13 +2465,13 @@ document.getElementById('btn-size-reset').addEventListener('click',()=>{COL_W=88
 document.getElementById('btn-add-hol').addEventListener('click',function(){
   const date=document.getElementById('hol-date').value;
   const memo=document.getElementById('hol-memo').value.trim();
-  if(!date){alert('?좎쭨瑜??좏깮?섏꽭??');return;}
-  if(DB.hol.some(h=>h.date===date)){alert('?대? ?깅줉???좎쭨?낅땲??');return;}
+  if(!date){alert('날짜를 선택하세요.');return;}
+  if(DB.hol.some(h=>h.date===date)){alert('이미 등록된 날짜입니다.');return;}
   DB.hol.push({date,memo});dbSave();holRender();render();
   if(openCalKey)calBuild(openCalKey);
 });
 
-// 留됰? ?띿뒪?멸? ?섏튌 ??湲???ш린 ?먮룞 異뺤냼
+// 막대 텍스트가 넘칠 때 글씨 크기 자동 축소
 function fitBarsText(){
   requestAnimationFrame(()=>{
     document.querySelectorAll('.sbar-main').forEach(bar=>{
@@ -2498,19 +2489,19 @@ function fitBarsText(){
     });
   });
 }
-/* ===== 異쒓퀬 QR ?ㅼ틪 ===== */
+/* ===== 출고 QR 스캔 ===== */
 let shipRentalId=null,shipItemIdx=null,shipUnitIdx=null;
 function openShipModal(rentalId){
   const r=DB.rentals.find(x=>x.id===rentalId);if(!r)return;
   shipRentalId=rentalId;
-  document.getElementById('ship-cust-lbl').textContent=r.cust+'??/ ??ш린媛?'+fmtMon(r.start)+'~'+fmtMon(r.end);
+  var _el_ship_cust_lbl=document.getElementById('ship-cust-lbl');if(_el_ship_cust_lbl)_el_ship_cust_lbl.textContent=r.cust+'님 / 대여기간 '+fmtMon(r.start)+'~'+fmtMon(r.end);
   renderShipItems(r);
   modalOpen('modal-ship');
 }
 function renderShipItems(r){
   const qrItems=r.items.filter(it=>it.type==='qr');
   let h='';
-  if(!qrItems.length){h='<p style="color:var(--text3);font-size:13px;padding:8px 0">QR ?ㅼ틪 ?덈ぉ ?놁쓬</p>';}
+  if(!qrItems.length){h='<p style="color:var(--text3);font-size:13px;padding:8px 0">QR 스캔 품목 없음</p>';}
   else{
     qrItems.forEach((it,ii)=>{
       const realIdx=r.items.indexOf(it);
@@ -2519,22 +2510,22 @@ function renderShipItems(r){
       h+=`<div style="margin-bottom:12px;padding:12px;background:var(--card2);border-radius:10px;border:1.5px solid ${done?'var(--teal)':'var(--border)'}">
         <div style="font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px">
           ${it.model} <span style="font-size:12px;color:${done?'var(--teal)':'var(--amber)'}">
-          ${done?'??異쒓퀬?꾨즺':'?벀 '+shipped+'/'+it.qty+' ?ㅼ틪'}</span>
+          ${done?'✅ 출고완료':'📦 '+shipped+'/'+it.qty+' 스캔'}</span>
         </div>`;
       for(let i=0;i<it.qty;i++){
         const uid=it.units&&it.units[i]?it.units[i]:null;
         const s=uid?DB.stock.find(x=>x.id===uid):null;
         if(s){
           h+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px">
-            <span style="color:var(--teal)">??/span>
+            <span style="color:var(--teal)">✅</span>
             <span style="font-family:monospace;color:var(--text2)">[..${s.qrId.slice(-8)}]</span>
-            <button class="btn" style="font-size:10px;padding:3px 7px;color:var(--red)" onclick="cancelShipUnit('${r.id}',${realIdx},${i})">痍⑥냼</button>
+            <button class="btn" style="font-size:10px;padding:3px 7px;color:var(--red)" onclick="cancelShipUnit('${r.id}',${realIdx},${i})">취소</button>
           </div>`;
         } else {
           h+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
-            <span style="color:var(--text3)">燧?/span>
-            <button class="btn btn-blue" style="font-size:11px;padding:5px 12px" onclick="openShipScan('${r.id}',${realIdx},${i})">?벜 QR ?ㅼ틪</button>
-            <span style="font-size:11px;color:var(--text3)">誘몄뒪罹?/span>
+            <span style="color:var(--text3)">⬜</span>
+            <button class="btn btn-blue" style="font-size:11px;padding:5px 12px" onclick="openShipScan('${r.id}',${realIdx},${i})">📷 QR 스캔</button>
+            <span style="font-size:11px;color:var(--text3)">미스캔</span>
           </div>`;
         }
       }
@@ -2542,9 +2533,9 @@ function renderShipItems(r){
     });
   }
   document.getElementById('ship-items-list').innerHTML=h;
-  // 紐⑤몢 異쒓퀬?먮뒗吏 ?뺤씤
+  // 모두 출고됐는지 확인
   const allDone=qrItems.every(it=>(it.units?it.units.filter(Boolean).length:0)>=it.qty);
-  document.getElementById('btn-ship-complete').textContent=allDone?'??異쒓퀬 ?꾨즺 泥섎━':'?좑툘 ?쇰? 誘몄뒪罹???媛뺤젣 ?꾨즺';
+  var _el_btn_ship_complete=document.getElementById('btn-ship-complete');if(_el_btn_ship_complete)_el_btn_ship_complete.textContent=allDone?'✅ 출고 완료 처리':'⚠️ 일부 미스캔 — 강제 완료';
 }
 function openShipScan(rentalId,itemIdx,unitIdx){
   shipRentalId=rentalId;shipItemIdx=itemIdx;shipUnitIdx=unitIdx;
@@ -2553,25 +2544,25 @@ function openShipScan(rentalId,itemIdx,unitIdx){
 }
 function handleShipQr(qrId){
   const s=DB.stock.find(x=>x.qrId===qrId);
-  if(!s){rejectAlert('?좑툘 ?깅줉?섏? ?딆? QR?낅땲??\n\n?쒗뭹愿由ъ뿉??癒쇱? ?깅줉?섏꽭??');return;}
+  if(!s){rejectAlert('⚠️ 등록되지 않은 QR입니다.\n\n제품관리에서 먼저 등록하세요.');return;}
   const r=DB.rentals.find(x=>x.id===shipRentalId);if(!r)return;
   const item=r.items[shipItemIdx];
   if(s.model!==item.model){
-    rejectAlert(`?좑툘 ?ㅻⅨ 醫낅쪟?낅땲??\n\n?ㅼ틪: ${s.model}\n?꾩슂: ${item.model}\n\n留욌뒗 ?쒗뭹???ㅼ틪?댁＜?몄슂.`);
+    rejectAlert(`⚠️ 다른 종류입니다!\n\n스캔: ${s.model}\n필요: ${item.model}\n\n맞는 제품을 스캔해주세요.`);
     return;
   }
-  // ?대? ?ㅻⅨ ??ъ뿉 異쒓퀬?먮뒗吏 ?뺤씤
+  // 이미 다른 대여에 출고됐는지 확인
   const used=DB.rentals.find(r2=>r2.id!==shipRentalId&&!r2.done&&
     r2.items.some(it=>it.units&&it.units.includes(s.id)));
-  if(used){rejectAlert('?좑툘 ?대? ?ㅻⅨ ??ъ뿉 ?좊떦???좊떅?낅땲??\n\n??ъ옄: '+used.cust);return;}
-  // ?대? 媛숈? ??????ㅻⅨ ?щ’???덈뒗吏 ?뺤씤
+  if(used){rejectAlert('⚠️ 이미 다른 대여에 할당된 유닛입니다.\n\n대여자: '+used.cust);return;}
+  // 이미 같은 대여 내 다른 슬롯에 있는지 확인
   const alreadyInThis=r.items.some((it,ii)=>it.units&&it.units.some((u,j)=>u===s.id&&!(ii===shipItemIdx&&j===shipUnitIdx)));
-  if(alreadyInThis){rejectAlert('?좑툘 ????ъ뿉 ?대? ?ㅼ틪???좊떅?낅땲??');return;}
+  if(alreadyInThis){rejectAlert('⚠️ 이 대여에 이미 스캔된 유닛입니다.');return;}
   if(!item.units)item.units=[];
   item.units[shipUnitIdx]=s.id;
   s.count=(s.count||0)+1;
   dbSave();qrClose();playBeep();
-  toast('??'+s.model+' 異쒓퀬 ?ㅼ틪 ?꾨즺');
+  toast('✅ '+s.model+' 출고 스캔 완료');
   setTimeout(()=>openShipModal(shipRentalId),150);
 }
 function cancelShipUnit(rentalId,itemIdx,unitIdx){
@@ -2587,20 +2578,22 @@ function doMarkShipped(){
   const r=DB.rentals.find(x=>x.id===shipRentalId);if(!r)return;
   r.shipped=true;
   dbSave();modalClose('modal-ship');render();
-  toast('?벀 異쒓퀬 ?꾨즺 泥섎━??);
+  toast('📦 출고 완료 처리됨');
 }
 function initFixedHScroll(){
   const wrap=document.querySelector('.gantt-wrap');
   const bar=document.getElementById('fixed-hscroll');
   const inner=document.getElementById('fixed-hscroll-inner');
   if(!wrap||!bar||!inner)return;
-  // ?곗튂 湲곌린(紐⑤컮???먯꽌??JS ?숆린???꾩쟾????  // ??scrollLeft 媛뺤젣 蹂寃쎌씠 iOS momentum scroll 諛⑺빐?댁꽌 ?앸슍 ?딄?
+  // 터치 기기(모바일)에서는 JS 동기화 완전히 끔
+  // → scrollLeft 강제 변경이 iOS momentum scroll 방해해서 뚝뚝 끊김
   const isTouch=window.matchMedia('(pointer:coarse)').matches;
   if(isTouch){
-    bar.style.display='none'; // 怨좎젙諛??④?
-    return;                   // ?숆린???놁쓬 ???ㅼ씠?곕툕 ?곗튂 ?ㅽ겕濡ㅻ쭔
+    bar.style.display='none'; // 고정바 숨김
+    return;                   // 동기화 없음 → 네이티브 터치 스크롤만
   }
-  // PC?먯꽌留?怨좎젙 ?ㅽ겕濡ㅻ컮 ?숆린??  let rafId=null;
+  // PC에서만 고정 스크롤바 동기화
+  let rafId=null;
   wrap.addEventListener('scroll',()=>{
     if(rafId)return;
     rafId=requestAnimationFrame(()=>{
@@ -2628,7 +2621,7 @@ function showFixedHScroll(v){
 function toast(msg){
   let t=document.getElementById('toast-el');
   if(!t){t=document.createElement('div');t.id='toast-el';t.className='toast';document.body.appendChild(t);}
-  // sync-toast ?놁쑝硫??앹꽦
+  // sync-toast 없으면 생성
   if(!document.getElementById('sync-toast')){
     const s=document.createElement('div');s.id='sync-toast';
     s.style.cssText='position:fixed;bottom:60px;left:50%;transform:translateX(-50%) translateY(10px);background:#1a3a2a;color:#4ade80;font-size:12px;font-weight:600;padding:8px 16px;border-radius:20px;z-index:9998;opacity:0;transition:all .3s;white-space:nowrap;pointer-events:none;border:1px solid #22c55e44';
@@ -2641,23 +2634,24 @@ function toast(msg){
   t.textContent=msg;t.classList.add('show');
   clearTimeout(t._tid);t._tid=setTimeout(()=>t.classList.remove('show'),2500);
 }
-// ?꾪솕踰덊샇 ?먮룞 ?щ㎎?? 01012341234 ??010-1234-1234, 0212345678 ??02-1234-5678
+// 전화번호 자동 포맷팅: 01012341234 → 010-1234-1234, 0212345678 → 02-1234-5678
 function formatPhone(v){
-  const d=(v||'').replace(/\D/g,''); // ?レ옄留?異붿텧
+  const d=(v||'').replace(/\D/g,''); // 숫자만 추출
   if(!d) return '';
-  // ?쒖슱 02 吏??쾲??  if(d.startsWith('02')){
+  // 서울 02 지역번호
+  if(d.startsWith('02')){
     if(d.length<=2) return d;
     if(d.length<=5) return d.slice(0,2)+'-'+d.slice(2);
     if(d.length<=9) return d.slice(0,2)+'-'+d.slice(2,d.length-4)+'-'+d.slice(-4);
     return d.slice(0,2)+'-'+d.slice(2,6)+'-'+d.slice(6,10);
   }
-  // 洹???(010/011/.../031/032/...)
+  // 그 외 (010/011/.../031/032/...)
   if(d.length<=3) return d;
   if(d.length<=6) return d.slice(0,3)+'-'+d.slice(3);
   if(d.length<=10) return d.slice(0,3)+'-'+d.slice(3,d.length-4)+'-'+d.slice(-4);
   return d.slice(0,3)+'-'+d.slice(3,7)+'-'+d.slice(7,11);
 }
-// ?? ?ㅻ뵒??而⑦뀓?ㅽ듃 (iOS Safari ?명솚) ??
+// ── 오디오 컨텍스트 (iOS Safari 호환) ──
 let _audioCtx=null;
 let _audioUnlocked=false;
 function unlockAudio(){
@@ -2665,7 +2659,7 @@ function unlockAudio(){
     if(!_audioCtx) _audioCtx=new (window.AudioContext||window.webkitAudioContext)();
     if(_audioCtx.state==='suspended') _audioCtx.resume();
     if(!_audioUnlocked){
-      // 臾댁쓬 踰꾪띁 1?섑뵆 ?ъ깮 ??iOS Safari unlock
+      // 무음 버퍼 1샘플 재생 → iOS Safari unlock
       const buf=_audioCtx.createBuffer(1,1,22050);
       const src=_audioCtx.createBufferSource();
       src.buffer=buf;src.connect(_audioCtx.destination);
@@ -2674,18 +2668,19 @@ function unlockAudio(){
     }
   }catch(e){}
 }
-// 泥??ъ슜???쒖뒪泥섏뿉???먮룞 unlock (capture濡??ㅻⅨ ?몃뱾?щ낫??癒쇱?)
+// 첫 사용자 제스처에서 자동 unlock (capture로 다른 핸들러보다 먼저)
 document.addEventListener('click',unlockAudio,{capture:true,passive:true});
 document.addEventListener('touchstart',unlockAudio,{capture:true,passive:true});
 document.addEventListener('touchend',unlockAudio,{capture:true,passive:true});
 
-// QR ?몄떇 鍮꾪봽??????留?(????
+// QR 인식 비프음 — 띠~링 (두 톤)
 function playBeep(){
   unlockAudio();
   if(!_audioCtx) return;
   try{
     const ctx=_audioCtx;
-    const now=ctx.currentTime+0.005; // ?쎄컙 誘몃옒濡??ㅼ?以?    [880,1318.51].forEach((freq,i)=>{
+    const now=ctx.currentTime+0.005; // 약간 미래로 스케줄
+    [880,1318.51].forEach((freq,i)=>{
       const osc=ctx.createOscillator();
       const gain=ctx.createGain();
       osc.type='sine';
@@ -2700,7 +2695,7 @@ function playBeep(){
     });
   }catch(e){}
 }
-// 嫄곕? 遺??????? (??? ????
+// 거부 부저음 — 삐~ (낮은 두 톤)
 function playBuzzer(){
   unlockAudio();
   if(!_audioCtx) return;
@@ -2722,13 +2717,13 @@ function playBuzzer(){
     });
   }catch(e){}
 }
-// 嫄곕? ?뚮┝ ?듯빀 ?ы띁: 遺??????댁쭩 吏????alert
+// 거부 알림 통합 헬퍼: 부저음 → 살짝 지연 후 alert
 function rejectAlert(msg){
   playBuzzer();
   setTimeout(()=>alert(msg),200);
 }
 
-/* ===== SEARCH (媛꾪듃 ?꾪꽣留? ===== */
+/* ===== SEARCH (간트 필터링) ===== */
 let searchQuery='';
 function initSearch(){
   const inp=document.getElementById('search-input');
@@ -2758,24 +2753,33 @@ function applySearch(){
     row.style.display=match?'':'none';
     if(match)vis++;
   });
-  document.getElementById('search-count').textContent=searchQuery?`${vis}嫄?:'';
+  var _el_search_count=document.getElementById('search-count');if(_el_search_count)_el_search_count.textContent=searchQuery?`${vis}건`:'';
 }
 
 /* ===== INIT ===== */
-render();
+// Firebase 로드 전 로딩 화면 표시
+(function(){
+  var ld=document.createElement('div');
+  ld.id='fb-loading';
+  ld.style.cssText='position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;gap:12px';
+  ld.innerHTML='<div style="font-size:36px">📦</div><div style="font-size:14px;color:var(--text2);font-weight:600">데이터 불러오는 중...</div>';
+  document.body.appendChild(ld);
+  // 5초 후에도 로딩 중이면 강제 제거
+  setTimeout(function(){var e=document.getElementById('fb-loading');if(e)e.remove();render();},5000);
+})();
 initSearch();
 initFixedHScroll();
 showFixedHScroll(true);
 
-// ?? ?덈줈怨좎묠: Firebase?먯꽌 理쒖떊 ?곗씠??媛뺤젣 濡쒕뱶 ??
+// ── 새로고침: Firebase에서 최신 데이터 강제 로드 ──
 function forceRefresh(){
   const btn=document.querySelector('[onclick="forceRefresh()"]');
   if(btn)btn.style.animation='spin 0.6s linear';
-  // ?섏씠吏 ?꾩쟾 ?덈줈 濡쒕뱶 ??Firebase?먯꽌 理쒖떊 ?곗씠???뺤떎?섍쾶 ?섏떊
-  setTimeout(()=>location.reload(),300);
+  if(window.fbForceSync)window.fbForceSync();
+  else location.reload();
 }
 
-// ?? ?밴꺼???덈줈怨좎묠 (Pull to Refresh) ??
+// ── 당겨서 새로고침 (Pull to Refresh) ──
 (function initPullToRefresh(){
   let startY=0,pulling=false,ind=null;
   function getInd(){
@@ -2789,7 +2793,7 @@ function forceRefresh(){
     return ind;
   }
   document.addEventListener('touchstart',e=>{
-    // ?ㅽ겕濡ㅼ씠 理쒖긽?⑥씪 ?뚮쭔
+    // 스크롤이 최상단일 때만
     const scTop=(document.scrollingElement||document.documentElement).scrollTop;
     const gantt=document.querySelector('.gantt-wrap');
     const ganttTop=gantt?gantt.scrollTop:0;
@@ -2803,7 +2807,7 @@ function forceRefresh(){
     if(dy>0){
       const i=getInd();
       i.style.display='block';
-      i.textContent=dy>150?'?봽 ?볦쑝硫??덈줈怨좎묠':'?????밴린?몄슂';
+      i.textContent=dy>150?'🔄 놓으면 새로고침':'↓ 더 당기세요';
     }
   },{passive:true});
   document.addEventListener('touchend',e=>{
@@ -2812,7 +2816,7 @@ function forceRefresh(){
     const dy=e.changedTouches[0].clientY-startY;
     const i=getInd();
     if(dy>150){
-      i.textContent='?봽 遺덈윭?ㅻ뒗 以?..';
+      i.textContent='🔄 불러오는 중...';
       setTimeout(()=>{
         i.style.display='none';
         forceRefresh();
@@ -2823,10 +2827,65 @@ function forceRefresh(){
   });
 })();
 
-// Firebase 실시간 업데이트는 상단의 firebase-data 이벤트에서 처리합니다.
-// 업무 데이터는 localStorage에 저장하지 않고 Firebase를 원본으로 사용합니다.
+// Firebase 실시간 업데이트 수신
+// Firebase → DB 직접 갱신 → 화면 자동 업데이트
+// Firebase 데이터 수신 → DB 업데이트 + 화면 갱신
+function applyFirebaseData(d){
+  try{
+  DB.stock=d.stock||[];
+  DB.rentals=d.rentals||[];
+  DB.hol=d.hol||[];
+  DB.logs=d.logs||[];
+  if(typeof invCache!=='undefined'){invCache={};schedCache={};}
+  if(d.isFirst) runMigrations();
+  try{render();}catch(e){alert('render 오류: '+e.message+'\n'+e.stack.split('\n').slice(0,3).join('\n'));}
+  if(typeof curTab!=='undefined'){
+    if(curTab==='products')renderProducts();
+    if(curTab==='logs')renderLogs();
+  }
+  const ld=document.getElementById('fb-loading');
+  if(ld)ld.remove();
+  const sl=document.getElementById('save-lbl');
+  if(sl&&!d.isFirst){
+    const t=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+    sl.textContent='동기화됨 '+t;
+  }
+  if(!d.isFirst){
+    let st=document.getElementById('sync-toast-el');
+    if(!st){
+      st=document.createElement('div');
+      st.id='sync-toast-el';
+      st.style.cssText='position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:#1a3a2a;color:#4ade80;font-size:13px;font-weight:600;padding:10px 20px;border-radius:20px;z-index:9999;white-space:nowrap;border:1px solid #22c55e66;box-shadow:0 4px 12px rgba(0,0,0,.2)';
+      document.body.appendChild(st);
+    }
+    st.textContent='🔄 다른 기기에서 업데이트됨';
+    st.style.display='block';st.style.opacity='1';
+    clearTimeout(st._t);
+    st._t=setTimeout(function(){st.style.opacity='0';setTimeout(function(){st.style.display='none';},300);},3000);
+  }
+  }catch(e){alert('applyFirebaseData 오류: '+e.message+'\n'+e.stack.split('\n').slice(0,3).join('\n'));}
+}
+window.addEventListener('firebase-data',function(e){
+  applyFirebaseData(e.detail);
+});
+
+// Firebase가 비어있을 때 → localStorage 데이터를 Firebase에 업로드
+window.addEventListener('firebase-empty',function(){
+  var ld=document.getElementById('fb-loading');if(ld)ld.remove();
+  // 기존 localStorage 데이터가 있으면 Firebase로 이전
+  try{
+    var stock=JSON.parse(localStorage.getItem('rmi_stock')||'[]');
+    var rentals=JSON.parse(localStorage.getItem('rmi_rentals')||'[]');
+    var hol=JSON.parse(localStorage.getItem('rmi_hol')||'[]');
+    var logs=JSON.parse(localStorage.getItem('rmi_logs')||'[]');
+    DB.stock=stock;DB.rentals=rentals;DB.hol=hol;DB.logs=logs;
+    if(typeof window.fbSave==='function')window.fbSave(DB);
+  }catch(e){}
+  runMigrations();
+  render();
+  if(curTab==='products')renderProducts();
+  if(curTab==='logs')renderLogs();
+});
 </script>
 </body>
 </html>
-
-
