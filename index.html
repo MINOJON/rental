@@ -105,6 +105,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 .g-addr{font-size:10px;color:var(--text3);line-height:1.35;margin-top:2px;word-break:break-all;display:flex;gap:3px}
 .g-addr-ico{flex-shrink:0;opacity:.7}
 .done-badge{display:inline-block;padding:1px 5px;border-radius:4px;font-size:9px;font-weight:600;background:var(--teal-l);color:var(--teal);margin-left:3px;vertical-align:middle}
+.shipped-badge{display:inline-block;padding:1px 5px;border-radius:4px;font-size:9px;font-weight:600;background:#fff3cd;color:#e65c00;margin-left:3px;vertical-align:middle}
 .g-cells{display:flex;position:relative;flex:1}
 .g-cell{width:var(--col);min-width:var(--col);min-height:var(--row-h,52px);border-right:1px solid var(--border);flex-shrink:0;cursor:pointer}
 .g-cell.is-today{background:rgba(37,99,235,.05)}
@@ -1199,7 +1200,7 @@ function render(){
   sorted.forEach(r=>{
     const done=!!r.done;
     h+=`<div class="g-row" data-rid="${r.id}">`;
-    h+=`<div class="g-lbl${done?' dimmed':''}" data-edit="${r.id}"><div class="g-dot" style="background:${scol(r.ship)}"></div><div class="g-info"><div class="g-name">${r.cust}${done?'<span class="done-badge">반납완료</span>':''}</div>${r.phone?`<div class="g-sub">📞 ${r.phone}</div>`:''}<div class="g-sub">📅 ${fmtMon(r.start)} ~ ${fmtMon(r.end)}</div></div><div class="ord-btns"><button class="ord-btn" data-ord="${r.id}" data-dir="-1" title="위로">▲</button><button class="ord-btn" data-ord="${r.id}" data-dir="1" title="아래로">▼</button></div></div>`;
+    h+=`<div class="g-lbl${done?' dimmed':''}" data-edit="${r.id}"><div class="g-dot" style="background:${scol(r.ship)}"></div><div class="g-info"><div class="g-name">${r.cust}${done?'<span class="done-badge">반납완료</span>':''}${r.shipped&&!done?'<span class="shipped-badge">출고완료</span>':''}</div>${r.phone?`<div class="g-sub">📞 ${r.phone}</div>`:''}<div class="g-sub">📅 ${fmtMon(r.start)} ~ ${fmtMon(r.end)}</div></div><div class="ord-btns"><button class="ord-btn" data-ord="${r.id}" data-dir="-1" title="위로">▲</button><button class="ord-btn" data-ord="${r.id}" data-dir="1" title="아래로">▼</button></div></div>`;
     h+='<div class="g-cells">';
     days.forEach(d=>{
       const dow=d.getDay(),tod=same(d,today),hol=isHol(d);
