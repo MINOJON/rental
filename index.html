@@ -755,7 +755,7 @@ const DATA_REF=ref(fbDb,'rental_data');
 var fbReady=false;
 var myTs=0;
 
-// DATA_REF 변경 직접 감지 → 다른 기기 변경 즉시 반영
+// Firebase 변경 직접 감지 (삭제 포함 모든 변경 즉시 반영)
 onValue(DATA_REF,function(snap){
   fbReady=true;
   var data=snap.val();
@@ -771,7 +771,7 @@ onValue(DATA_REF,function(snap){
   }catch(e){}
 });
 
-// 저장 → Firebase
+// 저장 → localStorage + Firebase
 window.fbSave=function(dbData){
   if(!fbReady){
     setTimeout(function(){if(window.fbSave&&fbReady)window.fbSave(dbData);},1000);
@@ -781,24 +781,25 @@ window.fbSave=function(dbData){
   set(DATA_REF,{
     stock:dbData.stock||[],
     rentals:dbData.rentals||[],
-    logs:dbData.logs||[],
     hol:dbData.hol||[],
+    logs:dbData.logs||[],
     ts:myTs
   }).catch(function(){});
 };
 
-// 🔄 버튼 강제 동기화
+// 🔄 강제 동기화
 window.fbForceSync=function(){
   myTs=0;
-  var snap=onValue(DATA_REF,function(s){
-    var data=s.val();
-    if(data){
+  onValue(DATA_REF,function(snap){
+    var data=snap.val();
+    if(!data){location.reload();return;}
+    try{
       if(data.stock!==undefined)localStorage.setItem('rmi_stock',JSON.stringify(data.stock||[]));
       if(data.rentals!==undefined)localStorage.setItem('rmi_rentals',JSON.stringify(data.rentals||[]));
       if(data.logs!==undefined)localStorage.setItem('rmi_logs',JSON.stringify(data.logs||[]));
       if(data.hol!==undefined)localStorage.setItem('rmi_hol',JSON.stringify(data.hol||[]));
       window.dispatchEvent(new CustomEvent('firebase-updated'));
-    } else {location.reload();}
+    }catch(e){}
   },{onlyOnce:true});
 };
 </script>
