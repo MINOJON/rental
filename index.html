@@ -2843,6 +2843,13 @@ document.addEventListener('visibilitychange',function(){
 // 30초마다 자동 갱신
 setInterval(function(){if(window.fbForceSync) window.fbForceSync();},30000);
 
+// 같은 기기 다른 탭에서 저장 시 즉각 반영
+window.addEventListener('storage',function(e){
+  if(e.key==='rmi_rentals'||e.key==='rmi_stock'||e.key==='rmi_logs'||e.key==='rmi_hol'){
+    window.dispatchEvent(new CustomEvent('firebase-updated'));
+  }
+});
+
 // Firebase 실시간 업데이트 수신
 window.addEventListener('firebase-updated',function(){
   let st=document.getElementById('sync-toast-el');
