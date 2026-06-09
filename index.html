@@ -2850,8 +2850,22 @@ window.addEventListener('storage',function(e){
   }
 });
 
-// Firebase 실시간 업데이트 수신
+// Firebase 실시간 업데이트 수신 → DB 업데이트 + 화면 갱신
 window.addEventListener('firebase-updated',function(){
+  var fresh=dbLoad();
+  DB.stock=fresh.stock;
+  DB.rentals=fresh.rentals;
+  DB.hol=fresh.hol;
+  DB.logs=fresh.logs;
+  if(typeof invCache!=='undefined'){invCache={};schedCache={};}
+  render();
+  if(typeof curTab!=='undefined'){
+    if(curTab==='products')renderProducts();
+    if(curTab==='logs')renderLogs();
+  }
+  const now=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+  const sl=document.getElementById('save-lbl');
+  if(sl)sl.textContent='동기화됨 '+now;
   let st=document.getElementById('sync-toast-el');
   if(!st){
     st=document.createElement('div');
