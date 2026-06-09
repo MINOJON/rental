@@ -2764,7 +2764,13 @@ function applySearch(){
   ld.innerHTML='<div style="font-size:36px">📦</div><div style="font-size:14px;color:var(--text2);font-weight:600">데이터 불러오는 중...</div>';
   document.body.appendChild(ld);
   // 5초 후에도 로딩 중이면 강제 제거
-  setTimeout(function(){var e=document.getElementById('fb-loading');if(e)e.remove();render();},5000);
+  setTimeout(function(){
+    var e=document.getElementById('fb-loading');
+    if(e){
+      e.remove();
+      try{render();}catch(err){console.error('render error:',err);}
+    }
+  },5000);
 })();
 initSearch();
 initFixedHScroll();
@@ -2836,11 +2842,10 @@ function applyFirebaseData(d){
   DB.logs=d.logs||[];
   if(typeof invCache!=='undefined'){invCache={};schedCache={};}
   if(d.isFirst) runMigrations();
-  render();
-  if(typeof curTab!=='undefined'){
-    if(curTab==='products')renderProducts();
-    if(curTab==='logs')renderLogs();
-  }
+  // render 에러가 나도 로딩 화면은 반드시 제거
+  try{render();}catch(e){console.error('render error:',e);}
+  try{if(typeof curTab!=='undefined'){if(curTab==='products')renderProducts();if(curTab==='logs')renderLogs();}}catch(e){}
+  // 로딩 화면 제거
   const ld=document.getElementById('fb-loading');
   if(ld)ld.remove();
   const sl=document.getElementById('save-lbl');
