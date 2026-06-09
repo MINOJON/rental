@@ -1254,14 +1254,12 @@ function render(){
 
   let gi=document.getElementById('gi');
   if(!gi){
-    console.warn('gi not found, creating...');
     const gw=document.querySelector('.gantt-wrap');
     if(gw){
       gi=document.createElement('div');
       gi.className='gantt-inner';gi.id='gi';
       gw.appendChild(gi);
     } else {
-      console.error('gantt-wrap not found');
       return;
     }
   }
@@ -2854,17 +2852,7 @@ function forceRefresh(){
 // Firebase 실시간 업데이트 수신
 // Firebase → DB 직접 갱신 → 화면 자동 업데이트
 // Firebase 데이터 수신 → DB 업데이트 + 화면 갱신
-function applyFirebaseData(d, tries){
-  tries=tries||0;
-  // DOM이 아직 준비 안 됐으면 최대 10회 재시도
-  if(!document.querySelector('.gantt-wrap')){
-    if(tries<10){
-      setTimeout(function(){applyFirebaseData(d,tries+1);},200);
-    } else {
-      console.error('DOM not ready after retries');
-    }
-    return;
-  }
+function applyFirebaseData(d){
   DB.stock=d.stock||[];
   DB.rentals=d.rentals||[];
   DB.hol=d.hol||[];
