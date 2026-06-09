@@ -2887,7 +2887,8 @@ function applyFirebaseData(d){
   }
 }
 window.addEventListener('firebase-data',function(e){
-  applyFirebaseData(e.detail);
+  // DOM이 완전히 준비된 후 실행 보장
+  setTimeout(function(){applyFirebaseData(e.detail);},0);
 });
 
 // Firebase가 비어있을 때 → localStorage 데이터를 Firebase에 업로드
