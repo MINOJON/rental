@@ -753,15 +753,12 @@ const fbDb=getDatabase(fbApp);
 const DATA_REF=ref(fbDb,'rental_data');
 
 var fbReady=false;
-var myTs=0;
 
-// Firebase 변경 직접 감지 (삭제 포함 모든 변경 즉시 반영)
+// Firebase 변경 즉시 감지 → 항상 반영 (100% 실시간)
 onValue(DATA_REF,function(snap){
   fbReady=true;
   var data=snap.val();
   if(!data)return;
-  // 내가 방금 저장한 것이면 무시
-  if(data.ts&&data.ts===myTs)return;
   try{
     if(data.stock!==undefined)localStorage.setItem('rmi_stock',JSON.stringify(data.stock||[]));
     if(data.rentals!==undefined)localStorage.setItem('rmi_rentals',JSON.stringify(data.rentals||[]));
@@ -771,25 +768,23 @@ onValue(DATA_REF,function(snap){
   }catch(e){}
 });
 
-// 저장 → localStorage + Firebase
+// 저장
 window.fbSave=function(dbData){
   if(!fbReady){
     setTimeout(function(){if(window.fbSave&&fbReady)window.fbSave(dbData);},1000);
     return;
   }
-  myTs=Date.now();
   set(DATA_REF,{
     stock:dbData.stock||[],
     rentals:dbData.rentals||[],
     hol:dbData.hol||[],
     logs:dbData.logs||[],
-    ts:myTs
+    ts:Date.now()
   }).catch(function(){});
 };
 
 // 🔄 강제 동기화
 window.fbForceSync=function(){
-  myTs=0;
   onValue(DATA_REF,function(snap){
     var data=snap.val();
     if(!data){location.reload();return;}
@@ -2840,25 +2835,16 @@ function forceRefresh(){
   });
 })();
 
+// ── 자동 동기화 보완 ──
+// 앱으로 돌아올 때 자동 갱신
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='visible'&&window.fbForceSync) window.fbForceSync();
+});
+// 30초마다 자동 갱신
+setInterval(function(){if(window.fbForceSync) window.fbForceSync();},30000);
+
 // Firebase 실시간 업데이트 수신
 window.addEventListener('firebase-updated',function(){
-  // DB 완전 교체 (Object.assign 대신 각 배열 직접 교체)
-  var fresh=dbLoad();
-  DB.stock=fresh.stock;
-  DB.rentals=fresh.rentals;
-  DB.hol=fresh.hol;
-  DB.logs=fresh.logs;
-  // 캐시 초기화 후 화면 갱신
-  if(typeof invCache!=='undefined')invCache={};
-  if(typeof schedCache!=='undefined')schedCache={};
-  render();
-  if(curTab==='products')renderProducts();
-  if(curTab==='logs')renderLogs();
-  // 저장 시간 표시
-  const now=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
-  const sl=document.getElementById('save-lbl');
-  if(sl)sl.textContent='동기화됨 '+now;
-  // 토스트
   let st=document.getElementById('sync-toast-el');
   if(!st){
     st=document.createElement('div');
