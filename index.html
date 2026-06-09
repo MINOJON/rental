@@ -365,10 +365,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 <body style="display:flex;flex-direction:column;height:100%;overflow:hidden">
 
 <div id="cal-bd"></div>
-<div id="fb-loading" style="position:fixed;top:0;left:0;right:0;bottom:0;background:#f0f2f8;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px">
-  <div style="font-size:48px">📦</div>
-  <div style="font-size:16px;font-weight:700;color:#2563EB">렌탈 통합 관리</div>
-  <div class="cal-popup" id="cal-rent"></div>
+<div class="cal-popup" id="cal-rent"></div>
 <div class="cal-popup" id="cal-send"></div>
 <div class="cal-popup" id="cal-recv"></div>
 <div class="cal-popup" id="cal-apPick"></div>
@@ -739,7 +736,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 <!-- Firebase -->
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-import{getDatabase,ref,set,onValue}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
+import{getDatabase,ref,set,onValue,get}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
 
 const firebaseConfig={
   apiKey:"AIzaSyAWoVD6FoCyAvQAlAfmqb_qigPXb-kxNC0",
@@ -755,36 +752,89 @@ const fbApp=initializeApp(firebaseConfig);
 const fbDb=getDatabase(fbApp);
 const DATA_REF=ref(fbDb,'rental_data');
 
-var fbReady=false;
-var myTs=0;
+// 기기 고유 ID (이 기기에서 저장한 건지 구분용)
+var DEV_ID=localStorage.getItem('rmi_dev_id')||(function(){
+  var id=Math.random().toString(36).slice(2)+Date.now().toString(36);
+  localStorage.setItem('rmi_dev_id',id);
+  return id;
+})();
 
-onValue(DATA_REF,function(snap){
-  fbReady=true;
-  var data=snap.val();
-  if(!data)return;
-  if(data.ts&&data.ts===myTs)return;
-  try{
-    if(data.stock!==undefined)localStorage.setItem('rmi_stock',JSON.stringify(data.stock||[]));
-    if(data.rentals!==undefined)localStorage.setItem('rmi_rentals',JSON.stringify(data.rentals||[]));
-    if(data.logs!==undefined)localStorage.setItem('rmi_logs',JSON.stringify(data.logs||[]));
-    if(data.hol!==undefined)localStorage.setItem('rmi_hol',JSON.stringify(data.hol||[]));
-    window.dispatchEvent(new CustomEvent('firebase-updated'));
-  }catch(e){}
+var fbReady=false;
+var DEV_ID2=localStorage.getItem('rmi_dev_id')||(function(){
+  var id=Math.random().toString(36).slice(2)+Date.now().toString(36);
+  localStorage.setItem('rmi_dev_id',id);
+  return id;
+})();
+
+var SIGNAL_REF=ref(fbDb,'rental_signal');
+
+// 신호 수신 → get()으로 최신 데이터 강제 읽기
+onValue(SIGNAL_REF,function(snap){
+  var sig=snap.val();
+  if(!sig||sig.devId===DEV_ID2)return;
+  get(DATA_REF).then(function(ds){
+    var data=ds.val();
+    if(!data)return;
+    try{
+      if(data.stock!==undefined)localStorage.setItem('rmi_stock',JSON.stringify(data.stock||[]));
+      if(data.rentals!==undefined)localStorage.setItem('rmi_rentals',JSON.stringify(data.rentals||[]));
+      if(data.logs!==undefined)localStorage.setItem('rmi_logs',JSON.stringify(data.logs||[]));
+      if(data.hol!==undefined)localStorage.setItem('rmi_hol',JSON.stringify(data.hol||[]));
+      window.dispatchEvent(new CustomEvent('firebase-updated'));
+    }catch(e){}
+  }).catch(function(){});
 });
 
+// 초기 fbReady 설정
+onValue(DATA_REF,function(){fbReady=true;});
+
+// 저장 → Firebase + 신호 발송
 window.fbSave=function(dbData){
   if(!fbReady){
     setTimeout(function(){if(window.fbSave&&fbReady)window.fbSave(dbData);},1000);
     return;
   }
-  myTs=Date.now();
+  var ts=Date.now();
   set(DATA_REF,{
     stock:dbData.stock||[],
     rentals:dbData.rentals||[],
-    hol:dbData.hol||[],
     logs:dbData.logs||[],
-    ts:myTs
+    hol:dbData.hol||[],
+    ts:ts,devId:DEV_ID2
+  }).then(function(){
+    set(SIGNAL_REF,{ts:ts,devId:DEV_ID2});
   }).catch(function(){});
+};
+
+// 강제 새로고침
+window.fbForceSync=function(){
+  get(DATA_REF).then(function(ds){
+    var data=ds.val();
+    if(data){
+      if(data.stock!==undefined)localStorage.setItem('rmi_stock',JSON.stringify(data.stock||[]));
+      if(data.rentals!==undefined)localStorage.setItem('rmi_rentals',JSON.stringify(data.rentals||[]));
+      if(data.logs!==undefined)localStorage.setItem('rmi_logs',JSON.stringify(data.logs||[]));
+      if(data.hol!==undefined)localStorage.setItem('rmi_hol',JSON.stringify(data.hol||[]));
+      window.dispatchEvent(new CustomEvent('firebase-updated'));
+    } else {location.reload();}
+  }).catch(function(){location.reload();});
+};
+
+
+// 강제 최신 데이터 읽기
+window.fbForceSync=function(){
+  get(DATA_REF).then(function(snap){
+    var data=snap.val();
+    if(data){
+      if(data.stock!==undefined)localStorage.setItem('rmi_stock',JSON.stringify(data.stock||[]));
+      if(data.rentals!==undefined)localStorage.setItem('rmi_rentals',JSON.stringify(data.rentals||[]));
+      if(data.logs!==undefined)localStorage.setItem('rmi_logs',JSON.stringify(data.logs||[]));
+      if(data.hol!==undefined)localStorage.setItem('rmi_hol',JSON.stringify(data.hol||[]));
+      window.dispatchEvent(new CustomEvent('firebase-updated'));
+    } else {
+      location.reload();
+    }
+  }).catch(function(){location.reload();});
 };
 </script>
 
@@ -846,19 +896,32 @@ const MNAMES=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10
   }
 })();
 const KS='rmi_stock',KR='rmi_rentals',KHL='rmi_hol',KLG='rmi_logs',KLY='rmi_layout';
-
 function dbLoad(){
   try{
+    const s=JSON.parse(localStorage.getItem(KS)||'null');
+    const r=JSON.parse(localStorage.getItem(KR)||'null');
+    const h=JSON.parse(localStorage.getItem(KHL)||'null');
+    const lg=JSON.parse(localStorage.getItem(KLG)||'null');
     return{
-      stock:JSON.parse(localStorage.getItem(KS)||'[]'),
-      rentals:JSON.parse(localStorage.getItem(KR)||'[]'),
-      hol:JSON.parse(localStorage.getItem(KHL)||'[]'),
-      logs:JSON.parse(localStorage.getItem(KLG)||'[]')
+      stock: s||[
+        {id:'s1',name:'마리오 #1',model:'파워업밴드-마리오',total:1,cat:'게임기',qrId:'BAND-M-001',count:0,note:''},
+        {id:'s2',name:'마리오 #2',model:'파워업밴드-마리오',total:1,cat:'게임기',qrId:'BAND-M-002',count:0,note:''},
+        {id:'s3',name:'루이지 #1',model:'파워업밴드-루이지',total:1,cat:'게임기',qrId:'BAND-L-001',count:0,note:''},
+        {id:'s4',name:'요시 #1',model:'파워업밴드-요시',total:1,cat:'게임기',qrId:'BAND-Y-001',count:0,note:''},
+        {id:'s5',name:'요시 #2',model:'파워업밴드-요시',total:1,cat:'게임기',qrId:'BAND-Y-002',count:0,note:''},
+        {id:'s6',name:'A7C #1',model:'소니 A7C',total:1,cat:'카메라',qrId:'CAM-001',count:0,note:''},
+        {id:'s7',name:'맥북에어 M3 #1',model:'맥북 에어 M3',total:1,cat:'노트북',qrId:'MAC-001',count:0,note:''},
+      ],
+      rentals: r||[
+        {id:'r1',cust:'김민준',items:[{sid:'s6',qty:1}],start:'2026-05-05',end:'2026-05-12',ship:'both',ss:'2026-05-03',se:'2026-05-04',vs:'2026-05-13',ve:'2026-05-14',apPick:'',apRet:'',apMemo:'',memo:'',done:false},
+        {id:'r2',cust:'이서연',items:[{sid:'s7',qty:1}],start:'2026-05-06',end:'2026-05-15',ship:'airport',ss:'',se:'',vs:'',ve:'',apPick:'09:30',apRet:'22:00',apAirportPick:'인천공항 T1',apAirportRet:'인천공항 T1',apMemo:'',memo:'',done:false},
+        {id:'r3',cust:'박준혁',items:[{sid:'s1',qty:1},{sid:'s3',qty:1},{sid:'s4',qty:1}],start:'2026-05-08',end:'2026-05-14',ship:'both',ss:'2026-05-06',se:'2026-05-07',vs:'2026-05-15',ve:'2026-05-16',apPick:'',apRet:'',apMemo:'',memo:'',done:false},
+      ],
+      hol: h||[],
+      logs: lg||[],
     };
   }catch(e){return{stock:[],rentals:[],hol:[],logs:[]};}
 }
-let DB=dbLoad();
-
 function dbSave(){
   try{
     localStorage.setItem(KS,JSON.stringify(DB.stock));
@@ -867,11 +930,12 @@ function dbSave(){
     localStorage.setItem(KLG,JSON.stringify(DB.logs));
     const t=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
     localStorage.setItem('rmi_saved_at',t);
-    const sl=document.getElementById('save-lbl');
-    if(sl)sl.textContent='저장됨 '+t;
+    document.getElementById('save-lbl').textContent='저장됨 '+t;
+    // Firebase 실시간 동기화
     if(typeof window.fbSave==='function') window.fbSave(DB);
   }catch(e){}
 }
+let DB=dbLoad();
 
 /* ===== 제품 종류 정의 ===== */
 const MODELS=[
@@ -897,54 +961,54 @@ DB.stock.forEach(s=>{
   if(!s.type) s.type=s.qrId?'qr':'normal';
 });
 // normal 제품 합치기: 같은 model의 QR 없는 유닛들 → 1개 항목(total 합산)
-function runMigrations(){
-  if(localStorage.getItem('rmi_mig_v3')!=='1'){
-    const qrItems=[],normalMap={};
-    DB.stock.forEach(s=>{
-      if(s.qrId||s.type==='qr'){
-        s.type='qr';s.total=1;
-        qrItems.push(s);
+if(localStorage.getItem('rmi_mig_v3')!=='1'){
+  const qrItems=[],normalMap={};
+  DB.stock.forEach(s=>{
+    if(s.qrId||s.type==='qr'){
+      s.type='qr';s.total=1;
+      qrItems.push(s);
+    } else {
+      const m=s.model||'기타';
+      if(!normalMap[m]){
+        normalMap[m]={id:s.id,model:m,type:'normal',qrId:'',total:s.total||1,count:s.count||0,note:s.note||''};
       } else {
-        const m=s.model||'기타';
-        if(!normalMap[m]){
-          normalMap[m]={id:s.id,model:m,type:'normal',qrId:'',total:s.total||1,count:s.count||0,note:s.note||''};
-        } else {
-          normalMap[m].total+=(s.total||1);
-          normalMap[m].count+=(s.count||0);
-          const oldId=s.id,newId=normalMap[m].id;
-          DB.rentals.forEach(r=>{r.items.forEach(it=>{if(it.sid===oldId)it.sid=newId;});});
-          DB.logs.forEach(l=>{if(l.sid===oldId)l.sid=newId;});
-        }
+        normalMap[m].total+=(s.total||1);
+        normalMap[m].count+=(s.count||0);
+        // 기존 대여/로그의 sid를 대표 id로 교체
+        const oldId=s.id,newId=normalMap[m].id;
+        DB.rentals.forEach(r=>{r.items.forEach(it=>{if(it.sid===oldId)it.sid=newId;});});
+        DB.logs.forEach(l=>{if(l.sid===oldId)l.sid=newId;});
+      }
+    }
+  });
+  DB.stock=[...qrItems,...Object.values(normalMap)];
+  try{localStorage.setItem('rmi_mig_v3','1');dbSave();}catch(e){}
+}
+// ── 마이그레이션 v4: QR items → model+qty+units 구조 ──
+if(localStorage.getItem('rmi_mig_v4')!=='1'){
+  DB.rentals.forEach(r=>{
+    const qrGroups={},newItems=[];
+    (r.items||[]).forEach(it=>{
+      // 이미 새 구조 (type 있음) → 그대로 유지
+      if(it.type==='qr'){newItems.unshift(it);return;}
+      if(it.type==='normal'){newItems.push(it);return;}
+      // 구 구조 (sid 기반)
+      const s=it.sid?DB.stock.find(x=>x.id===it.sid):null;
+      if(s&&s.type==='qr'){
+        if(!qrGroups[s.model])qrGroups[s.model]={qty:0,units:[]};
+        qrGroups[s.model].qty+=it.qty||1;
+        qrGroups[s.model].units.push(it.sid);
+      } else {
+        newItems.push(it);
       }
     });
-    DB.stock=[...qrItems,...Object.values(normalMap)];
-    localStorage.setItem('rmi_mig_v3','1');
-    dbSave();
-  }
-  if(localStorage.getItem('rmi_mig_v4')!=='1'){
-    DB.rentals.forEach(r=>{
-      const qrGroups={},newItems=[];
-      (r.items||[]).forEach(it=>{
-        if(it.type==='qr'){newItems.unshift(it);return;}
-        if(it.type==='normal'){newItems.push(it);return;}
-        const s=it.sid?DB.stock.find(x=>x.id===it.sid):null;
-        if(s&&s.type==='qr'){
-          if(!qrGroups[s.model])qrGroups[s.model]={qty:0,units:[]};
-          qrGroups[s.model].qty+=it.qty||1;
-          qrGroups[s.model].units.push(it.sid);
-        } else {
-          newItems.push(it);
-        }
-      });
-      Object.keys(qrGroups).forEach(model=>{
-        const g=qrGroups[model];
-        newItems.unshift({model,type:'qr',qty:g.qty,units:g.units,sid:null});
-      });
-      r.items=newItems;
+    Object.keys(qrGroups).forEach(model=>{
+      const g=qrGroups[model];
+      newItems.unshift({model,type:'qr',qty:g.qty,units:g.units,sid:null});
     });
-    localStorage.setItem('rmi_mig_v4','1');
-    dbSave();
-  }
+    r.items=newItems;
+  });
+  try{localStorage.setItem('rmi_mig_v4','1');dbSave();}catch(e){}
 }
 
 // 모델 카드 펼침 상태 (메모리에만)
@@ -960,10 +1024,8 @@ function applyCss(){
   const root=document.documentElement.style;
   root.setProperty('--col',COL_W+'px');
   root.setProperty('--row-h',ROW_H+'px');
-  const cv=document.getElementById('col-val');
-  const rv=document.getElementById('row-val');
-  if(cv)cv.textContent=COL_W+'px';
-  if(rv)rv.textContent=ROW_H+'px';
+  document.getElementById('col-val').textContent=COL_W+'px';
+  document.getElementById('row-val').textContent=ROW_H+'px';
 }
 
 /* ===== TAB ===== */
@@ -1150,9 +1212,10 @@ function render(){
   const today=clr(new Date()),days=monthDays();
   const todayIdx=days.findIndex(d=>same(d,today));
   const sorted=sortRentals();
-  const ml=document.getElementById('mon-lbl');if(ml)ml.textContent=VY+'년 '+(VM+1)+'월';
-  const tl=document.getElementById('today-lbl');if(tl)tl.textContent=`${today.getFullYear()}년 ${today.getMonth()+1}월 ${today.getDate()}일 ${DAYS[today.getDay()]}`;
-  // 저장 시간은 Firebase 동기화 시 업데이트됨
+  document.getElementById('mon-lbl').textContent=VY+'년 '+(VM+1)+'월';
+  document.getElementById('today-lbl').textContent=`${today.getFullYear()}년 ${today.getMonth()+1}월 ${today.getDate()}일 ${DAYS[today.getDay()]}`;
+  const savedAt=localStorage.getItem('rmi_saved_at');
+  if(savedAt)document.getElementById('save-lbl').textContent='저장됨 '+savedAt;
 
   // ── 성능 최적화: 날짜별 캐시 미리 계산 (1회) ──
   const invCache={}, schedCache={};
@@ -1246,17 +1309,7 @@ function render(){
   });
   h+='</div>';
 
-  let gi=document.getElementById('gi');
-  if(!gi){
-    const gw=document.querySelector('.gantt-wrap');
-    if(gw){
-      gi=document.createElement('div');
-      gi.className='gantt-inner';gi.id='gi';
-      gw.appendChild(gi);
-    } else {
-      return;
-    }
-  }
+  const gi=document.getElementById('gi');
   gi.innerHTML=h;
   applyCss();
   updateHScrollWidth();
@@ -1402,8 +1455,7 @@ function holOpen(){
   modalOpen('modal-hol');
 }
 function holRender(){
-  var _gi_hol_list=document.getElementById('hol-list');if(_gi_hol_list)_gi_hol_list.innerHTML=DB.hol.length===0
-
+  document.getElementById('hol-list').innerHTML=DB.hol.length===0
     ?'<p style="font-size:12px;color:var(--text3);padding:6px 0">등록된 휴무일 없음</p>'
     :DB.hol.sort((a,b)=>a.date.localeCompare(b.date)).map(h=>`<div class="hol-row"><span>${h.date}${h.memo?' ('+h.memo+')':''}</span><button data-del-hol="${h.date}">삭제</button></div>`).join('');
 }
@@ -1412,7 +1464,7 @@ function holRender(){
 let editId=null;
 function rentalAdd(){
   editId=null;
-  var _el_rental_title=document.getElementById('rental-title');if(_el_rental_title)_el_rental_title.textContent='대여 등록';
+  document.getElementById('rental-title').textContent='대여 등록';
   document.getElementById('btn-del').classList.add('hide');
   document.getElementById('btn-done').classList.add('hide');
   document.getElementById('btn-undone').classList.add('hide');
@@ -1437,7 +1489,7 @@ function rentalAdd(){
 function rentalEdit(id){
   const r=DB.rentals.find(x=>x.id===id);if(!r)return;
   editId=id;
-  var _el_rental_title=document.getElementById('rental-title');if(_el_rental_title)_el_rental_title.textContent='대여 수정';
+  document.getElementById('rental-title').textContent='대여 수정';
   document.getElementById('btn-del').classList.remove('hide');
   document.getElementById('btn-done').classList.toggle('hide',r.done);
   document.getElementById('btn-undone').classList.toggle('hide',!r.done);
@@ -1666,7 +1718,7 @@ function addItemByQrId(qrId){
 function dayOpen(dstr){
   const d=new Date(dstr+'T00:00:00');
   const hol=isHol(dp(dstr)),hn=holName(dp(dstr));
-  var _el_day_title=document.getElementById('day-title');if(_el_day_title)_el_day_title.textContent=(d.getMonth()+1)+'월'+d.getDate()+'일 ('+DAYS[d.getDay()]+')'+(hol?' 🔴'+hn:'');
+  document.getElementById('day-title').textContent=(d.getMonth()+1)+'월'+d.getDate()+'일 ('+DAYS[d.getDay()]+')'+(hol?' 🔴'+hn:'');
   const scheds=getScheds(dstr),inv=calcInv(dstr),dd=clr(dp(dstr));
   let h='';
   if(hol)h+=`<div style="background:var(--red-l);color:var(--red);padding:9px 12px;border-radius:7px;font-size:13px;font-weight:600;margin-bottom:10px">🔴 ${hn||'휴무일'}</div>`;
@@ -1705,8 +1757,7 @@ function dayOpen(dstr){
       h+=`<div class="day-item"><div style="width:9px;height:9px;border-radius:50%;background:${scol(r.ship)};flex-shrink:0"></div><div style="flex:1;min-width:0"><div style="font-size:12px">${r.cust}${r.phone?' <span style="color:var(--text3)">'+r.phone+'</span>':''}</div>${r.addr?'<div style="font-size:10px;color:var(--text3)">'+r.addr+'</div>':''}<div style="font-size:11px;color:var(--text2)">${isum(r)}</div></div><span style="font-size:11px;font-weight:700;color:${pc};flex-shrink:0">${phase}</span></div>`;
     });
   }
-  var _gi_day_content=document.getElementById('day-content');if(_gi_day_content)_gi_day_content.innerHTML=h;
-
+  document.getElementById('day-content').innerHTML=h;
   modalOpen('modal-day');
 }
 
@@ -1963,7 +2014,7 @@ function renderProducts(){
 function openModelDetail(modelName){
   const stats=getModelStats(modelName);
   const units=DB.stock.filter(s=>s.model===modelName);
-  var _el_pdet_title=document.getElementById('pdet-title');if(_el_pdet_title)_el_pdet_title.textContent=modelName+' — 전체 현황';
+  document.getElementById('pdet-title').textContent=modelName+' — 전체 현황';
   document.getElementById('pdet-edit-btn').classList.add('hide');
   let h=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
     <div style="background:var(--card2);border-radius:12px;padding:16px 8px;text-align:center">
@@ -1983,8 +2034,7 @@ function openModelDetail(modelName){
     📊 누적 대여 <strong style="color:var(--blue)">${stats.count}회</strong>
     &nbsp;·&nbsp; 유닛 ${units.length}개 등록
   </div>`;
-  var _gi_pdet_body=document.getElementById('pdet-body');if(_gi_pdet_body)_gi_pdet_body.innerHTML=h;
-
+  document.getElementById('pdet-body').innerHTML=h;
   modalOpen('modal-prod-detail');
 }
 
@@ -2015,7 +2065,7 @@ function pfModelChange(){
 }
 function openProdAdd(preFillModel){
   editProdId=null;
-  var _el_prod_title=document.getElementById('prod-title');if(_el_prod_title)_el_prod_title.textContent='제품 추가';
+  document.getElementById('prod-title').textContent='제품 추가';
   document.getElementById('pf-del').classList.add('hide');
   document.getElementById('pf-del-confirm').classList.add('hide');
   document.getElementById('pf-model').value=preFillModel||'';
@@ -2028,7 +2078,7 @@ function openProdAdd(preFillModel){
 function openProdEdit(id){
   const s=DB.stock.find(x=>x.id===id);if(!s)return;
   editProdId=id;
-  var _el_prod_title=document.getElementById('prod-title');if(_el_prod_title)_el_prod_title.textContent='제품 수정';
+  document.getElementById('prod-title').textContent='제품 수정';
   document.getElementById('pf-del').classList.remove('hide');
   document.getElementById('pf-del-confirm').classList.add('hide');
   document.getElementById('pf-model').value=s.model||'';
@@ -2086,7 +2136,7 @@ function doDeleteProd(){
 
 function openProdDetail(id){
   const s=DB.stock.find(x=>x.id===id);if(!s)return;
-  var _el_pdet_title=document.getElementById('pdet-title');if(_el_pdet_title)_el_pdet_title.textContent=s.model||'?';
+  document.getElementById('pdet-title').textContent=s.model||'?';
   const pLogs=DB.logs.filter(l=>l.sid===id).slice().reverse().slice(0,20);
   const inv=calcInv(ds(clr(new Date())));
   const left=inv[s.id]??(s.total||1);
@@ -2121,8 +2171,7 @@ function openProdDetail(id){
       <div style="flex:1;font-size:12px"><div>${l.cust||'-'}</div><div style="font-size:10px;color:var(--text3)">${fmtDt(l.date)}</div></div>
     </div>`;
   });
-  var _gi_pdet_body=document.getElementById('pdet-body');if(_gi_pdet_body)_gi_pdet_body.innerHTML=h;
-
+  document.getElementById('pdet-body').innerHTML=h;
   document.getElementById('pdet-edit-btn').onclick=function(){modalClose('modal-prod-detail');openProdEdit(id);};
   modalOpen('modal-prod-detail');
 }
@@ -2132,8 +2181,8 @@ let qrGenCvs=null,qrGenName='';
 function openQrGen(id){
   const s=DB.stock.find(x=>x.id===id);if(!s||!s.qrId)return;
   qrGenName=s.qrId;
-  var _el_qrgen_title=document.getElementById('qrgen-title');if(_el_qrgen_title)_el_qrgen_title.textContent=s.name+' — QR코드';
-  var _el_qrgen_sub=document.getElementById('qrgen-sub');if(_el_qrgen_sub)_el_qrgen_sub.textContent='QR ID: '+s.qrId;
+  document.getElementById('qrgen-title').textContent=s.name+' — QR코드';
+  document.getElementById('qrgen-sub').textContent='QR ID: '+s.qrId;
   const wrap=document.getElementById('qrgen-wrap');
   wrap.innerHTML='';qrGenCvs=null;
   modalOpen('modal-qr-gen');
@@ -2169,9 +2218,8 @@ let lastScanId=null, lastScanTime=0; // 같은 QR 중복 인식 방지용 디바
 function qrOpen(mode){
   qrMode=mode;
   lastScanId=null; lastScanTime=0;
-  var _el_qr_pop_title=document.getElementById('qr-pop-title');if(_el_qr_pop_title)_el_qr_pop_title.textContent=mode==='prodId'?'제품 QR ID 입력':'대여 품목 QR 스캔';
-  var _gi_qr_pop_hint=document.getElementById('qr-pop-hint');if(_gi_qr_pop_hint)_gi_qr_pop_hint.innerHTML=mode==='prodId'?'제품에 부착된 QR을 스캔하면<br>ID가 자동 입력됩니다':'제품 QR을 한 번 스캔하면<br>품목에 자동 추가되고 닫힙니다';
-
+  document.getElementById('qr-pop-title').textContent=mode==='prodId'?'제품 QR ID 입력':'대여 품목 QR 스캔';
+  document.getElementById('qr-pop-hint').innerHTML=mode==='prodId'?'제품에 부착된 QR을 스캔하면<br>ID가 자동 입력됩니다':'제품 QR을 한 번 스캔하면<br>품목에 자동 추가되고 닫힙니다';
   document.getElementById('qr-manual-input').value='';
   document.getElementById('qr-bd').style.display='block';
   document.getElementById('qr-pop').classList.add('open');
@@ -2213,8 +2261,7 @@ function qrOpen(mode){
 }
 // PWA/권한 문제 시 카메라 촬영으로 QR 인식
 function qrOpenFileFallback(){
-  var _gi_qr_pop_hint=document.getElementById('qr-pop-hint');if(_gi_qr_pop_hint)_gi_qr_pop_hint.innerHTML='📷 아래 버튼으로 카메라를 열어<br>QR 코드를 촬영해주세요';
-
+  document.getElementById('qr-pop-hint').innerHTML='📷 아래 버튼으로 카메라를 열어<br>QR 코드를 촬영해주세요';
   // 기존 file input 있으면 제거
   const old=document.getElementById('qr-file-input');if(old)old.remove();
   const input=document.createElement('input');
@@ -2503,7 +2550,7 @@ let shipRentalId=null,shipItemIdx=null,shipUnitIdx=null;
 function openShipModal(rentalId){
   const r=DB.rentals.find(x=>x.id===rentalId);if(!r)return;
   shipRentalId=rentalId;
-  var _el_ship_cust_lbl=document.getElementById('ship-cust-lbl');if(_el_ship_cust_lbl)_el_ship_cust_lbl.textContent=r.cust+'님 / 대여기간 '+fmtMon(r.start)+'~'+fmtMon(r.end);
+  document.getElementById('ship-cust-lbl').textContent=r.cust+'님 / 대여기간 '+fmtMon(r.start)+'~'+fmtMon(r.end);
   renderShipItems(r);
   modalOpen('modal-ship');
 }
@@ -2541,11 +2588,10 @@ function renderShipItems(r){
       h+='</div>';
     });
   }
-  var _gi_ship_items_list=document.getElementById('ship-items-list');if(_gi_ship_items_list)_gi_ship_items_list.innerHTML=h;
-
+  document.getElementById('ship-items-list').innerHTML=h;
   // 모두 출고됐는지 확인
   const allDone=qrItems.every(it=>(it.units?it.units.filter(Boolean).length:0)>=it.qty);
-  var _el_btn_ship_complete=document.getElementById('btn-ship-complete');if(_el_btn_ship_complete)_el_btn_ship_complete.textContent=allDone?'✅ 출고 완료 처리':'⚠️ 일부 미스캔 — 강제 완료';
+  document.getElementById('btn-ship-complete').textContent=allDone?'✅ 출고 완료 처리':'⚠️ 일부 미스캔 — 강제 완료';
 }
 function openShipScan(rentalId,itemIdx,unitIdx){
   shipRentalId=rentalId;shipItemIdx=itemIdx;shipUnitIdx=unitIdx;
@@ -2763,7 +2809,7 @@ function applySearch(){
     row.style.display=match?'':'none';
     if(match)vis++;
   });
-  var _el_search_count=document.getElementById('search-count');if(_el_search_count)_el_search_count.textContent=searchQuery?`${vis}건`:'';
+  document.getElementById('search-count').textContent=searchQuery?`${vis}건`:'';
 }
 
 /* ===== INIT ===== */
@@ -2776,8 +2822,8 @@ showFixedHScroll(true);
 function forceRefresh(){
   const btn=document.querySelector('[onclick="forceRefresh()"]');
   if(btn)btn.style.animation='spin 0.6s linear';
-  if(window.fbForceSync)window.fbForceSync();
-  else location.reload();
+  // 페이지 완전 새로 로드 → Firebase에서 최신 데이터 확실하게 수신
+  setTimeout(()=>location.reload(),300);
 }
 
 // ── 당겨서 새로고침 (Pull to Refresh) ──
@@ -2828,15 +2874,25 @@ function forceRefresh(){
   });
 })();
 
-// Firebase 실시간 업데이트 수신 → localStorage 갱신 → 화면 업데이트
+// Firebase 실시간 업데이트 수신
 window.addEventListener('firebase-updated',function(){
-  Object.assign(DB,dbLoad());
-  if(typeof invCache!=='undefined'){invCache={};schedCache={};}
+  // DB 완전 교체 (Object.assign 대신 각 배열 직접 교체)
+  var fresh=dbLoad();
+  DB.stock=fresh.stock;
+  DB.rentals=fresh.rentals;
+  DB.hol=fresh.hol;
+  DB.logs=fresh.logs;
+  // 캐시 초기화 후 화면 갱신
+  if(typeof invCache!=='undefined')invCache={};
+  if(typeof schedCache!=='undefined')schedCache={};
   render();
-  if(typeof curTab!=='undefined'){
-    if(curTab==='products')renderProducts();
-    if(curTab==='logs')renderLogs();
-  }
+  if(curTab==='products')renderProducts();
+  if(curTab==='logs')renderLogs();
+  // 저장 시간 표시
+  const now=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+  const sl=document.getElementById('save-lbl');
+  if(sl)sl.textContent='동기화됨 '+now;
+  // 토스트
   let st=document.getElementById('sync-toast-el');
   if(!st){
     st=document.createElement('div');
