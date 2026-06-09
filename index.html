@@ -2854,7 +2854,17 @@ function forceRefresh(){
 // Firebase 실시간 업데이트 수신
 // Firebase → DB 직접 갱신 → 화면 자동 업데이트
 // Firebase 데이터 수신 → DB 업데이트 + 화면 갱신
-function applyFirebaseData(d){
+function applyFirebaseData(d, tries){
+  tries=tries||0;
+  // DOM이 아직 준비 안 됐으면 최대 10회 재시도
+  if(!document.querySelector('.gantt-wrap')){
+    if(tries<10){
+      setTimeout(function(){applyFirebaseData(d,tries+1);},200);
+    } else {
+      console.error('DOM not ready after retries');
+    }
+    return;
+  }
   DB.stock=d.stock||[];
   DB.rentals=d.rentals||[];
   DB.hol=d.hol||[];
@@ -2887,8 +2897,7 @@ function applyFirebaseData(d){
   }
 }
 window.addEventListener('firebase-data',function(e){
-  // DOM이 완전히 준비된 후 실행 보장
-  setTimeout(function(){applyFirebaseData(e.detail);},0);
+  applyFirebaseData(e.detail);
 });
 
 // Firebase가 비어있을 때 → localStorage 데이터를 Firebase에 업로드
