@@ -751,8 +751,9 @@ const firebaseConfig={
 const fbApp=initializeApp(firebaseConfig);
 const fbDb=getDatabase(fbApp);
 const DATA_REF=ref(fbDb,'rental_data');
+const SIGNAL_REF=ref(fbDb,'rental_signal');
 
-// 기기 고유 ID (이 기기에서 저장한 건지 구분용)
+// 기기 고유 ID
 var DEV_ID=localStorage.getItem('rmi_dev_id')||(function(){
   var id=Math.random().toString(36).slice(2)+Date.now().toString(36);
   localStorage.setItem('rmi_dev_id',id);
@@ -760,18 +761,12 @@ var DEV_ID=localStorage.getItem('rmi_dev_id')||(function(){
 })();
 
 var fbReady=false;
-var DEV_ID2=localStorage.getItem('rmi_dev_id')||(function(){
-  var id=Math.random().toString(36).slice(2)+Date.now().toString(36);
-  localStorage.setItem('rmi_dev_id',id);
-  return id;
-})();
+var myTs=0;
 
-var SIGNAL_REF=ref(fbDb,'rental_signal');
-
-// 신호 수신 → get()으로 최신 데이터 강제 읽기
+// 신호 수신 → get()으로 최신 데이터 강제 읽기 (삭제 포함 모든 변경 반영)
 onValue(SIGNAL_REF,function(snap){
   var sig=snap.val();
-  if(!sig||sig.devId===DEV_ID2)return;
+  if(!sig||sig.devId===DEV_ID)return;
   get(DATA_REF).then(function(ds){
     var data=ds.val();
     if(!data)return;
@@ -785,43 +780,29 @@ onValue(SIGNAL_REF,function(snap){
   }).catch(function(){});
 });
 
-// 초기 fbReady 설정
+// fbReady 설정
 onValue(DATA_REF,function(){fbReady=true;});
 
-// 저장 → Firebase + 신호 발송
+// 저장 → Firebase 저장 완료 후 신호 발송
 window.fbSave=function(dbData){
   if(!fbReady){
     setTimeout(function(){if(window.fbSave&&fbReady)window.fbSave(dbData);},1000);
     return;
   }
-  var ts=Date.now();
+  myTs=Date.now();
   set(DATA_REF,{
     stock:dbData.stock||[],
     rentals:dbData.rentals||[],
     logs:dbData.logs||[],
     hol:dbData.hol||[],
-    ts:ts,devId:DEV_ID2
+    ts:myTs,devId:DEV_ID
   }).then(function(){
-    set(SIGNAL_REF,{ts:ts,devId:DEV_ID2});
+    // 저장 완료 확인 후 신호 발송 (삭제도 확실히 반영)
+    set(SIGNAL_REF,{ts:myTs,devId:DEV_ID});
   }).catch(function(){});
 };
 
-// 강제 새로고침
-window.fbForceSync=function(){
-  get(DATA_REF).then(function(ds){
-    var data=ds.val();
-    if(data){
-      if(data.stock!==undefined)localStorage.setItem('rmi_stock',JSON.stringify(data.stock||[]));
-      if(data.rentals!==undefined)localStorage.setItem('rmi_rentals',JSON.stringify(data.rentals||[]));
-      if(data.logs!==undefined)localStorage.setItem('rmi_logs',JSON.stringify(data.logs||[]));
-      if(data.hol!==undefined)localStorage.setItem('rmi_hol',JSON.stringify(data.hol||[]));
-      window.dispatchEvent(new CustomEvent('firebase-updated'));
-    } else {location.reload();}
-  }).catch(function(){location.reload();});
-};
-
-
-// 강제 최신 데이터 읽기
+// 🔄 버튼 강제 동기화
 window.fbForceSync=function(){
   get(DATA_REF).then(function(snap){
     var data=snap.val();
@@ -831,9 +812,7 @@ window.fbForceSync=function(){
       if(data.logs!==undefined)localStorage.setItem('rmi_logs',JSON.stringify(data.logs||[]));
       if(data.hol!==undefined)localStorage.setItem('rmi_hol',JSON.stringify(data.hol||[]));
       window.dispatchEvent(new CustomEvent('firebase-updated'));
-    } else {
-      location.reload();
-    }
+    } else {location.reload();}
   }).catch(function(){location.reload();});
 };
 </script>
@@ -888,28 +867,11 @@ const MNAMES=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10
   });
   const mfEl=document.getElementById('pwa-manifest');
   if(mfEl)mfEl.href=URL.createObjectURL(new Blob([mf],{type:'application/manifest+json'}));
-  // Service Worker (오프라인 캐시)
+  // Service Worker 완전 제거 (캐시 문제 방지)
   if('serviceWorker' in navigator){
-    const sw='const C="rental-v2";'
-      +'self.addEventListener("install",function(){self.skipWaiting();});'
-      +'self.addEventListener("activate",function(){clients.claim();});'
-      +'self.addEventListener("fetch",function(e){'
-      +'  if(e.request.method==="GET"){'
-      +'    e.respondWith(caches.open(C).then(function(c){'
-      +'      return c.match(e.request).then(function(r){'
-      +'        return r||fetch(e.request).then(function(res){'
-      +'          if(res.status===200)c.put(e.request,res.clone());'
-      +'          return res;'
-      +'        }).catch(function(){return r;});'
-      +'      });'
-      +'    }));'
-      +'  }'
-      +'});';
-    try{
-      navigator.serviceWorker.register(
-        URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))
-      ).catch(()=>{});
-    }catch(e){}
+    navigator.serviceWorker.getRegistrations().then(function(regs){
+      regs.forEach(function(r){r.unregister();});
+    });
   }
 })();
 const KS='rmi_stock',KR='rmi_rentals',KHL='rmi_hol',KLG='rmi_logs',KLY='rmi_layout';
@@ -2892,12 +2854,20 @@ function forceRefresh(){
 })();
 
 // Firebase 실시간 업데이트 수신
-window.addEventListener('firebase-updated',()=>{
-  Object.assign(DB,dbLoad());
+window.addEventListener('firebase-updated',function(){
+  // DB 완전 교체 (Object.assign 대신 각 배열 직접 교체)
+  var fresh=dbLoad();
+  DB.stock=fresh.stock;
+  DB.rentals=fresh.rentals;
+  DB.hol=fresh.hol;
+  DB.logs=fresh.logs;
+  // 캐시 초기화 후 화면 갱신
+  if(typeof invCache!=='undefined')invCache={};
+  if(typeof schedCache!=='undefined')schedCache={};
   render();
   if(curTab==='products')renderProducts();
   if(curTab==='logs')renderLogs();
-  // 저장 시간 표시 업데이트
+  // 저장 시간 표시
   const now=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
   const sl=document.getElementById('save-lbl');
   if(sl)sl.textContent='동기화됨 '+now;
@@ -2912,7 +2882,7 @@ window.addEventListener('firebase-updated',()=>{
   st.textContent='🔄 다른 기기에서 업데이트됨';
   st.style.display='block';st.style.opacity='1';
   clearTimeout(st._t);
-  st._t=setTimeout(()=>{st.style.opacity='0';setTimeout(()=>{st.style.display='none';},300);},3000);
+  st._t=setTimeout(function(){st.style.opacity='0';setTimeout(function(){st.style.display='none';},300);},3000);
 });
 </script>
 </body>
