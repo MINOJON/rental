@@ -1253,6 +1253,7 @@ function render(){
   h+='</div>';
 
   const gi=document.getElementById('gi');
+  if(!gi)return;
   gi.innerHTML=h;
   applyCss();
   updateHScrollWidth();
@@ -1398,7 +1399,8 @@ function holOpen(){
   modalOpen('modal-hol');
 }
 function holRender(){
-  document.getElementById('hol-list').innerHTML=DB.hol.length===0
+  var _gi_hol_list=document.getElementById('hol-list');if(_gi_hol_list)_gi_hol_list.innerHTML=DB.hol.length===0
+
     ?'<p style="font-size:12px;color:var(--text3);padding:6px 0">등록된 휴무일 없음</p>'
     :DB.hol.sort((a,b)=>a.date.localeCompare(b.date)).map(h=>`<div class="hol-row"><span>${h.date}${h.memo?' ('+h.memo+')':''}</span><button data-del-hol="${h.date}">삭제</button></div>`).join('');
 }
@@ -1700,7 +1702,8 @@ function dayOpen(dstr){
       h+=`<div class="day-item"><div style="width:9px;height:9px;border-radius:50%;background:${scol(r.ship)};flex-shrink:0"></div><div style="flex:1;min-width:0"><div style="font-size:12px">${r.cust}${r.phone?' <span style="color:var(--text3)">'+r.phone+'</span>':''}</div>${r.addr?'<div style="font-size:10px;color:var(--text3)">'+r.addr+'</div>':''}<div style="font-size:11px;color:var(--text2)">${isum(r)}</div></div><span style="font-size:11px;font-weight:700;color:${pc};flex-shrink:0">${phase}</span></div>`;
     });
   }
-  document.getElementById('day-content').innerHTML=h;
+  var _gi_day_content=document.getElementById('day-content');if(_gi_day_content)_gi_day_content.innerHTML=h;
+
   modalOpen('modal-day');
 }
 
@@ -1977,7 +1980,8 @@ function openModelDetail(modelName){
     📊 누적 대여 <strong style="color:var(--blue)">${stats.count}회</strong>
     &nbsp;·&nbsp; 유닛 ${units.length}개 등록
   </div>`;
-  document.getElementById('pdet-body').innerHTML=h;
+  var _gi_pdet_body=document.getElementById('pdet-body');if(_gi_pdet_body)_gi_pdet_body.innerHTML=h;
+
   modalOpen('modal-prod-detail');
 }
 
@@ -2114,7 +2118,8 @@ function openProdDetail(id){
       <div style="flex:1;font-size:12px"><div>${l.cust||'-'}</div><div style="font-size:10px;color:var(--text3)">${fmtDt(l.date)}</div></div>
     </div>`;
   });
-  document.getElementById('pdet-body').innerHTML=h;
+  var _gi_pdet_body=document.getElementById('pdet-body');if(_gi_pdet_body)_gi_pdet_body.innerHTML=h;
+
   document.getElementById('pdet-edit-btn').onclick=function(){modalClose('modal-prod-detail');openProdEdit(id);};
   modalOpen('modal-prod-detail');
 }
@@ -2162,7 +2167,8 @@ function qrOpen(mode){
   qrMode=mode;
   lastScanId=null; lastScanTime=0;
   var _el_qr_pop_title=document.getElementById('qr-pop-title');if(_el_qr_pop_title)_el_qr_pop_title.textContent=mode==='prodId'?'제품 QR ID 입력':'대여 품목 QR 스캔';
-  document.getElementById('qr-pop-hint').innerHTML=mode==='prodId'?'제품에 부착된 QR을 스캔하면<br>ID가 자동 입력됩니다':'제품 QR을 한 번 스캔하면<br>품목에 자동 추가되고 닫힙니다';
+  var _gi_qr_pop_hint=document.getElementById('qr-pop-hint');if(_gi_qr_pop_hint)_gi_qr_pop_hint.innerHTML=mode==='prodId'?'제품에 부착된 QR을 스캔하면<br>ID가 자동 입력됩니다':'제품 QR을 한 번 스캔하면<br>품목에 자동 추가되고 닫힙니다';
+
   document.getElementById('qr-manual-input').value='';
   document.getElementById('qr-bd').style.display='block';
   document.getElementById('qr-pop').classList.add('open');
@@ -2204,7 +2210,8 @@ function qrOpen(mode){
 }
 // PWA/권한 문제 시 카메라 촬영으로 QR 인식
 function qrOpenFileFallback(){
-  document.getElementById('qr-pop-hint').innerHTML='📷 아래 버튼으로 카메라를 열어<br>QR 코드를 촬영해주세요';
+  var _gi_qr_pop_hint=document.getElementById('qr-pop-hint');if(_gi_qr_pop_hint)_gi_qr_pop_hint.innerHTML='📷 아래 버튼으로 카메라를 열어<br>QR 코드를 촬영해주세요';
+
   // 기존 file input 있으면 제거
   const old=document.getElementById('qr-file-input');if(old)old.remove();
   const input=document.createElement('input');
@@ -2531,7 +2538,8 @@ function renderShipItems(r){
       h+='</div>';
     });
   }
-  document.getElementById('ship-items-list').innerHTML=h;
+  var _gi_ship_items_list=document.getElementById('ship-items-list');if(_gi_ship_items_list)_gi_ship_items_list.innerHTML=h;
+
   // 모두 출고됐는지 확인
   const allDone=qrItems.every(it=>(it.units?it.units.filter(Boolean).length:0)>=it.qty);
   var _el_btn_ship_complete=document.getElementById('btn-ship-complete');if(_el_btn_ship_complete)_el_btn_ship_complete.textContent=allDone?'✅ 출고 완료 처리':'⚠️ 일부 미스캔 — 강제 완료';
