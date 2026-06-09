@@ -758,29 +758,20 @@ const DATA_REF=ref(fbDb,'rental_data');
 var fbReady=false;
 var myTs=0;
 
-// Firebase 변경 즉시 감지 → 모든 기기 자동 갱신
 onValue(DATA_REF,function(snap){
-  var isFirst=!fbReady;
   fbReady=true;
   var data=snap.val();
-  // Firebase가 비어있으면 → localStorage 데이터 업로드 요청
-  if(!data){
-    window.dispatchEvent(new CustomEvent('firebase-empty'));
-    return;
-  }
-  // 내가 방금 저장한 것 → 화면 갱신 생략 (이미 반영됨)
-  if(!isFirst&&data.ts&&data.ts===myTs)return;
-  // DB 업데이트 + 화면 갱신
-  window.dispatchEvent(new CustomEvent('firebase-data',{detail:{
-    stock:data.stock||[],
-    rentals:data.rentals||[],
-    hol:data.hol||[],
-    logs:data.logs||[],
-    isFirst:isFirst
-  }}));
+  if(!data)return;
+  if(data.ts&&data.ts===myTs)return;
+  try{
+    if(data.stock!==undefined)localStorage.setItem('rmi_stock',JSON.stringify(data.stock||[]));
+    if(data.rentals!==undefined)localStorage.setItem('rmi_rentals',JSON.stringify(data.rentals||[]));
+    if(data.logs!==undefined)localStorage.setItem('rmi_logs',JSON.stringify(data.logs||[]));
+    if(data.hol!==undefined)localStorage.setItem('rmi_hol',JSON.stringify(data.hol||[]));
+    window.dispatchEvent(new CustomEvent('firebase-updated'));
+  }catch(e){}
 });
 
-// Firebase에 저장
 window.fbSave=function(dbData){
   if(!fbReady){
     setTimeout(function(){if(window.fbSave&&fbReady)window.fbSave(dbData);},1000);
@@ -794,18 +785,6 @@ window.fbSave=function(dbData){
     logs:dbData.logs||[],
     ts:myTs
   }).catch(function(){});
-};
-
-// 🔄 버튼 강제 동기화
-window.fbForceSync=function(){
-  myTs=0; // ts 리셋 → 내 데이터도 강제 반영
-  onValue(DATA_REF,function(snap){
-    var data=snap.val();
-    if(data)window.dispatchEvent(new CustomEvent('firebase-data',{detail:{
-      stock:data.stock||[],rentals:data.rentals||[],hol:data.hol||[],logs:data.logs||[]
-    }}));
-    else location.reload();
-  },{onlyOnce:true});
 };
 </script>
 
@@ -866,17 +845,32 @@ const MNAMES=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10
     });
   }
 })();
-const KLY='rmi_layout'; // localStorage는 개인설정(열너비/행높이)만
+const KS='rmi_stock',KR='rmi_rentals',KHL='rmi_hol',KLG='rmi_logs',KLY='rmi_layout';
 
-// DB는 빈 상태로 시작 → Firebase onValue에서 채워짐
-let DB={stock:[],rentals:[],hol:[],logs:[]};
+function dbLoad(){
+  try{
+    return{
+      stock:JSON.parse(localStorage.getItem(KS)||'[]'),
+      rentals:JSON.parse(localStorage.getItem(KR)||'[]'),
+      hol:JSON.parse(localStorage.getItem(KHL)||'[]'),
+      logs:JSON.parse(localStorage.getItem(KLG)||'[]')
+    };
+  }catch(e){return{stock:[],rentals:[],hol:[],logs:[]};}
+}
+let DB=dbLoad();
 
 function dbSave(){
-  // Firebase에만 저장 (localStorage X)
-  if(typeof window.fbSave==='function') window.fbSave(DB);
-  const t=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
-  const sl=document.getElementById('save-lbl');
-  if(sl)sl.textContent='저장됨 '+t;
+  try{
+    localStorage.setItem(KS,JSON.stringify(DB.stock));
+    localStorage.setItem(KR,JSON.stringify(DB.rentals));
+    localStorage.setItem(KHL,JSON.stringify(DB.hol));
+    localStorage.setItem(KLG,JSON.stringify(DB.logs));
+    const t=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+    localStorage.setItem('rmi_saved_at',t);
+    const sl=document.getElementById('save-lbl');
+    if(sl)sl.textContent='저장됨 '+t;
+    if(typeof window.fbSave==='function') window.fbSave(DB);
+  }catch(e){}
 }
 
 /* ===== 제품 종류 정의 ===== */
@@ -2773,22 +2767,7 @@ function applySearch(){
 }
 
 /* ===== INIT ===== */
-// Firebase 로드 전 로딩 화면 표시
-(function(){
-  var ld=document.createElement('div');
-  ld.id='fb-loading';
-  ld.style.cssText='position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;gap:12px';
-  ld.innerHTML='<div style="font-size:36px">📦</div><div style="font-size:14px;color:var(--text2);font-weight:600">데이터 불러오는 중...</div>';
-  document.body.appendChild(ld);
-  // 5초 후에도 로딩 중이면 강제 제거
-  setTimeout(function(){
-    var e=document.getElementById('fb-loading');
-    if(e){
-      e.remove();
-      try{render();}catch(err){console.error('render error:',err);}
-    }
-  },5000);
-})();
+render();
 initSearch();
 initFixedHScroll();
 showFixedHScroll(true);
@@ -2849,61 +2828,26 @@ function forceRefresh(){
   });
 })();
 
-// Firebase 실시간 업데이트 수신
-// Firebase → DB 직접 갱신 → 화면 자동 업데이트
-// Firebase 데이터 수신 → DB 업데이트 + 화면 갱신
-function applyFirebaseData(d){
-  DB.stock=d.stock||[];
-  DB.rentals=d.rentals||[];
-  DB.hol=d.hol||[];
-  DB.logs=d.logs||[];
+// Firebase 실시간 업데이트 수신 → localStorage 갱신 → 화면 업데이트
+window.addEventListener('firebase-updated',function(){
+  Object.assign(DB,dbLoad());
   if(typeof invCache!=='undefined'){invCache={};schedCache={};}
-  if(d.isFirst) runMigrations();
-  // render 에러가 나도 로딩 화면은 반드시 제거
-  try{render();}catch(e){console.error('render error:',e);}
-  try{if(typeof curTab!=='undefined'){if(curTab==='products')renderProducts();if(curTab==='logs')renderLogs();}}catch(e){}
-  // 로딩 화면 제거
-  const ld=document.getElementById('fb-loading');
-  if(ld)ld.remove();
-  const sl=document.getElementById('save-lbl');
-  if(sl&&!d.isFirst){
-    const t=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
-    sl.textContent='동기화됨 '+t;
-  }
-  if(!d.isFirst){
-    let st=document.getElementById('sync-toast-el');
-    if(!st){
-      st=document.createElement('div');
-      st.id='sync-toast-el';
-      st.style.cssText='position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:#1a3a2a;color:#4ade80;font-size:13px;font-weight:600;padding:10px 20px;border-radius:20px;z-index:9999;white-space:nowrap;border:1px solid #22c55e66;box-shadow:0 4px 12px rgba(0,0,0,.2)';
-      document.body.appendChild(st);
-    }
-    st.textContent='🔄 다른 기기에서 업데이트됨';
-    st.style.display='block';st.style.opacity='1';
-    clearTimeout(st._t);
-    st._t=setTimeout(function(){st.style.opacity='0';setTimeout(function(){st.style.display='none';},300);},3000);
-  }
-}
-window.addEventListener('firebase-data',function(e){
-  applyFirebaseData(e.detail);
-});
-
-// Firebase가 비어있을 때 → localStorage 데이터를 Firebase에 업로드
-window.addEventListener('firebase-empty',function(){
-  var ld=document.getElementById('fb-loading');if(ld)ld.remove();
-  // 기존 localStorage 데이터가 있으면 Firebase로 이전
-  try{
-    var stock=JSON.parse(localStorage.getItem('rmi_stock')||'[]');
-    var rentals=JSON.parse(localStorage.getItem('rmi_rentals')||'[]');
-    var hol=JSON.parse(localStorage.getItem('rmi_hol')||'[]');
-    var logs=JSON.parse(localStorage.getItem('rmi_logs')||'[]');
-    DB.stock=stock;DB.rentals=rentals;DB.hol=hol;DB.logs=logs;
-    if(typeof window.fbSave==='function')window.fbSave(DB);
-  }catch(e){}
-  runMigrations();
   render();
-  if(curTab==='products')renderProducts();
-  if(curTab==='logs')renderLogs();
+  if(typeof curTab!=='undefined'){
+    if(curTab==='products')renderProducts();
+    if(curTab==='logs')renderLogs();
+  }
+  let st=document.getElementById('sync-toast-el');
+  if(!st){
+    st=document.createElement('div');
+    st.id='sync-toast-el';
+    st.style.cssText='position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:#1a3a2a;color:#4ade80;font-size:13px;font-weight:600;padding:10px 20px;border-radius:20px;z-index:9999;white-space:nowrap;border:1px solid #22c55e66;box-shadow:0 4px 12px rgba(0,0,0,.2)';
+    document.body.appendChild(st);
+  }
+  st.textContent='🔄 다른 기기에서 업데이트됨';
+  st.style.display='block';st.style.opacity='1';
+  clearTimeout(st._t);
+  st._t=setTimeout(function(){st.style.opacity='0';setTimeout(function(){st.style.display='none';},300);},3000);
 });
 </script>
 </body>
