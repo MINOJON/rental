@@ -1252,8 +1252,19 @@ function render(){
   });
   h+='</div>';
 
-  const gi=document.getElementById('gi');
-  if(!gi)return;
+  let gi=document.getElementById('gi');
+  if(!gi){
+    console.warn('gi not found, creating...');
+    const gw=document.querySelector('.gantt-wrap');
+    if(gw){
+      gi=document.createElement('div');
+      gi.className='gantt-inner';gi.id='gi';
+      gw.appendChild(gi);
+    } else {
+      console.error('gantt-wrap not found');
+      return;
+    }
+  }
   gi.innerHTML=h;
   applyCss();
   updateHScrollWidth();
