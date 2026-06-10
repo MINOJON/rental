@@ -1304,6 +1304,14 @@ function calOpen(key){
   if(openCalKey&&openCalKey!==key)document.getElementById('cal-'+openCalKey).classList.remove('open');
   const popup=document.getElementById('cal-'+key);
   if(popup.classList.contains('open')){calClose();return;}
+  // 공항 수령: 대여 시작일 달로 이동
+  if(key==='apPick'&&CSTATE.rent.s){
+    const d=clr(CSTATE.rent.s);CSTATE.apPick.y=d.getFullYear();CSTATE.apPick.m=d.getMonth();
+  }
+  // 공항 반납: 대여 종료일 달로 이동
+  if(key==='apRet'&&CSTATE.rent.e){
+    const d=clr(CSTATE.rent.e);CSTATE.apRet.y=d.getFullYear();CSTATE.apRet.m=d.getMonth();
+  }
   openCalKey=key;calBuild(key);popup.classList.add('open');
   document.getElementById('cal-bd').style.display='block';
 }
@@ -1382,10 +1390,24 @@ function calBuild(key){
       else if(previewCls&&!iS&&!iE&&!inR) cls+=' '+previewCls; // apPick/apRet: 색 표시는 하되 클릭 가능
       const hn=(DB.hol.find(h=>h.date===dstr)||{}).memo||KH[dstr]||'';
       const hnlbl=hn?`<span style="font-size:8px;display:block;line-height:1">${hn.slice(0,4)}</span>`:'';
-      const noClick=isPreviewOnly;
+      const noClick=isPreviewOnly
+        ||(key==='apPick'&&prevRent&&prevRent.s&&cur.getTime()!==prevRent.s.getTime())
+        ||(key==='apRet'&&prevRent&&prevRent.e&&cur.getTime()!==prevRent.e.getTime());
       const clickAttr=noClick?'':`data-cal-day="${key}|${dstr}"`;
-      const cursorStyle=noClick?'style="cursor:default"':'';
-      const apAttr=apStyle?`style="${apStyle}"`:'';
+      // 공항 달력: 선택 가능 날짜 강조, 불가 날짜 흐리게
+      let apLimitStyle='';
+      if((key==='apPick'||key==='apRet')&&!isPreviewOnly){
+        const targetDate=(key==='apPick')?prevRent&&prevRent.s:prevRent&&prevRent.e;
+        if(targetDate){
+          if(cur.getTime()===targetDate.getTime()){
+            apLimitStyle='outline:2.5px solid #00cc44;outline-offset:-2px;border-radius:8px;background:rgba(0,204,0,.7);font-weight:800;color:#000;';
+          } else {
+            apLimitStyle='opacity:.15;cursor:not-allowed;';
+          }
+        }
+      }
+      const cursorStyle=noClick&&!apLimitStyle?'style="cursor:default"':'';
+      const apAttr=apStyle?`style="${apStyle}"`:apLimitStyle?`style="${apLimitStyle}"`:'';
       grid+=`<div class="${cls}" ${clickAttr} ${cursorStyle}${apAttr?` ${apAttr}`:''}>${day}${hnlbl}</div>`;
     }
     const prevBtn=mi===0?`<button data-cal-nav="${key}|-1">&#8592;</button>`:'<span></span>';
