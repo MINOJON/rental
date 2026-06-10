@@ -604,6 +604,8 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
   <div class="modal-btns">
     <button class="mbtn mbtn-danger hide" id="btn-del" onclick="showDelConfirm()">삭제</button>
     <button class="mbtn hide" id="btn-ship" onclick="openShipModal(editId)" style="background:#00aa44;color:#fff">📦 출고 QR</button>
+    <button class="mbtn hide" id="btn-shipped-on" onclick="doMarkShippedSimple()" style="background:#e65c00;color:#fff">📦 출고 완료</button>
+    <button class="mbtn hide" id="btn-shipped-off" onclick="doUnmarkShipped()" style="background:#888;color:#fff">↩ 출고 취소</button>
     <button class="mbtn mbtn-success hide" id="btn-done" onclick="doMarkDone()">✓ 반납완료</button>
     <button class="mbtn mbtn-amber hide" id="btn-undone" onclick="doUndoDone()">↩ 반납완료 취소</button>
     <button class="mbtn" onclick="modalClose('modal-rental')">취소</button>
@@ -1456,7 +1458,10 @@ function rentalEdit(id){
   document.getElementById('btn-done').classList.toggle('hide',r.done);
   document.getElementById('btn-undone').classList.toggle('hide',!r.done);
   const hasQr=r.items.some(it=>it.type==='qr');
-  document.getElementById('btn-ship').classList.toggle('hide',!hasQr||r.done);
+  document.getElementById('btn-ship').classList.toggle('hide',!hasQr||r.done||r.shipped);
+  // 출고 완료/취소 버튼: 반납완료 아닐 때만
+  document.getElementById('btn-shipped-on').classList.toggle('hide',r.done||r.shipped);
+  document.getElementById('btn-shipped-off').classList.toggle('hide',r.done||!r.shipped);
   document.getElementById('f-cust').value=r.cust;
   document.getElementById('f-phone').value=formatPhone(r.phone||'');
   document.getElementById('f-addr').value=r.addr||'';
@@ -2597,6 +2602,20 @@ function doMarkShipped(){
   r.shipped=true;
   dbSave();modalClose('modal-ship');render();
   toast('📦 출고 완료 처리됨');
+}
+// 일반 제품 포함 출고 완료
+function doMarkShippedSimple(){
+  const r=DB.rentals.find(x=>x.id===editId);if(!r)return;
+  r.shipped=true;
+  dbSave();modalClose('modal-rental');render();
+  toast('📦 출고 완료 처리됨');
+}
+// 출고 취소
+function doUnmarkShipped(){
+  const r=DB.rentals.find(x=>x.id===editId);if(!r)return;
+  r.shipped=false;
+  dbSave();modalClose('modal-rental');render();
+  toast('↩ 출고 취소됨');
 }
 function initFixedHScroll(){
   const wrap=document.querySelector('.gantt-wrap');
