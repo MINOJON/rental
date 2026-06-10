@@ -739,7 +739,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 <!-- Firebase -->
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-import{getDatabase,ref,set,onValue}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
+import{getDatabase,ref,set,onValue,get}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
 
 const firebaseConfig={
   apiKey:"AIzaSyAWoVD6FoCyAvQAlAfmqb_qigPXb-kxNC0",
@@ -783,6 +783,20 @@ window.fbSave=function(dbData){
     hol:dbData.hol||[],
     logs:dbData.logs||[],
     ts:Date.now()
+  }).then(function(){
+    // 저장 완료 후 get()으로 최신 데이터 강제 재확인
+    // → 다른 기기에서 onValue가 즉시 감지 못한 경우 보완
+    get(DATA_REF).then(function(snap){
+      var data=snap.val();
+      if(!data)return;
+      try{
+        if(data.stock!==undefined)localStorage.setItem('rmi_stock',JSON.stringify(data.stock||[]));
+        if(data.rentals!==undefined)localStorage.setItem('rmi_rentals',JSON.stringify(data.rentals||[]));
+        if(data.logs!==undefined)localStorage.setItem('rmi_logs',JSON.stringify(data.logs||[]));
+        if(data.hol!==undefined)localStorage.setItem('rmi_hol',JSON.stringify(data.hol||[]));
+        window.dispatchEvent(new CustomEvent('firebase-updated'));
+      }catch(e){}
+    }).catch(function(){});
   }).catch(function(){});
 };
 
