@@ -771,10 +771,10 @@ onValue(DATA_REF,function(snap){
   var data=snap.val();
   if(!data)return;
   try{
-    if(data.stock!==undefined)localStorage.setItem('rmi_stock',JSON.stringify(data.stock||[]));
-    if(data.rentals!==undefined)localStorage.setItem('rmi_rentals',JSON.stringify(data.rentals||[]));
-    if(data.logs!==undefined)localStorage.setItem('rmi_logs',JSON.stringify(data.logs||[]));
-    if(data.hol!==undefined)localStorage.setItem('rmi_hol',JSON.stringify(data.hol||[]));
+    localStorage.setItem('rmi_stock',JSON.stringify(data.stock||[]));
+    localStorage.setItem('rmi_rentals',JSON.stringify(data.rentals||[]));
+    localStorage.setItem('rmi_logs',JSON.stringify(data.logs||[]));
+    localStorage.setItem('rmi_hol',JSON.stringify(data.hol||[]));
     window.dispatchEvent(new CustomEvent('firebase-updated'));
   }catch(e){}
 });
@@ -787,10 +787,10 @@ onValue(SIGNAL_REF,function(snap){
     var data=ds.val();
     if(!data)return;
     try{
-      if(data.stock!==undefined)localStorage.setItem('rmi_stock',JSON.stringify(data.stock||[]));
-      if(data.rentals!==undefined)localStorage.setItem('rmi_rentals',JSON.stringify(data.rentals||[]));
-      if(data.logs!==undefined)localStorage.setItem('rmi_logs',JSON.stringify(data.logs||[]));
-      if(data.hol!==undefined)localStorage.setItem('rmi_hol',JSON.stringify(data.hol||[]));
+      localStorage.setItem('rmi_stock',JSON.stringify(data.stock||[]));
+      localStorage.setItem('rmi_rentals',JSON.stringify(data.rentals||[]));
+      localStorage.setItem('rmi_logs',JSON.stringify(data.logs||[]));
+      localStorage.setItem('rmi_hol',JSON.stringify(data.hol||[]));
       window.dispatchEvent(new CustomEvent('firebase-updated'));
     }catch(e){}
   }).catch(function(){});
@@ -820,10 +820,10 @@ window.fbForceSync=function(){
     var data=snap.val();
     if(!data){location.reload();return;}
     try{
-      if(data.stock!==undefined)localStorage.setItem('rmi_stock',JSON.stringify(data.stock||[]));
-      if(data.rentals!==undefined)localStorage.setItem('rmi_rentals',JSON.stringify(data.rentals||[]));
-      if(data.logs!==undefined)localStorage.setItem('rmi_logs',JSON.stringify(data.logs||[]));
-      if(data.hol!==undefined)localStorage.setItem('rmi_hol',JSON.stringify(data.hol||[]));
+      localStorage.setItem('rmi_stock',JSON.stringify(data.stock||[]));
+      localStorage.setItem('rmi_rentals',JSON.stringify(data.rentals||[]));
+      localStorage.setItem('rmi_logs',JSON.stringify(data.logs||[]));
+      localStorage.setItem('rmi_hol',JSON.stringify(data.hol||[]));
       window.dispatchEvent(new CustomEvent('firebase-updated'));
     }catch(e){}
   }).catch(function(){location.reload();});
