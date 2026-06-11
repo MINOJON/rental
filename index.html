@@ -104,6 +104,10 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans KR",sans-serif;back
 .g-sub{font-size:10px;color:var(--text2);line-height:1.35;margin-top:2px;word-break:break-word}
 .g-addr{font-size:10px;color:var(--text3);line-height:1.35;margin-top:2px;word-break:break-all;display:flex;gap:3px}
 .g-addr-ico{flex-shrink:0;opacity:.7}
+.group-hdr{display:flex;position:sticky;left:0;z-index:3}
+.group-hdr-lbl{width:var(--lw);min-width:var(--lw);padding:5px 12px;font-size:11px;font-weight:700;letter-spacing:.5px;background:var(--blue);color:#fff;flex-shrink:0;border-right:1px solid rgba(255,255,255,.2);display:flex;align-items:center;gap:5px}
+.group-hdr-cells{display:flex;flex:1}
+.group-hdr-cell{min-width:var(--col);width:var(--col);background:var(--blue);opacity:.25;border-right:1px solid rgba(255,255,255,.15)}
 .done-badge{display:inline-block;padding:1px 5px;border-radius:4px;font-size:9px;font-weight:600;background:var(--teal-l);color:var(--teal);margin-left:3px;vertical-align:middle}
 .shipped-badge{display:inline-block;padding:1px 5px;border-radius:4px;font-size:9px;font-weight:600;background:#fff3cd;color:#e65c00;margin-left:3px;vertical-align:middle}
 .g-cells{display:flex;position:relative;flex:1}
@@ -937,6 +941,7 @@ const MODELS=[
   {name:'파워업밴드 - 키노피오',type:'qr'},
   {name:'파워업밴드 - 피치공주',type:'qr'},
   {name:'파워업밴드 - 데이지',type:'qr'},
+  {name:'110v 에어랩',type:'normal'},
   {name:'해리포터 지팡이',type:'normal'},
   {name:'마리오 모자',type:'normal'},
   {name:'루이지 모자',type:'normal'},
@@ -1226,23 +1231,55 @@ function render(){
     h+=`<div class="${cls}" data-day="${ds(d)}"><div>${d.getDate()}</div><div class="dow">${DAYS[dow]}</div>${hn?`<span class="hol-nm">${hn.slice(0,4)}</span>`:''}</div>`;
   });
   h+='</div>';
-  if(!sorted.length)h+='<div class="empty-state">등록된 대여 내역이 없습니다.<br>+ 대여 등록 버튼을 눌러 추가하세요.</div>';
-  sorted.forEach(r=>{
+  // 에어랩 여부 판단 (모델명에 "에어랩" 포함)
+  function isAirwrap(r){
+    return (r.items||[]).some(it=>{
+      if(it.type==='qr') return it.model&&it.model.includes('에어랩');
+      const s=DB.stock.find(x=>x.id===it.sid);
+      return s&&s.model&&s.model.includes('에어랩');
+    });
+  }
+  const airwrapList=sorted.filter(r=>isAirwrap(r));
+  const universalList=sorted.filter(r=>!isAirwrap(r));
+
+  function makeGroupHdr(label,emoji){
+    let gh=`<div class="group-hdr"><div class="group-hdr-lbl">${emoji} ${label}</div><div class="group-hdr-cells">`;
+    days.forEach(()=>gh+=`<div class="group-hdr-cell"></div>`);
+    gh+='</div></div>';
+    return gh;
+  }
+  function makeRentalRow(r){
     const done=!!r.done;
-    h+=`<div class="g-row" data-rid="${r.id}">`;
-    h+=`<div class="g-lbl${done?' dimmed':''}" data-edit="${r.id}"><div class="g-dot" style="background:${scol(r.ship)}"></div><div class="g-info"><div class="g-name">${r.cust}${done?'<span class="done-badge">반납완료</span>':''}${r.shipped&&!done?'<span class="shipped-badge">출고완료</span>':''}</div>${r.phone?`<div class="g-sub">📞 ${r.phone}</div>`:''}<div class="g-sub">📅 ${fmtMon(r.start)} ~ ${fmtMon(r.end)}</div></div><div class="ord-btns"><button class="ord-btn" data-ord="${r.id}" data-dir="-1" title="위로">▲</button><button class="ord-btn" data-ord="${r.id}" data-dir="1" title="아래로">▼</button></div></div>`;
-    h+='<div class="g-cells">';
+    let row=`<div class="g-row" data-rid="${r.id}">`;
+    row+=`<div class="g-lbl${done?' dimmed':''}" data-edit="${r.id}"><div class="g-dot" style="background:${scol(r.ship)}"></div><div class="g-info"><div class="g-name">${r.cust}${done?'<span class="done-badge">반납완료</span>':''}${r.shipped&&!done?'<span class="shipped-badge">출고완료</span>':''}</div>${r.phone?`<div class="g-sub">📞 ${r.phone}</div>`:''}<div class="g-sub">📅 ${fmtMon(r.start)} ~ ${fmtMon(r.end)}</div></div><div class="ord-btns"><button class="ord-btn" data-ord="${r.id}" data-dir="-1" title="위로">▲</button><button class="ord-btn" data-ord="${r.id}" data-dir="1" title="아래로">▼</button></div></div>`;
+    row+='<div class="g-cells">';
     days.forEach(d=>{
       const dow=d.getDay(),tod=same(d,today),hol=isHol(d);
       let cls='g-cell';
       if(tod)cls+=' is-today';
       if(hol)cls+=' is-hol';else if(dow===0||dow===6)cls+=' is-wknd';
-      h+=`<div class="${cls}" style="min-height:${ROW_H}px" data-day="${ds(d)}"></div>`;
+      row+=`<div class="${cls}" style="min-height:${ROW_H}px" data-day="${ds(d)}"></div>`;
     });
-    if(todayIdx>=0)h+=`<div class="today-line" style="left:${todayIdx*COL_W}px;width:${COL_W}px"></div>`;
-    h+=makeBars(r,days);
-    h+='</div></div>';
-  });
+    if(todayIdx>=0)row+=`<div class="today-line" style="left:${todayIdx*COL_W}px;width:${COL_W}px"></div>`;
+    row+=makeBars(r,days);
+    row+='</div></div>';
+    return row;
+  }
+
+  if(!sorted.length){
+    h+='<div class="empty-state">등록된 대여 내역이 없습니다.<br>+ 대여 등록 버튼을 눌러 추가하세요.</div>';
+  } else {
+    // 에어랩 그룹
+    if(airwrapList.length){
+      h+=makeGroupHdr('에어랩','✂️');
+      airwrapList.forEach(r=>h+=makeRentalRow(r));
+    }
+    // 유니버셜 굿즈 그룹
+    if(universalList.length){
+      h+=makeGroupHdr('유니버셜 굿즈','🎮');
+      universalList.forEach(r=>h+=makeRentalRow(r));
+    }
+  }
   h+='<div class="sec-hdr"><div class="sec-hdr-lbl">📦 택배 대여 스케줄</div>';
   days.forEach(d=>h+=`<div class="sec-hdr-cell${same(d,today)?' is-today':''}"></div>`);
   h+='</div>';
